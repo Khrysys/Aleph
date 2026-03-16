@@ -103,7 +103,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
  
       - name: Check SPDX and copyright headers
         run: |
@@ -129,7 +129,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
  
       - name: Install doxygen
         run: sudo apt-get install -y doxygen
@@ -159,7 +159,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
  
       - name: Dependency review
         uses: actions/dependency-review-action@v4
