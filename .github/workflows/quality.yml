@@ -55,7 +55,6 @@ jobs:
           --error-exitcode=1 \
           --suppress=missingIncludeSystem \
           --inline-suppr \
-          --recursive \
           .
   codespell:
     name: codespell
@@ -84,11 +83,11 @@ jobs:
       - uses: actions/checkout@v4
  
       - name: Install cmake-lint
-        run: pip install cmakelang
+        run: pip install cmakelang[YAML]
  
       - name: Run cmake-lint
         run: |
-          find . -name 'CMakeLists.txt' \
+          find . \( -name 'CMakeLists.txt' -o -name '*.cmake' \) \
             -not -path './build/*' \
             -not -path './.conan/*' \
             -print0 \
