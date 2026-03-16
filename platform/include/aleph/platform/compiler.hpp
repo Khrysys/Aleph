@@ -39,13 +39,13 @@
  * Requires logging to be initialized via `aleph::platform::loggingInit()`
  * before use; behavior is undefined if called before logging is ready.
  */
-#define ALEPH_ASSERT(condition, msg)                                                           \
-    do {                                                                                       \
-        if (!(condition)) {                                                                    \
-            LOG(ERROR) << "Assertion failed: " << (msg) << " [" << __FILE__ << ":" << __LINE__ \
-                       << "]";                                                                 \
-            throw std::logic_error(msg);                                                       \
-        }                                                                                      \
+#define ALEPH_ASSERT(condition, msg)                                                                 \
+    do {                                                                                             \
+        if (!(condition)) {                                                                          \
+            ALEPH_LOG(ERROR) << "Assertion failed: " << (msg) << " [" << __FILE__ << ":" << __LINE__ \
+                       << "]";                                                                       \
+            throw std::logic_error(msg);                                                             \
+        }                                                                                            \
     } while (0)
 
 /**
@@ -78,13 +78,11 @@
  * @param msg Description of the assumption, used in the debug assertion.
  */
 #if __has_cpp_attribute(assume) >= 202207L
-    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define ALEPH_ASSUME(x, msg) [[assume(x)]] ALEPH_DEBUG_ASSERT(x, msg)
     /**
      * When defined, the `ALEPH_ASSUME` macro will emit the C++23 `[[assume]]`` attribute.
      */
     #define ALEPH_HAS_ASSUME
 #else
-    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define ALEPH_ASSUME(x, msg) ALEPH_DEBUG_ASSERT(x, msg)
 #endif

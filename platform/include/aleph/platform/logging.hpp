@@ -4,15 +4,19 @@
  */
 #pragma once
 
+#include <atomic>
+
 #include <absl/log/initialize.h>
 #include <absl/log/log.h>
+
+#define ALEPH_LOG(severity) (aleph::platform::loggingInit(), LOG(severity))
 
 namespace aleph::platform {
     namespace detail {
         /**
          * True after `loggingInit()` has been called.
          */
-        inline bool logging_ready = false;
+        inline std::atomic<bool> logging_ready{false};
     }  // namespace detail
 
     /**
@@ -27,7 +31,6 @@ namespace aleph::platform {
      * Returns true if the logging subsystem has been successfully initialized.
      */
     [[nodiscard]] inline auto isLoggingReady() noexcept -> bool;
-
 }  // namespace aleph::platform
 
 #include "logging.inl"

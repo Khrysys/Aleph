@@ -4,14 +4,16 @@
  */
 #pragma once
 
-namespace aleph::platform {
+#include <mutex>
 
+namespace aleph::platform {
     inline void loggingInit() noexcept {
-        if (detail::logging_ready) return;
-        absl::InitializeLog();
-        detail::logging_ready = true;
+        static std::once_flag flag;
+        std::call_once(flag, []() {
+            absl::InitializeLog();
+            detail::logging_ready.store(true);
+        });
     }
 
-    inline bool isLoggingReady() noexcept { return detail::logging_ready; }
-
+    inline bool isLoggingReady() noexcept { return detail::logging_ready.load(std::memory_order_relaxed); }
 }  // namespace aleph::platform

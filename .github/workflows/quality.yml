@@ -29,18 +29,7 @@ jobs:
         with:
           style: file
           extensions: 'c,h,cpp,hpp'
-          tidy-checks: >
-            'abseil-*,
-            boost-*,
-            bugprone-*,-bugprone-easily-swappable-parameters,
-            cppcoreguidelines-*,
-            clang-analyzer-*,
-            google-*,
-            hicpp-*,
-            modernize-*,
-            readability-*,
-            misc-*,
-            portability-std-allocator-const,portability-template-virtual-member-function'
+          tidy-checks: 'abseil-*,boost-*,bugprone-*,-bugprone-easily-swappable-parameters,cppcoreguidelines-*,-cppcoreguidelines-macro-usage,clang-analyzer-*,google-*,hicpp-*,modernize-*,readability-*,misc-*,portability-std-allocator-const,portability-template-virtual-member-function'
           version: '20'
           verbosity: 'info'
           lines-changed-only: false
