@@ -4,8 +4,7 @@
  */
 #pragma once
 
-#include "../logging.hpp"
-#include "init.hpp"
+#include <cstdint>
 
 namespace aleph::platform::allocation {
 
@@ -13,7 +12,7 @@ namespace aleph::platform::allocation {
      * Indicates whether an allocation was backed by large (huge) pages
      * or standard system pages.
      */
-    enum class PageSize { Standard, Large };
+    enum class PageSize : uint8_t { Standard, Large };
 
     /**
      * Result of a platform allocation.
@@ -39,13 +38,15 @@ namespace aleph::platform::allocation {
      * silently if the OS denies the request (e.g. insufficient privileges
      * on Windows, or huge pages unavailable on Linux). `AllocationResult::page_size`
      * reflects what was actually granted.
+     * 
+     * This function has undefined behavior if called before `aleph::platform::loggingInit()`.
      *
      * @param size Number of bytes to allocate. Must be a multiple of
      *             `getPageSize()` — asserted in debug builds.
      * @return AllocationResult with ptr, size, and granted page size.
      *         ptr will be nullptr on total failure.
      */
-    [[nodiscard]] AllocationResult allocate(size_t size) noexcept;
+    [[nodiscard]] auto allocate(size_t size) -> AllocationResult;
 
     /**
      * Releases memory previously returned by `allocate`.
@@ -62,10 +63,11 @@ namespace aleph::platform::allocation {
      * @param page_size The page size boundary, typically from `getPageSize()`.
      * @return Rounded size, guaranteed to be a multiple of `page_size`.
      */
-    [[nodiscard]] constexpr size_t roundToPage(size_t size, size_t page_size) noexcept {
+    [[nodiscard]] constexpr auto roundToPage(size_t size, size_t page_size) noexcept -> size_t {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 
 }  // namespace aleph::platform::allocation
 
+// NOLINTNEXTLINE
 #include "runtime.inl"

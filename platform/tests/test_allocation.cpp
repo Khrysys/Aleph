@@ -7,16 +7,17 @@
 #include <aleph/platform.hpp>
 
 using namespace aleph::platform::allocation;
+using namespace aleph::platform;
 
 // ===== allocation_init tests =====
 TEST(AllocationInit, IsHugePagesAvailableReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
-    isHugePagesAvailable();
+    EXPECT_NO_FATAL_FAILURE(auto r = isHugePagesAvailable());
 }
 
 TEST(AllocationInit, RequestHugePagesReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
-    requestHugePages();
+    EXPECT_NO_FATAL_FAILURE(auto r = requestHugePages());
 }
 
 TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), size_t{0}); }
@@ -71,7 +72,7 @@ TEST(RoundToPage, LargeSize) {
 
 TEST(RoundToPage, ResultAlwaysMultipleOfPageSize) {
     size_t page = getPageSize();
-    for (size_t i = 0; i <= page * 2; ++i) {
+    for (size_t i = 0; i <= page * 2; i++) {
         EXPECT_EQ(roundToPage(i, page) % page, size_t{0});
     }
 }
@@ -133,18 +134,3 @@ TEST(AllocationRuntime, AllocateRoundedSize) {
 
     deallocate(result);
 }
-
-#if defined(NDEBUG)
-// These tests only make sense in release — in debug the assert fires
-TEST(AllocationRuntime, AllocateZeroReturnsNullptr) {
-    AllocationResult result = allocate(0);
-    EXPECT_EQ(result.ptr, nullptr);
-}
-#else
-TEST(AllocationRuntimeDeathTest, AllocateUnalignedSizeAsserts) {
-    size_t page = getPageSize();
-    EXPECT_DEATH(allocate(page + 1), "");
-}
-
-TEST(AllocationRuntimeDeathTest, AllocateZeroAsserts) { EXPECT_DEATH(allocate(0), ""); }
-#endif

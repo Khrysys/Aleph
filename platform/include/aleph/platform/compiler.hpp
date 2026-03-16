@@ -9,6 +9,8 @@
 #include <absl/log/log.h>
 #include <boost/predef.h>
 
+#include "logging.hpp"
+
 #ifndef ALEPH_DEBUG
     #ifndef NDEBUG
         /**
@@ -59,7 +61,7 @@
  * @param x   The condition to assert.
  * @param msg Description of the assumption, used in the debug assertion.
  */
-#if defined(ALEPH_DEBUG)
+#ifdef ALEPH_DEBUG
     #define ALEPH_DEBUG_ASSERT(x, msg) ALEPH_ASSERT(condition, msg)
 #else
     #define ALEPH_DEBUG_ASSERT(x, msg) ((void)0)
@@ -76,11 +78,13 @@
  * @param msg Description of the assumption, used in the debug assertion.
  */
 #if __has_cpp_attribute(assume) >= 202207L
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define ALEPH_ASSUME(x, msg) [[assume(x)]] ALEPH_DEBUG_ASSERT(x, msg)
     /**
      * When defined, the `ALEPH_ASSUME` macro will emit the C++23 `[[assume]]`` attribute.
      */
     #define ALEPH_HAS_ASSUME
 #else
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define ALEPH_ASSUME(x, msg) ALEPH_DEBUG_ASSERT(x, msg)
 #endif

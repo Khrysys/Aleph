@@ -24,7 +24,7 @@ namespace aleph::platform {
 
         inline void print_section(const char* title) {
             std::cout << '\n' << title << '\n';
-            std::cout << std::string(PRINT_WIDTH + 6, '-') << '\n';
+            std::cout << std::string(PRINT_WIDTH, '-') << '\n';
         }
     }  // namespace detail
 
@@ -35,7 +35,7 @@ namespace aleph::platform {
         detail::print_section("Language / Feature Support");
 
         detail::print_flag("[[assume]]",
-#if defined(ALEPH_HAS_ASSUME)
+#ifdef ALEPH_HAS_ASSUME
                            true
 #else
                            false
@@ -50,14 +50,14 @@ namespace aleph::platform {
         detail::print_section("CPU Intrinsics Configuration");
 
         detail::print_flag("x86intrin.h",
-#if defined(ALEPH_HAS_X86INTRIN_H)
+#ifdef ALEPH_HAS_X86INTRIN_H
                            true
 #else
                            false
 #endif
         );
         detail::print_flag("intrin.h (MSVC)",
-#if defined(ALEPH_HAS_INTRIN_H)
+#ifdef ALEPH_HAS_INTRIN_H
                            true
 #else
                            false
@@ -65,7 +65,7 @@ namespace aleph::platform {
         );
 
         detail::print_flag("BMI2 / PEXT",
-#if defined(ALEPH_HAS_BMI2)
+#ifdef ALEPH_HAS_BMI2
                            true
 #else
                            false

@@ -7,9 +7,9 @@
 #include "../compiler.hpp"
 #include "../logging.hpp"
 
-#if defined(BOOST_OS_WINDOWS)
+#if BOOST_OS_WINDOWS
     #include <windows.h>
-#elif defined(BOOST_OS_LINUX)
+#elif BOOST_OS_LINUX
     #include <fstream>
     #include <unistd.h>
 
@@ -26,7 +26,7 @@ namespace aleph::platform::allocation {
      *
      * @return true if large pages are available on this system.
      */
-    [[nodiscard]] bool isHugePagesAvailable() noexcept;
+    [[nodiscard]] auto isHugePagesAvailable() noexcept -> bool;
 
     /**
      * Attempts to acquire the privileges necessary for large page allocation.
@@ -41,7 +41,7 @@ namespace aleph::platform::allocation {
      *
      * @return true if large pages are available and ready to use, false otherwise.
      */
-    [[nodiscard]] bool requestHugePages() noexcept;
+    [[nodiscard]] auto requestHugePages() noexcept -> bool;
 
     /**
      * Returns the preferred page size for allocations on this system.
@@ -53,8 +53,9 @@ namespace aleph::platform::allocation {
      *
      * @return Page size in bytes.
      */
-    [[nodiscard]] size_t getPageSize() noexcept;
+    [[nodiscard]] auto getPageSize() noexcept -> size_t;
 
 }  // namespace aleph::platform::allocation
 
+// NOLINTNEXTLINE
 #include "init.inl"

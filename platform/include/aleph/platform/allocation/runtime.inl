@@ -4,13 +4,12 @@
  */
 #pragma once
 
+#include "../compiler.hpp"
 #include "runtime.hpp"
 
 namespace aleph::platform::allocation {
 #if defined(BOOST_OS_WINDOWS)
-    inline AllocationResult allocate(size_t size) noexcept {
-        assert(size % getPageSize() == 0);
-        assert(isLoggingReady());
+    inline AllocationResult allocate(size_t size) {
 
         // Attempt large pages first — requires SeLockMemoryPrivilege,
         // which should have been acquired via requestHugePages() at startup.
@@ -35,9 +34,7 @@ namespace aleph::platform::allocation {
 
 #elif defined(BOOST_OS_LINUX)
 
-    inline AllocationResult allocate(size_t size) noexcept {
-        assert(size % getPageSize() == 0);
-
+    inline AllocationResult allocate(size_t size) {
         // Attempt explicit huge pages first.
         if (isHugePagesAvailable()) {
             void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE,

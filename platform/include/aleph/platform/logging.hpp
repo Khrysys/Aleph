@@ -7,8 +7,6 @@
 #include <absl/log/initialize.h>
 #include <absl/log/log.h>
 
-#include "compiler.hpp"
-
 namespace aleph::platform {
     namespace detail {
         /**
@@ -28,7 +26,7 @@ namespace aleph::platform {
     /**
      * Returns true if the logging subsystem has been successfully initialized.
      */
-    [[nodiscard]] inline bool isLoggingReady() noexcept;
+    [[nodiscard]] inline auto isLoggingReady() noexcept -> bool;
 
 }  // namespace aleph::platform
 

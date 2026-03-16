@@ -42,48 +42,50 @@ namespace aleph::platform {
          * @param mask Bitmask indicating which bits to extract.
          * @return Extracted bits packed into the low bits of the result.
          */
-        [[nodiscard]] inline constexpr uint64_t pext(uint64_t src, uint64_t mask) noexcept {
+        [[nodiscard]] constexpr auto pext(uint64_t src, uint64_t mask) noexcept -> uint64_t {
             uint64_t result = 0;
             uint64_t bit    = 1;
-            while (mask) {
-                uint64_t lowest = mask & -mask;
-                if (src & lowest) result |= bit;
+            while (mask != 0ULL) {
+                const uint64_t lowest = mask & -mask;
+                if ((src & lowest) != 0ULL) result |= bit;
                 mask  &= mask - 1;
-                bit  <<= 1;
+                bit  <<= 1U;
             }
             return result;
         }
     }  // namespace detail
 
     /**
-     * Returns the number of set bits in `x`.
+     * Returns the number of set bits in `val`.
      * Delegates to `std::popcount` which emits hardware POPCNT where available.
      *
-     * @param x Value to count set bits in.
+     * @param val Value to count set bits in.
      * @return Number of set bits.
      */
-    [[nodiscard]] inline constexpr uint64_t popcnt(uint64_t x) noexcept { return std::popcount(x); }
-
-    /**
-     * Returns the number of leading zero bits in `x`.
-     * Delegates to `std::countl_zero` which emits hardware LZCNT where available.
-     *
-     * @param x Value to count leading zeros in.
-     * @return Number of leading zero bits. Returns 64 if `x` is zero.
-     */
-    [[nodiscard]] inline constexpr uint64_t lzcnt(uint64_t x) noexcept {
-        return std::countl_zero(x);
+    [[nodiscard]] constexpr auto popcnt(uint64_t val) noexcept -> uint64_t { 
+        return std::popcount(val); 
     }
 
     /**
-     * Returns the number of trailing zero bits in `x`.
+     * Returns the number of leading zero bits in `val`.
+     * Delegates to `std::countl_zero` which emits hardware LZCNT where available.
+     *
+     * @param val Value to count leading zeros in.
+     * @return Number of leading zero bits. Returns 64 if `val` is zero.
+     */
+    [[nodiscard]] constexpr auto lzcnt(uint64_t val) noexcept -> uint64_t {
+        return std::countl_zero(val);
+    }
+
+    /**
+     * Returns the number of trailing zero bits in `val`.
      * Delegates to `std::countr_zero` which emits hardware TZCNT where available.
      *
-     * @param x Value to count trailing zeros in.
-     * @return Number of trailing zero bits. Returns 64 if `x` is zero.
+     * @param val Value to count trailing zeros in.
+     * @return Number of trailing zero bits. Returns 64 if `val` is zero.
      */
-    [[nodiscard]] inline constexpr uint64_t tzcnt(uint64_t x) noexcept {
-        return std::countr_zero(x);
+    [[nodiscard]] constexpr auto tzcnt(uint64_t val) noexcept -> uint64_t {
+        return std::countr_zero(val);
     }
 
     /**
@@ -100,7 +102,7 @@ namespace aleph::platform {
      * @param mask Bitmask indicating which bits to extract.
      * @return Extracted bits packed into the low bits of the result.
      */
-    [[nodiscard]] inline constexpr uint64_t pext(uint64_t src, uint64_t mask) noexcept {
+    [[nodiscard]] constexpr auto pext(uint64_t src, uint64_t mask) noexcept -> uint64_t {
         if (std::is_constant_evaluated()) {
             return detail::pext(src, mask);
         }

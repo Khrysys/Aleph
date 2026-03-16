@@ -25,7 +25,7 @@ macro(aleph_arch_option enabled gccflag winflag)
 endmacro()
 
 target_include_directories(aleph_platform INTERFACE "include")
-target_link_libraries(aleph_platform INTERFACE Boost::headers absl::log)
+target_link_libraries(aleph_platform INTERFACE Boost::headers absl::log absl::log_initialize)
 
 if(Aleph_BUILD_NATIVE_ARCH)
     # -march=native enables all supported extensions on the build machine,
