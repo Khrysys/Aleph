@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-# The project name and version must be a literal in the top-level project() 
+# The project name and version must be a literal in the top-level project()
 # call. It is read by Conan to populate the conan-side package name and version.
 project(Aleph LANGUAGES CXX VERSION 0.0.1.0)
 
@@ -13,11 +13,11 @@ project(Aleph LANGUAGES CXX VERSION 0.0.1.0)
 # -----------------------------------------------------------------------------
 
 option(Aleph_DISABLE_EXECUTOR 
-    "Fully disable the executor build. MCTS hooks can be specified programmatically." 
+    "Fully disable the executor build. MCTS hooks can be specified programmatically."
     OFF
 )
 option(Aleph_DEBUG 
-    "Force Debug Mode on, even in Release. Will noticeably slow down the engine." 
+    "Force Debug Mode on, even in Release. Will noticeably slow down the engine."
     ON
 )
 option(Aleph_BUILD_TESTS 

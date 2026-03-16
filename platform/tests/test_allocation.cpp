@@ -8,16 +8,16 @@ using namespace aleph::platform::allocation;
 TEST(AllocationInit, IsHugePagesAvailableReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
     bool result = isHugePagesAvailable();
-    EXPECT_TRUE(result == true || result == false);
 }
 
 TEST(AllocationInit, RequestHugePagesReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
     bool result = requestHugePages();
-    EXPECT_TRUE(result == true || result == false);
 }
 
-TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), size_t{0}); }
+TEST(AllocationInit, GetPageSizeNonZero) { 
+    EXPECT_GT(getPageSize(), size_t{0}); 
+}
 
 TEST(AllocationInit, GetPageSizePowerOfTwo) {
     size_t page = getPageSize();
