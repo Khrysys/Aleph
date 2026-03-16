@@ -28,10 +28,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
+          extensions: 'c,h,C,H,cpp,hpp,cc,hh,c++,h++,cxx,hxx'
           tidy-checks: ''
           version: '22'
+          verbosity: 'info'
           lines-changed-only: false
-          thread-comments: false
+          files-changed-only: false
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
           step-summary: true
           tidy-review: true
           format-review: true
