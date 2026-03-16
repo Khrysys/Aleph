@@ -109,7 +109,7 @@ jobs:
         run: |
           missing=0
           while IFS= read -r -d '' file; do
-            if ! grep -q 'SPDX-License-Identifier' "$file"; then
+            if ! grep -q 'SPDX-License-Identifier: GPL-3.0-only' "$file"; then
               echo "Missing SPDX header: $file"
               missing=1
             fi
