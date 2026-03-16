@@ -9,10 +9,7 @@ namespace aleph::platform::allocation {
      * Indicates whether an allocation was backed by large (huge) pages
      * or standard system pages.
      */
-    enum class PageSize {
-        Standard,
-        Large,
-    };
+    enum class PageSize { Standard, Large };
 
     /**
      * Result of a platform allocation.
@@ -23,9 +20,9 @@ namespace aleph::platform::allocation {
      * Large is preferred but Standard is the silent fallback.
      */
     struct AllocationResult {
-        void*    ptr;
-        size_t   size;
-        PageSize page_size;
+            void* ptr;
+            size_t size;
+            PageSize page_size;
     };
 
     /**
@@ -62,6 +59,6 @@ namespace aleph::platform::allocation {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 
-} // namespace aleph::platform
+}  // namespace aleph::platform::allocation
 
 #include "runtime.inl"

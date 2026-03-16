@@ -6,9 +6,10 @@
 #if defined(BOOST_OS_WINDOWS)
     #include <windows.h>
 #elif defined(BOOST_OS_LINUX)
-    #include <sys/mman.h>
-    #include <unistd.h>
     #include <fstream>
+    #include <unistd.h>
+
+    #include <sys/mman.h>
 #endif
 
 namespace aleph::platform::allocation {
@@ -18,7 +19,7 @@ namespace aleph::platform::allocation {
      * On Windows, checks `GetLargePageMinimum()` is non-zero.
      * On Linux, checks `/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total`.
      * Result is cached after the first call.
-     * 
+     *
      * @return true if large pages are available on this system.
      */
     [[nodiscard]] bool isHugePagesAvailable() noexcept;
@@ -29,7 +30,7 @@ namespace aleph::platform::allocation {
      * On Windows, requests `SeLockMemoryPrivilege` for the current process token.
      * On Linux, this is a no-op — huge page availability is determined by system
      * configuration, not process privileges. Instead, this function becomes equivalent
-     * to `isHugePagesAvailable()`. 
+     * to `isHugePagesAvailable()`.
      *
      * Should be called once at engine startup, after logging is initialized,
      * before any calls to `allocate`.
@@ -50,6 +51,6 @@ namespace aleph::platform::allocation {
      */
     [[nodiscard]] size_t getPageSize() noexcept;
 
-} // namespace aleph::platform
+}  // namespace aleph::platform::allocation
 
 #include "init.inl"

@@ -8,8 +8,6 @@ namespace aleph::platform {
         detail::logging_ready = true;
     }
 
-    inline bool isLoggingReady() noexcept {
-        return detail::logging_ready;
-    }
+    inline bool isLoggingReady() noexcept { return detail::logging_ready; }
 
-} // namespace aleph::platform
+}  // namespace aleph::platform

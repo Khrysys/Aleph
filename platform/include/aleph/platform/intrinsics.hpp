@@ -24,7 +24,6 @@
     #define ALEPH_HAS_BMI2
 #endif
 
-
 namespace aleph::platform {
 
     namespace detail {
@@ -41,17 +40,16 @@ namespace aleph::platform {
          */
         [[nodiscard]] inline constexpr uint64_t pext(uint64_t src, uint64_t mask) noexcept {
             uint64_t result = 0;
-            uint64_t bit = 1;
+            uint64_t bit    = 1;
             while (mask) {
                 uint64_t lowest = mask & -mask;
-                if (src & lowest)
-                    result |= bit;
-                mask &= mask - 1;
-                bit <<= 1;
+                if (src & lowest) result |= bit;
+                mask  &= mask - 1;
+                bit  <<= 1;
             }
             return result;
         }
-    }
+    }  // namespace detail
 
     /**
      * Returns the number of set bits in `x`.
@@ -60,9 +58,7 @@ namespace aleph::platform {
      * @param x Value to count set bits in.
      * @return Number of set bits.
      */
-    [[nodiscard]] inline constexpr uint64_t popcnt(uint64_t x) noexcept {
-        return std::popcount(x);
-    }
+    [[nodiscard]] inline constexpr uint64_t popcnt(uint64_t x) noexcept { return std::popcount(x); }
 
     /**
      * Returns the number of leading zero bits in `x`.
@@ -104,11 +100,11 @@ namespace aleph::platform {
         if (std::is_constant_evaluated()) {
             return detail::pext(src, mask);
         }
-        #if defined(ALEPH_HAS_BMI2) && (defined(ALEPH_HAS_X86INTRIN_H) || defined(ALEPH_HAS_INTRIN_H))
-            return _pext_u64(src, mask);
-        #else
-            return detail::pext(src, mask);
-        #endif
+#if defined(ALEPH_HAS_BMI2) && (defined(ALEPH_HAS_X86INTRIN_H) || defined(ALEPH_HAS_INTRIN_H))
+        return _pext_u64(src, mask);
+#else
+        return detail::pext(src, mask);
+#endif
     }
 
-} // namespace aleph::platform
+}  // namespace aleph::platform

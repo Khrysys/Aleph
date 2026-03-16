@@ -3,24 +3,23 @@
 #include <stdexcept>
 
 #include <absl/log/log.h>
-
 #include <boost/predef.h>
 
 #ifndef ALEPH_DEBUG
     #ifndef NDEBUG
         /**
-         * When defined, debug logging and exceptions in hot paths are active. 
-         * 
+         * When defined, debug logging and exceptions in hot paths are active.
+         *
          * Currently, LibTorch in C++20 in modes other than Release fail build.
          * Therefore, as a temporary workaround, since I believe it to be more
-         * a build script setup problem rather than a code problem, we'll use 
-         * this macro and the below `ALEPH_ASSERT` for things that must always 
-         * assert, and `ALEPH_DEBUG_ASSERT` for when things should not assert 
-         * in the final build, but they should during development. 
-         * 
+         * a build script setup problem rather than a code problem, we'll use
+         * this macro and the below `ALEPH_ASSERT` for things that must always
+         * assert, and `ALEPH_DEBUG_ASSERT` for when things should not assert
+         * in the final build, but they should during development.
+         *
          * `ALEPH_DEBUG_ASSERT` is controlled by the `ALEPH_DEBUG` macro. When
-         * `ALEPH_DEBUG` is not defined, `ALEPH_DEBUG_ASSERT` does nothing. 
-         * When `ALEPH_DEBUG` is defined, `ALEPH_DEBUG_ASSERT` is equivalent to 
+         * `ALEPH_DEBUG` is not defined, `ALEPH_DEBUG_ASSERT` does nothing.
+         * When `ALEPH_DEBUG` is defined, `ALEPH_DEBUG_ASSERT` is equivalent to
          * `ALEPH_ASSERT`.
          */
         #define ALEPH_DEBUG
@@ -34,15 +33,14 @@
  * Requires logging to be initialized via `aleph::platform::loggingInit()`
  * before use; behavior is undefined if called before logging is ready.
  */
-#define ALEPH_ASSERT(condition, msg)                        \
-    do {                                                    \
-        if (!(condition)) {                                 \
-            LOG(ERROR) << "Assertion failed: " << (msg)     \
-                       << " [" << __FILE__ << ":"           \
-                       << __LINE__ << "]";                  \
-            throw std::logic_error(msg);                    \
-        }                                                   \
-    } while(0)
+#define ALEPH_ASSERT(condition, msg)                                                           \
+    do {                                                                                       \
+        if (!(condition)) {                                                                    \
+            LOG(ERROR) << "Assertion failed: " << (msg) << " [" << __FILE__ << ":" << __LINE__ \
+                       << "]";                                                                 \
+            throw std::logic_error(msg);                                                       \
+        }                                                                                      \
+    } while (0)
 
 /**
  * Asserts a condition only when `ALEPH_DEBUG` is defined.
@@ -53,7 +51,7 @@
  *
  * Requires logging to be initialized via `aleph::platform::loggingInit()`
  * before use; behavior is undefined if called before logging is ready.
- * 
+ *
  * @param x   The condition to assert.
  * @param msg Description of the assumption, used in the debug assertion.
  */
@@ -82,4 +80,3 @@
 #else
     #define ALEPH_ASSUME(x, msg) ALEPH_DEBUG_ASSERT(x, msg)
 #endif
-

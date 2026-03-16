@@ -17,9 +17,7 @@ TEST(AllocationInit, RequestHugePagesReturnsBool) {
     EXPECT_TRUE(result == true || result == false);
 }
 
-TEST(AllocationInit, GetPageSizeNonZero) {
-    EXPECT_GT(getPageSize(), size_t{0});
-}
+TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), size_t{0}); }
 
 TEST(AllocationInit, GetPageSizePowerOfTwo) {
     size_t page = getPageSize();
@@ -64,7 +62,7 @@ TEST(RoundToPage, MultipleOfPageSizeUnchanged) {
 }
 
 TEST(RoundToPage, LargeSize) {
-    size_t page = getPageSize();
+    size_t page  = getPageSize();
     size_t large = page * 1024;
     EXPECT_EQ(roundToPage(large, page), large);
 }
@@ -79,20 +77,19 @@ TEST(RoundToPage, ResultAlwaysMultipleOfPageSize) {
 // ===== allocation_runtime tests =====
 
 TEST(AllocationRuntime, AllocateStandardPage) {
-    size_t page = getPageSize();
+    size_t page             = getPageSize();
     AllocationResult result = allocate(page);
 
     EXPECT_NE(result.ptr, nullptr);
     EXPECT_EQ(result.size, page);
-    EXPECT_TRUE(result.page_size == PageSize::Standard ||
-                result.page_size == PageSize::Large);
+    EXPECT_TRUE(result.page_size == PageSize::Standard || result.page_size == PageSize::Large);
 
     deallocate(result);
 }
 
 TEST(AllocationRuntime, AllocateMultiplePages) {
-    size_t page = getPageSize();
-    size_t size = page * 4;
+    size_t page             = getPageSize();
+    size_t size             = page * 4;
     AllocationResult result = allocate(size);
 
     EXPECT_NE(result.ptr, nullptr);
@@ -102,7 +99,7 @@ TEST(AllocationRuntime, AllocateMultiplePages) {
 }
 
 TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
-    size_t page = getPageSize();
+    size_t page             = getPageSize();
     AllocationResult result = allocate(page);
     ASSERT_NE(result.ptr, nullptr);
 
@@ -119,14 +116,14 @@ TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
 }
 
 TEST(AllocationRuntime, DeallocateNullptrIsNoop) {
-    AllocationResult result = { nullptr, 0, PageSize::Standard };
+    AllocationResult result = {nullptr, 0, PageSize::Standard};
     EXPECT_NO_FATAL_FAILURE(deallocate(result));
 }
 
 TEST(AllocationRuntime, AllocateRoundedSize) {
-    size_t page = getPageSize();
-    size_t raw  = page * 3 + 1;
-    size_t size = roundToPage(raw, page);
+    size_t page             = getPageSize();
+    size_t raw              = page * 3 + 1;
+    size_t size             = roundToPage(raw, page);
 
     AllocationResult result = allocate(size);
     EXPECT_NE(result.ptr, nullptr);
@@ -147,7 +144,5 @@ TEST(AllocationRuntimeDeathTest, AllocateUnalignedSizeAsserts) {
     EXPECT_DEATH(allocate(page + 1), "");
 }
 
-TEST(AllocationRuntimeDeathTest, AllocateZeroAsserts) {
-    EXPECT_DEATH(allocate(0), "");
-}
+TEST(AllocationRuntimeDeathTest, AllocateZeroAsserts) { EXPECT_DEATH(allocate(0), ""); }
 #endif
