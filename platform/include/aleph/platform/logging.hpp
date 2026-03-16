@@ -16,7 +16,7 @@ namespace aleph::platform {
         /**
          * True after `loggingInit()` has been called.
          */
-        inline std::atomic<bool> logging_ready{false};
+        inline const std::atomic<bool> logging_ready{false}; 
     }  // namespace detail
 
     /**
@@ -33,4 +33,5 @@ namespace aleph::platform {
     [[nodiscard]] inline auto isLoggingReady() noexcept -> bool;
 }  // namespace aleph::platform
 
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include "logging.inl"

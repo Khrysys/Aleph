@@ -7,6 +7,9 @@
 #include "../compiler.hpp"
 #include "../logging.hpp"
 
+#include <stddef.h>
+#include <stdint.h>
+
 #if BOOST_OS_WINDOWS
     #include <windows.h>
 #elif BOOST_OS_LINUX

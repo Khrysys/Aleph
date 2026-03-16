@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <stddef.h>
+
 #include "../compiler.hpp"
 #include "runtime.hpp"
 

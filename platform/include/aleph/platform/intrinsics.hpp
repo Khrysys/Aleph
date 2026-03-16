@@ -5,10 +5,8 @@
 #pragma once
 
 #include <bit>
-#include <cstdint>
+#include <stdint.h>
 #include <type_traits>
-
-#include "compiler.hpp"
 
 // ===== Intrinsics Includes =====
 #if __has_include(<x86intrin.h>)
@@ -47,7 +45,7 @@ namespace aleph::platform {
             uint64_t bit    = 1;
             while (mask != 0ULL) {
                 const uint64_t lowest = mask & -mask;
-                if ((src & lowest) != 0ULL) result |= bit;
+                if ((src & lowest) != 0ULL) { result |= bit };
                 mask  &= mask - 1;
                 bit  <<= 1U;
             }

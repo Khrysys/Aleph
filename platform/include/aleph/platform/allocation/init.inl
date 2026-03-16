@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <stddef.h>
+
 #include "init.hpp"
 
 namespace aleph::platform::allocation {

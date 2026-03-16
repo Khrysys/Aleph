@@ -4,7 +4,8 @@
  */
 #pragma once
 
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace aleph::platform::allocation {
 
