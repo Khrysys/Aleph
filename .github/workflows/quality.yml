@@ -14,9 +14,9 @@ permissions: read-all
 jobs:
   cpp-linter:
     name: C++ Linter
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest    
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v6.0.2
@@ -31,7 +31,10 @@ jobs:
           tidy-checks: '-*'
           version: '22'
           lines-changed-only: false
-          thread-comments: true
+          thread-comments: false
+          step-summary: true
+          tidy-review: true
+          format-review: true
 
       - name: Fail if issues found
         if: steps.linter.outputs.checks-failed > 0
@@ -78,7 +81,8 @@ jobs:
     name: CMake Linter
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6.0.2
  
