@@ -10,9 +10,7 @@ namespace aleph::platform {
 
     namespace detail {
 
-        /** 
-         * Column width for flag name alignment in diagnostic output. 
-         */
+        /** Column width for flag name alignment in diagnostic output. */
         constexpr int PRINT_WIDTH = 36;
 
         inline void print_flag(const char* name, bool value) {

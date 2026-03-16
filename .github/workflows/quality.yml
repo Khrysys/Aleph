@@ -12,18 +12,27 @@ on:
 permissions: read-all
 
 jobs:
-  clang-format:
-    name: clang-format
+  cpp-linter:
+    name: cpp-linter
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check formatting
-        uses: jidicula/clang-format-action@3a18028048f01a66653b4e3bf8d968d2e7e2cb8b
+      - name: Run cpp-linter
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          clang-format-version: '22'
-          check-path: '.'
-          exclude-regex: '(build|\.conan)'
+          style: file
+          tidy-checks: '-*'
+          version: '22'
+          lines-changed-only: false
+          thread-comments: true
+
+      - name: Fail if issues found
+        if: steps.linter.outputs.checks-failed > 0
+        run: exit 1
