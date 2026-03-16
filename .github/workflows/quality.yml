@@ -96,3 +96,92 @@ jobs:
             -not -path './.conan/*' \
             -print0 \
             | xargs -0 cmake-lint -c ./.cmake-lint
+
+  license-headers:
+    name: license-headers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Check SPDX and copyright headers
+        run: |
+          missing=0
+          while IFS= read -r -d '' file; do
+            if ! grep -q 'SPDX-License-Identifier' "$file"; then
+              echo "Missing SPDX header: $file"
+              missing=1
+            fi
+            if ! grep -q 'Copyright (c)' "$file"; then
+              echo "Missing copyright header: $file"
+              missing=1
+            fi
+          done < <(find . \( -name '*.cpp' -o -name '*.hpp' -o -name '*.inl' \) \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0)
+          exit $missing
+
+  doxygen:
+    name: doxygen-coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Install doxygen
+        run: sudo apt-get install -y doxygen
+ 
+      - name: Check documentation coverage
+        run: |
+          cat > /tmp/doxygen-lint.cfg << 'EOF'
+          PROJECT_NAME           = Aleph
+          INPUT                  = .
+          RECURSIVE              = YES
+          EXCLUDE                = build .conan
+          EXTRACT_ALL            = NO
+          WARN_IF_UNDOCUMENTED   = YES
+          WARN_AS_ERROR          = YES
+          GENERATE_HTML          = NO
+          GENERATE_XML           = NO
+          GENERATE_LATEX         = NO
+          QUIET                  = YES
+          FILE_PATTERNS          = *.cpp *.hpp *.inl
+          EOF
+          doxygen /tmp/doxygen-lint.cfg
+
+  dependency-review:
+    name: dependency-review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            perf
+            test
+            ci
+            build
