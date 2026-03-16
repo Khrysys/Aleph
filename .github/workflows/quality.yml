@@ -13,7 +13,7 @@ permissions: read-all
 
 jobs:
   cpp-linter:
-    name: cpp-linter
+    name: C++ Linter
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,3 +36,60 @@ jobs:
       - name: Fail if issues found
         if: steps.linter.outputs.checks-failed > 0
         run: exit 1
+
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Install cppcheck
+        run: sudo apt-get install -y cppcheck
+ 
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+          --enable=all \
+          --error-exitcode=1 \
+          --suppress=missingIncludeSystem \
+          --inline-suppr \
+          --recursive \
+          .
+  codespell:
+    name: codespell
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Install codespell
+        run: pip install codespell
+ 
+      - name: Run codespell
+        run: |
+          codespell \
+            --skip="../.git" \
+            --ignore-words-list="aleph" \
+            .
+
+  cmake-lint:
+    name: CMake Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Install cmake-lint
+        run: pip install cmakelang
+ 
+      - name: Run cmake-lint
+        run: |
+          find . -name 'CMakeLists.txt' \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0 \
+            | xargs -0 cmake-lint
