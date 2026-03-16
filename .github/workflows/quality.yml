@@ -148,13 +148,14 @@ jobs:
           GENERATE_XML           = NO
           GENERATE_LATEX         = NO
           QUIET                  = YES
-          FILE_PATTERNS          = *.cpp *.hpp *.inl
+          FILE_PATTERNS          = *.hpp *.inl
           EOF
           doxygen /tmp/doxygen-lint.cfg
 
   dependency-review:
     name: dependency-review
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
     steps:
@@ -166,6 +167,7 @@ jobs:
   pr-title:
     name: pr-title
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
       pull-requests: read

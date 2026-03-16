@@ -24,8 +24,11 @@ namespace aleph::platform::allocation {
      * Large is preferred but Standard is the silent fallback.
      */
     struct AllocationResult {
+            /** Pointer to the allocated memory. nullptr on total failure. */
             void* ptr;
+            /** Size of the allocation in bytes, as provided by the caller */
             size_t size;
+            /** Page size actually granted by the OS. */
             PageSize page_size;
     };
 
