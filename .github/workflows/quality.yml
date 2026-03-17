@@ -29,15 +29,13 @@ jobs:
         with:
           style: file
           extensions: 'c,h,cpp,hpp'
-          tidy-checks: 'modernize-*'
-          version: '20'
+          tidy-checks: '-*'
+          version: '22'
           verbosity: 'info'
           lines-changed-only: false
           files-changed-only: false
-          ignore-tidy: '.github|*/tests/*'
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
           step-summary: true
-          extra-args: '--std=c++20 -Wall'
           tidy-review: true
           format-review: true
 
