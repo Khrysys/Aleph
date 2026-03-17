@@ -3,12 +3,10 @@ name: Code Quality
 on:
   pull_request:
     branches:
-      - main
       - staging
   push:
     branches:
       - main
-      - staging
 
 permissions: read-all
 
