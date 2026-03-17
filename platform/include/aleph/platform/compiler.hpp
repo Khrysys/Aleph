@@ -39,13 +39,13 @@
  * Requires logging to be initialized via `aleph::platform::loggingInit()`
  * before use; behavior is undefined if called before logging is ready.
  */
-#define ALEPH_ASSERT(condition, msg)                                                                 \
-    do {                                                                                             \
-        if (!(condition)) {                                                                          \
-            ALEPH_LOG(ERROR) << "Assertion failed: " << (msg) << " [" << __FILE__ << ":" << __LINE__ \
-                       << "]";                                                                       \
-            throw std::logic_error(msg);                                                             \
-        }                                                                                            \
+#define ALEPH_ASSERT(condition, msg)                                                     \
+    do {                                                                                 \
+        if (!(condition)) {                                                              \
+            ALEPH_LOG(ERROR) << "Assertion failed: " << (msg) << " [" << __FILE__ << ":" \
+                             << __LINE__ << "]";                                         \
+            throw std::logic_error(msg);                                                 \
+        }                                                                                \
     } while (0)
 
 /**

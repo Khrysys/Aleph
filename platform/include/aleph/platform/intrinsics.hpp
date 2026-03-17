@@ -40,12 +40,15 @@ namespace aleph::platform {
          * @param mask Bitmask indicating which bits to extract.
          * @return Extracted bits packed into the low bits of the result.
          */
-        [[nodiscard]] constexpr auto pext(uint64_t src, std::uint64_t mask) noexcept -> std::uint64_t {
+        [[nodiscard]] constexpr auto pext(uint64_t src, std::uint64_t mask) noexcept
+            -> std::uint64_t {
             std::uint64_t result = 0;
             std::uint64_t bit    = 1;
             while (mask != 0ULL) {
                 const std::uint64_t lowest = mask & -mask;
-                if ((src & lowest) != 0ULL) { result |= bit };
+                if ((src & lowest) != 0ULL) {
+                    result |= bit
+                };
                 mask  &= mask - 1;
                 bit  <<= 1U;
             }
@@ -60,8 +63,8 @@ namespace aleph::platform {
      * @param val Value to count set bits in.
      * @return Number of set bits.
      */
-    [[nodiscard]] constexpr auto popcnt(uint64_t val) noexcept -> std::uint64_t { 
-        return std::popcount(val); 
+    [[nodiscard]] constexpr auto popcnt(uint64_t val) noexcept -> std::uint64_t {
+        return std::popcount(val);
     }
 
     /**

@@ -80,7 +80,7 @@ TEST(RoundToPage, ResultAlwaysMultipleOfPageSize) {
 // ===== allocation_runtime tests =====
 
 TEST(AllocationRuntime, AllocateStandardPage) {
-    std::size_t page             = getPageSize();
+    std::size_t page        = getPageSize();
     AllocationResult result = allocate(page);
 
     EXPECT_NE(result.ptr, nullptr);
@@ -91,8 +91,8 @@ TEST(AllocationRuntime, AllocateStandardPage) {
 }
 
 TEST(AllocationRuntime, AllocateMultiplePages) {
-    std::size_t page             = getPageSize();
-    std::size_t size             = page * 4;
+    std::size_t page        = getPageSize();
+    std::size_t size        = page * 4;
     AllocationResult result = allocate(size);
 
     EXPECT_NE(result.ptr, nullptr);
@@ -102,7 +102,7 @@ TEST(AllocationRuntime, AllocateMultiplePages) {
 }
 
 TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
-    std::size_t page             = getPageSize();
+    std::size_t page        = getPageSize();
     AllocationResult result = allocate(page);
     ASSERT_NE(result.ptr, nullptr);
 
@@ -124,9 +124,9 @@ TEST(AllocationRuntime, DeallocateNullptrIsNoop) {
 }
 
 TEST(AllocationRuntime, AllocateRoundedSize) {
-    std::size_t page             = getPageSize();
-    std::size_t raw              = page * 3 + 1;
-    std::size_t size             = roundToPage(raw, page);
+    std::size_t page        = getPageSize();
+    std::size_t raw         = page * 3 + 1;
+    std::size_t size        = roundToPage(raw, page);
 
     AllocationResult result = allocate(size);
     EXPECT_NE(result.ptr, nullptr);

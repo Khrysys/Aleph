@@ -39,7 +39,7 @@ namespace aleph::platform::allocation {
      * silently if the OS denies the request (e.g. insufficient privileges
      * on Windows, or huge pages unavailable on Linux). `AllocationResult::page_size`
      * reflects what was actually granted.
-     * 
+     *
      * This function has undefined behavior if called before `aleph::platform::loggingInit()`.
      *
      * @param size Number of bytes to allocate. Must be a multiple of
@@ -64,7 +64,8 @@ namespace aleph::platform::allocation {
      * @param page_size The page size boundary, typically from `getPageSize()`.
      * @return Rounded size, guaranteed to be a multiple of `page_size`.
      */
-    [[nodiscard]] constexpr auto roundToPage(size_t size, std::size_t page_size) noexcept -> std::size_t {
+    [[nodiscard]] constexpr auto roundToPage(size_t size, std::size_t page_size) noexcept
+        -> std::size_t {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 
