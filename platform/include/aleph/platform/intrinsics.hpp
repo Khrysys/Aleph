@@ -40,7 +40,7 @@ namespace aleph::platform {
          * @param mask Bitmask indicating which bits to extract.
          * @return Extracted bits packed into the low bits of the result.
          */
-        [[nodiscard]] constexpr auto pext(uint64_t src, std::uint64_t mask) noexcept
+        [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
             -> std::uint64_t {
             std::uint64_t result = 0;
             std::uint64_t bit    = 1;
@@ -63,7 +63,7 @@ namespace aleph::platform {
      * @param val Value to count set bits in.
      * @return Number of set bits.
      */
-    [[nodiscard]] constexpr auto popcnt(uint64_t val) noexcept -> std::uint64_t {
+    [[nodiscard]] constexpr auto popcnt(std::uint64_t val) noexcept -> std::uint64_t {
         return std::popcount(val);
     }
 
@@ -74,7 +74,7 @@ namespace aleph::platform {
      * @param val Value to count leading zeros in.
      * @return Number of leading zero bits. Returns 64 if `val` is zero.
      */
-    [[nodiscard]] constexpr auto lzcnt(uint64_t val) noexcept -> std::uint64_t {
+    [[nodiscard]] constexpr auto lzcnt(std::uint64_t val) noexcept -> std::uint64_t {
         return std::countl_zero(val);
     }
 
@@ -85,7 +85,7 @@ namespace aleph::platform {
      * @param val Value to count trailing zeros in.
      * @return Number of trailing zero bits. Returns 64 if `val` is zero.
      */
-    [[nodiscard]] constexpr auto tzcnt(uint64_t val) noexcept -> std::uint64_t {
+    [[nodiscard]] constexpr auto tzcnt(std::uint64_t val) noexcept -> std::uint64_t {
         return std::countr_zero(val);
     }
 
@@ -103,7 +103,7 @@ namespace aleph::platform {
      * @param mask Bitmask indicating which bits to extract.
      * @return Extracted bits packed into the low bits of the result.
      */
-    [[nodiscard]] constexpr auto pext(uint64_t src, std::uint64_t mask) noexcept -> std::uint64_t {
+    [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept -> std::uint64_t {
         if (std::is_constant_evaluated()) {
             return detail::pext(src, mask);
         }

@@ -7,6 +7,9 @@ from conan.tools.build import check_min_cppstd
 
 import re
 from pathlib import Path
+string = r"""project\s*\(\s*([A-Za-z_][A-Za-z0-9_+-]*)"""
+
+project_regex_string = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
 
 class AlephConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
@@ -37,15 +40,7 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(
-            r"""
-            project
-            \s*\(
-            \s*([A-Za-z_][A-Za-z0-9_+-]*)   # project name
-            """,
-            content,
-            re.IGNORECASE | re.VERBOSE | re.DOTALL,
-        )
+        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract project name from CMakeLists.txt")
@@ -56,23 +51,12 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(
-            r"""
-            project
-            \s*\(
-            \s*[A-Za-z_][A-Za-z0-9_+-]*
-            [^)]*?
-            VERSION\s+
-            ([^\s\)]+)
-            """,
-            content,
-            re.IGNORECASE | re.VERBOSE | re.DOTALL,
-        )
+        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract version from project() in CMakeLists.txt")
 
-        self.version = m.group(1)
+        self.version = m.group(2)
 
     def requirements(self):
         self.requires('abseil/20250814.0')
