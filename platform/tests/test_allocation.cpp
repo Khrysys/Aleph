@@ -107,7 +107,7 @@ TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
     ASSERT_NE(result.ptr, nullptr);
 
     // Write and read back
-    std::uint8_t* mem = static_cast<uint8_t*>(result.ptr);
+    auto mem = static_cast<uint8_t*>(result.ptr);
     for (std::size_t i = 0; i < page; ++i) {
         mem[i] = static_cast<std::uint8_t>(i & 0xFF);
     }
