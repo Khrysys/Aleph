@@ -1,0 +1,8 @@
+format:
+  line_width: 100
+
+lint:
+  disabled_codes: 
+    - C103
+    - C304
+    - C307

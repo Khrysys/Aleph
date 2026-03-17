@@ -1,0 +1,158 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+  push:
+    branches:
+      - main
+      - staging
+
+permissions: read-all
+
+jobs:
+  cpp-linter:
+    name: C++ Linter
+    runs-on: ubuntu-latest    
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Run cpp-linter
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
+          extensions: 'c,h,cpp,hpp'
+          tidy-checks: '-*'
+          version: '22'
+          verbosity: 'info'
+          lines-changed-only: false
+          files-changed-only: false
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          step-summary: true
+          tidy-review: true
+          format-review: true
+
+      - name: Fail if issues found
+        if: steps.linter.outputs.checks-failed > 0
+        run: exit 1
+
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+ 
+      - name: Install cppcheck
+        run: sudo apt-get install -y cppcheck
+ 
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+          --enable=all \
+          --error-exitcode=1 \
+          --suppress=missingIncludeSystem \
+          --inline-suppr \
+          .
+  
+  codespell:
+    name: codespell
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+ 
+      - name: Install codespell
+        run: pip install codespell
+ 
+      - name: Run codespell
+        run: |
+          codespell \
+            --skip="../.git" \
+            --ignore-words-list="aleph" \
+            .
+
+  cmake-lint:
+    name: CMake Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6.0.2
+ 
+      - name: Install cmake-lint
+        run: pip install cmakelang[YAML]
+ 
+      - name: Run cmake-lint
+        run: |
+          find . \( -name 'CMakeLists.txt' -o -name '*.cmake' \) \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0 \
+            | xargs -0 cmake-lint -c ./.cmake-lint
+
+  license-headers:
+    name: license-headers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+ 
+      - name: Check SPDX and copyright headers
+        run: |
+          missing=0
+          while IFS= read -r -d '' file; do
+            if ! grep -q 'SPDX-License-Identifier: GPL-3.0-only' "$file"; then
+              echo "Missing SPDX header: $file"
+              missing=1
+            fi
+            if ! grep -q 'Copyright (c)' "$file"; then
+              echo "Missing copyright header: $file"
+              missing=1
+            fi
+          done < <(find . \( -name '*.cpp' -o -name '*.hpp' -o -name '*.inl' \) \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0)
+          exit $missing
+
+  doxygen:
+    name: doxygen-coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+ 
+      - name: Install doxygen
+        run: sudo apt-get install -y doxygen
+ 
+      - name: Check documentation coverage
+        run: |
+          cat > /tmp/doxygen-lint.cfg << 'EOF'
+          PROJECT_NAME           = Aleph
+          INPUT                  = .
+          RECURSIVE              = YES
+          EXCLUDE                = build .conan
+          EXTRACT_ALL            = NO
+          WARN_IF_UNDOCUMENTED   = YES
+          WARN_AS_ERROR          = YES
+          GENERATE_HTML          = NO
+          GENERATE_XML           = NO
+          GENERATE_LATEX         = NO
+          QUIET                  = YES
+          FILE_PATTERNS          = *.hpp *.inl
+          EOF
+          doxygen /tmp/doxygen-lint.cfg
