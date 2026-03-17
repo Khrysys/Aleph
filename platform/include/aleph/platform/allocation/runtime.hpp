@@ -1,4 +1,6 @@
 /**
+ * @file include/aleph/platform/allocation/runtime.hpp
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
@@ -6,6 +8,8 @@
 
 #include <cstddef>
 #include <cstdint>
+
+#include "init.hpp"
 
 namespace aleph::platform::allocation {
 
@@ -24,12 +28,12 @@ namespace aleph::platform::allocation {
      * Large is preferred but Standard is the silent fallback.
      */
     struct AllocationResult {
-            /** Pointer to the allocated memory. nullptr on total failure. */
-            void* ptr;
-            /** Size of the allocation in bytes, as provided by the caller */
-            std::size_t size;
-            /** Page size actually granted by the OS. */
-            PageSize page_size;
+        /** Pointer to the allocated memory. nullptr on total failure. */
+        void* ptr;
+        /** Size of the allocation in bytes, as provided by the caller. */
+        std::size_t size;
+        /** Page size actually granted by the OS. */
+        PageSize page_size;
     };
 
     /**
@@ -40,14 +44,14 @@ namespace aleph::platform::allocation {
      * on Windows, or huge pages unavailable on Linux). `AllocationResult::page_size`
      * reflects what was actually granted.
      *
-     * This function has undefined behavior if called before `aleph::platform::loggingInit()`.
+     * Should be called after `requestHugePages()` during engine startup.
      *
      * @param size Number of bytes to allocate. Must be a multiple of
      *             `getPageSize()` — asserted in debug builds.
      * @return AllocationResult with ptr, size, and granted page size.
      *         ptr will be nullptr on total failure.
      */
-    [[nodiscard]] auto allocate(size_t size) -> AllocationResult;
+    [[nodiscard]] auto allocate(std::size_t size) noexcept -> AllocationResult;
 
     /**
      * Releases memory previously returned by `allocate`.
@@ -55,7 +59,7 @@ namespace aleph::platform::allocation {
      * @param alloc The AllocationResult returned by `allocate`.
      *              No-op if ptr is nullptr.
      */
-    void deallocate(AllocationResult alloc) noexcept;
+    auto deallocate(AllocationResult alloc) noexcept -> void;
 
     /**
      * Rounds `size` up to the nearest multiple of `page_size`.
@@ -64,12 +68,12 @@ namespace aleph::platform::allocation {
      * @param page_size The page size boundary, typically from `getPageSize()`.
      * @return Rounded size, guaranteed to be a multiple of `page_size`.
      */
-    [[nodiscard]] constexpr auto roundToPage(size_t size, std::size_t page_size) noexcept
+    [[nodiscard]] constexpr auto roundToPage(std::size_t size, std::size_t page_size) noexcept
         -> std::size_t {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 
-}  // namespace aleph::platform::allocation
+} // namespace aleph::platform::allocation
 
 // NOLINTNEXTLINE
 #include "runtime.inl"

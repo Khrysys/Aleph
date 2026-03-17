@@ -47,8 +47,8 @@ namespace aleph::platform {
             while (mask != 0ULL) {
                 const std::uint64_t lowest = mask & -mask;
                 if ((src & lowest) != 0ULL) {
-                    result |= bit
-                };
+                    result |= bit;
+                }
                 mask  &= mask - 1;
                 bit  <<= 1U;
             }

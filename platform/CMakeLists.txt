@@ -5,10 +5,8 @@ add_library(aleph_platform INTERFACE
     "include/aleph/platform/allocation/runtime.inl"
     "include/aleph/platform/allocation.hpp"
     "include/aleph/platform/compiler.hpp"
-    "include/aleph/platform/logging.hpp"
-    "include/aleph/platform/logging.inl"
     "include/aleph/platform/intrinsics.hpp"
-    "include/aleph/platform/print_info.hpp"
+    "include/aleph/platform/log_info.hpp"
     "include/aleph/platform.hpp"
 )
 
@@ -25,7 +23,7 @@ macro(aleph_arch_option enabled gccflag winflag)
 endmacro()
 
 target_include_directories(aleph_platform INTERFACE "include")
-target_link_libraries(aleph_platform INTERFACE Boost::headers absl::log absl::log_initialize)
+target_link_libraries(aleph_platform INTERFACE Boost::headers spdlog::spdlog)
 
 if(Aleph_BUILD_NATIVE_ARCH)
     # -march=native enables all supported extensions on the build machine,
