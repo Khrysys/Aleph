@@ -20,11 +20,11 @@ TEST(AllocationInit, RequestHugePagesReturnsBool) {
     EXPECT_NO_FATAL_FAILURE(auto r = requestHugePages());
 }
 
-TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), size_t{0}); }
+TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), std::size_t{0}); }
 
 TEST(AllocationInit, GetPageSizePowerOfTwo) {
-    size_t page = getPageSize();
-    EXPECT_EQ(page & (page - 1), size_t{0});
+    std::size_t page = getPageSize();
+    EXPECT_EQ(page & (page - 1), std::size_t{0});
 }
 
 TEST(AllocationInit, GetPageSizeCached) {
@@ -35,52 +35,52 @@ TEST(AllocationInit, GetPageSizeCached) {
 // ===== roundToPage tests =====
 
 TEST(RoundToPage, AlreadyAligned) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     EXPECT_EQ(roundToPage(page, page), page);
 }
 
 TEST(RoundToPage, ZeroRoundsToZero) {
-    size_t page = getPageSize();
-    EXPECT_EQ(roundToPage(0, page), size_t{0});
+    std::size_t page = getPageSize();
+    EXPECT_EQ(roundToPage(0, page), std::size_t{0});
 }
 
 TEST(RoundToPage, OneRoundsUpToPageSize) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     EXPECT_EQ(roundToPage(1, page), page);
 }
 
 TEST(RoundToPage, PageSizeMinusOneRoundsUp) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     EXPECT_EQ(roundToPage(page - 1, page), page);
 }
 
 TEST(RoundToPage, PageSizePlusOneRoundsUpToTwo) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     EXPECT_EQ(roundToPage(page + 1, page), page * 2);
 }
 
 TEST(RoundToPage, MultipleOfPageSizeUnchanged) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     EXPECT_EQ(roundToPage(page * 4, page), page * 4);
 }
 
 TEST(RoundToPage, LargeSize) {
-    size_t page  = getPageSize();
-    size_t large = page * 1024;
+    std::size_t page  = getPageSize();
+    std::size_t large = page * 1024;
     EXPECT_EQ(roundToPage(large, page), large);
 }
 
 TEST(RoundToPage, ResultAlwaysMultipleOfPageSize) {
-    size_t page = getPageSize();
+    std::size_t page = getPageSize();
     for (size_t i = 0; i <= page * 2; i++) {
-        EXPECT_EQ(roundToPage(i, page) % page, size_t{0});
+        EXPECT_EQ(roundToPage(i, page) % page, std::size_t{0});
     }
 }
 
 // ===== allocation_runtime tests =====
 
 TEST(AllocationRuntime, AllocateStandardPage) {
-    size_t page             = getPageSize();
+    std::size_t page             = getPageSize();
     AllocationResult result = allocate(page);
 
     EXPECT_NE(result.ptr, nullptr);
@@ -91,8 +91,8 @@ TEST(AllocationRuntime, AllocateStandardPage) {
 }
 
 TEST(AllocationRuntime, AllocateMultiplePages) {
-    size_t page             = getPageSize();
-    size_t size             = page * 4;
+    std::size_t page             = getPageSize();
+    std::size_t size             = page * 4;
     AllocationResult result = allocate(size);
 
     EXPECT_NE(result.ptr, nullptr);
@@ -102,12 +102,12 @@ TEST(AllocationRuntime, AllocateMultiplePages) {
 }
 
 TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
-    size_t page             = getPageSize();
+    std::size_t page             = getPageSize();
     AllocationResult result = allocate(page);
     ASSERT_NE(result.ptr, nullptr);
 
     // Write and read back
-    uint8_t* mem = static_cast<uint8_t*>(result.ptr);
+    std::uint8_t* mem = static_cast<uint8_t*>(result.ptr);
     for (size_t i = 0; i < page; ++i) {
         mem[i] = static_cast<uint8_t>(i & 0xFF);
     }
@@ -124,9 +124,9 @@ TEST(AllocationRuntime, DeallocateNullptrIsNoop) {
 }
 
 TEST(AllocationRuntime, AllocateRoundedSize) {
-    size_t page             = getPageSize();
-    size_t raw              = page * 3 + 1;
-    size_t size             = roundToPage(raw, page);
+    std::size_t page             = getPageSize();
+    std::size_t raw              = page * 3 + 1;
+    std::size_t size             = roundToPage(raw, page);
 
     AllocationResult result = allocate(size);
     EXPECT_NE(result.ptr, nullptr);

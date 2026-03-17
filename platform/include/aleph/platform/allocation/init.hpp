@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 #if BOOST_OS_WINDOWS
     #include <windows.h>
@@ -53,7 +53,7 @@ namespace aleph::platform::allocation {
      *
      * @return Page size in bytes.
      */
-    [[nodiscard]] inline auto getPageSize() noexcept -> size_t;
+    [[nodiscard]] inline auto getPageSize() noexcept -> std::size_t;
 
 }  // namespace aleph::platform::allocation
 

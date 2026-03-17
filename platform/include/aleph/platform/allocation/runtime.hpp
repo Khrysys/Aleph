@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace aleph::platform::allocation {
 
@@ -13,7 +13,7 @@ namespace aleph::platform::allocation {
      * Indicates whether an allocation was backed by large (huge) pages
      * or standard system pages.
      */
-    enum class PageSize : uint8_t { Standard, Large };
+    enum class PageSize : std::uint8_t { Standard, Large };
 
     /**
      * Result of a platform allocation.
@@ -27,7 +27,7 @@ namespace aleph::platform::allocation {
             /** Pointer to the allocated memory. nullptr on total failure. */
             void* ptr;
             /** Size of the allocation in bytes, as provided by the caller */
-            size_t size;
+            std::size_t size;
             /** Page size actually granted by the OS. */
             PageSize page_size;
     };
@@ -64,7 +64,7 @@ namespace aleph::platform::allocation {
      * @param page_size The page size boundary, typically from `getPageSize()`.
      * @return Rounded size, guaranteed to be a multiple of `page_size`.
      */
-    [[nodiscard]] constexpr auto roundToPage(size_t size, size_t page_size) noexcept -> size_t {
+    [[nodiscard]] constexpr auto roundToPage(size_t size, std::size_t page_size) noexcept -> std::size_t {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 

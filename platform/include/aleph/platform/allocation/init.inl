@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <stddef.h>
+#include <cstddef>
 
 #include "../compiler.hpp"
 #include "init.hpp"
@@ -18,7 +18,7 @@ namespace aleph::platform::allocation {
 #elif BOOST_OS_LINUX
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) return false;
-            size_t count = 0;
+            std::size_t count = 0;
             f >> count;
             return count > 0;
 #endif
@@ -79,10 +79,10 @@ namespace aleph::platform::allocation {
 #endif
     }
 
-    inline size_t getPageSize() noexcept {
-        static const size_t page_size = []() noexcept -> size_t {
+    inline std::size_t getPageSize() noexcept {
+        static const std::size_t page_size = []() noexcept -> std::size_t {
 #if BOOST_OS_WINDOWS
-            SIZE_T large = GetLargePageMinimum();
+            std::size_t large = GetLargePageMinimum();
             if (large != 0) return static_cast<size_t>(large);
             SYSTEM_INFO si;
             GetSystemInfo(&si);
