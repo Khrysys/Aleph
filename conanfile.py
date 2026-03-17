@@ -1,21 +1,11 @@
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
-from conan.tools.files import download
 from conan.tools.build import check_min_cppstd
 
 import re
 from pathlib import Path
 
 class AlephConan(ConanFile):
-    options = {
-        'with_libtorch': [True, False],
-        'with_onnxruntime': [True, False],
-    }
-
-    default_options = {
-        'with_libtorch': True,
-        'with_onnxruntime': False
-    }
     settings = "os", "compiler", "build_type", "arch"
 
     def build(self):
@@ -86,6 +76,7 @@ class AlephConan(ConanFile):
         self.requires('argparse/3.2')
         self.requires('boost/1.90.0')
         self.requires('half/2.2.0')
+        self.requires('spdlog/1.17.0')
         self.requires('tomlplusplus/3.4.0')
         if self.options.get_safe('with_libtorch', False):
             self.requires('libtorch/2.9.1')

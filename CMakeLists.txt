@@ -12,14 +12,6 @@ project(Aleph LANGUAGES CXX VERSION 0.0.1.0)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-option(Aleph_DISABLE_EXECUTOR 
-    "Fully disable the executor build. MCTS hooks can be specified programmatically."
-    OFF
-)
-option(Aleph_DEBUG 
-    "Force Debug Mode on, even in Release. Will noticeably slow down the engine."
-    ON
-)
 option(Aleph_BUILD_TESTS 
     "Build tests for the modules within the engine. Has no impact on the regular usage of the \
     engine." 
@@ -46,6 +38,7 @@ endif()
 
 find_package(absl REQUIRED)
 find_package(boost REQUIRED)
+find_package(spdlog REQUIRED)
 
 find_package(GTest)
 

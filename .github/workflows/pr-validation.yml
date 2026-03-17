@@ -6,8 +6,6 @@ on:
       - main
       - staging
 
-permissions: read-all
-
 jobs:
   dependency-review:
     name: dependency-review

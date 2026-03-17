@@ -1,4 +1,6 @@
 /**
+ * @file include/aleph/platform/allocation/init.hpp
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
@@ -7,6 +9,9 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <boost/predef.h>
+
+// Get OS-Specific headers for Large/huge pages support. MacOS is not supported at this moment.
 #if BOOST_OS_WINDOWS
     #include <windows.h>
 #elif BOOST_OS_LINUX
