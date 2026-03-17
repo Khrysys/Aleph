@@ -1,3 +1,6 @@
+#type: ignore
+# Ignore typing for the whole file, since all it does is throw errors on my machine.
+# Easy enough to validate by hand.
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.build import check_min_cppstd

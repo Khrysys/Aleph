@@ -28,8 +28,10 @@ namespace aleph::platform::allocation {
             if (ptr != nullptr) {
                 return {ptr, size, PageSize::Large};
             }
-            spdlog::warn("Large page allocation failed despite SeLockMemoryPrivilege. "
-                         "Falling back to standard pages. Error: {}", GetLastError());
+            spdlog::warn(
+                "Large page allocation failed despite SeLockMemoryPrivilege. "
+                "Falling back to standard pages. Error: {}",
+                GetLastError());
         }
 
         // Fall back to standard pages.
@@ -47,13 +49,13 @@ namespace aleph::platform::allocation {
             if (ptr != MAP_FAILED) {
                 return {ptr, size, PageSize::Large};
             }
-            spdlog::warn("MAP_HUGETLB allocation failed despite huge pages being available. "
-                         "Falling back to standard pages.");
+            spdlog::warn(
+                "MAP_HUGETLB allocation failed despite huge pages being available. "
+                "Falling back to standard pages.");
         }
 
         // Fall back to standard pages.
-        void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE,
-                         MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
         if (ptr == MAP_FAILED) {
             spdlog::error("Standard page allocation failed.");
@@ -80,4 +82,4 @@ namespace aleph::platform::allocation {
 #endif
     }
 
-} // namespace aleph::platform::allocation
+}  // namespace aleph::platform::allocation

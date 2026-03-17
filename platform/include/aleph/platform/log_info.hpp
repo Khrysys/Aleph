@@ -15,20 +15,22 @@ namespace aleph::platform {
 
     namespace detail {
 
-        /** Column width for flag name alignment in diagnostic output. */
+        /** Column width for flag name alignment in the diagnostic output. */
         constexpr int LOG_WIDTH = 36;
 
+        /** Log a flag from a bool via spdlog in the diagnostic output. */
         inline auto log_flag(const char* name, bool value) -> void {
             spdlog::info("{:<{}} | {}", name, LOG_WIDTH, value ? "Yes" : "No");
         }
 
+        /** Log a new print section from a bool via spdlog in the diagnostic output. */
         inline auto log_section(const char* title) -> void {
             spdlog::info("");
             spdlog::info("{}", title);
             spdlog::info("{}", std::string(LOG_WIDTH, '-'));
         }
 
-    } // namespace detail
+    }  // namespace detail
 
     /**
      * Logs compiler and language feature configuration.
@@ -39,9 +41,9 @@ namespace aleph::platform {
 
         detail::log_flag("[[assume]]",
 #ifdef ALEPH_HAS_ASSUME
-            true
+                         true
 #else
-            false
+                         false
 #endif
         );
     }
@@ -55,23 +57,23 @@ namespace aleph::platform {
 
         detail::log_flag("x86intrin.h",
 #ifdef ALEPH_HAS_X86INTRIN_H
-            true
+                         true
 #else
-            false
+                         false
 #endif
         );
         detail::log_flag("intrin.h (MSVC)",
 #ifdef ALEPH_HAS_INTRIN_H
-            true
+                         true
 #else
-            false
+                         false
 #endif
         );
         detail::log_flag("BMI2 / PEXT",
 #ifdef ALEPH_HAS_BMI2
-            true
+                         true
 #else
-            false
+                         false
 #endif
         );
     }
@@ -85,4 +87,4 @@ namespace aleph::platform {
         logIntrinsicsConfig();
     }
 
-} // namespace aleph::platform
+}  // namespace aleph::platform

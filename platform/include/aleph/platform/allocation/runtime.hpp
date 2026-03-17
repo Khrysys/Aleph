@@ -28,12 +28,12 @@ namespace aleph::platform::allocation {
      * Large is preferred but Standard is the silent fallback.
      */
     struct AllocationResult {
-        /** Pointer to the allocated memory. nullptr on total failure. */
-        void* ptr;
-        /** Size of the allocation in bytes, as provided by the caller. */
-        std::size_t size;
-        /** Page size actually granted by the OS. */
-        PageSize page_size;
+            /** Pointer to the allocated memory. nullptr on total failure. */
+            void* ptr;
+            /** Size of the allocation in bytes, as provided by the caller. */
+            std::size_t size;
+            /** Page size actually granted by the OS. */
+            PageSize page_size;
     };
 
     /**
@@ -73,7 +73,7 @@ namespace aleph::platform::allocation {
         return (size + page_size - 1) & ~(page_size - 1);
     }
 
-} // namespace aleph::platform::allocation
+}  // namespace aleph::platform::allocation
 
 // NOLINTNEXTLINE
 #include "runtime.inl"
