@@ -4,9 +4,6 @@
  */
 #pragma once
 
-#include "../compiler.hpp"
-#include "../logging.hpp"
-
 #include <stddef.h>
 #include <stdint.h>
 
@@ -29,7 +26,7 @@ namespace aleph::platform::allocation {
      *
      * @return true if large pages are available on this system.
      */
-    [[nodiscard]] auto isHugePagesAvailable() noexcept -> bool;
+    [[nodiscard]] inline auto isHugePagesAvailable() noexcept -> bool;
 
     /**
      * Attempts to acquire the privileges necessary for large page allocation.
@@ -44,7 +41,7 @@ namespace aleph::platform::allocation {
      *
      * @return true if large pages are available and ready to use, false otherwise.
      */
-    [[nodiscard]] auto requestHugePages() noexcept -> bool;
+    [[nodiscard]] inline auto requestHugePages() noexcept -> bool;
 
     /**
      * Returns the preferred page size for allocations on this system.
@@ -56,7 +53,7 @@ namespace aleph::platform::allocation {
      *
      * @return Page size in bytes.
      */
-    [[nodiscard]] auto getPageSize() noexcept -> size_t;
+    [[nodiscard]] inline auto getPageSize() noexcept -> size_t;
 
 }  // namespace aleph::platform::allocation
 

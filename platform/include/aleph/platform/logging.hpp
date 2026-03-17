@@ -16,7 +16,7 @@ namespace aleph::platform {
         /**
          * True after `loggingInit()` has been called.
          */
-        inline const std::atomic<bool> logging_ready{false}; 
+        inline std::atomic<bool> logging_ready{false}; 
     }  // namespace detail
 
     /**

@@ -10,7 +10,10 @@
 #include "runtime.hpp"
 
 namespace aleph::platform::allocation {
-#if defined(BOOST_OS_WINDOWS)
+    inline AllocationResult allocate(size_t size) {
+        
+    }
+#if BOOST_OS_WINDOWS
     inline AllocationResult allocate(size_t size) {
 
         // Attempt large pages first — requires SeLockMemoryPrivilege,
@@ -34,7 +37,7 @@ namespace aleph::platform::allocation {
         }
     }
 
-#elif defined(BOOST_OS_LINUX)
+#elif BOOST_OS_LINUX
 
     inline AllocationResult allocate(size_t size) {
         // Attempt explicit huge pages first.

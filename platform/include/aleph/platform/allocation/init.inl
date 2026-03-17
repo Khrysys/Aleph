@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 
+#include "../compiler.hpp"
 #include "init.hpp"
 
 namespace aleph::platform::allocation {
@@ -14,7 +15,6 @@ namespace aleph::platform::allocation {
         static const bool available = []() noexcept -> bool {
 #if BOOST_OS_WINDOWS
             return GetLargePageMinimum() != 0;
-
 #elif BOOST_OS_LINUX
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) return false;
@@ -27,24 +27,22 @@ namespace aleph::platform::allocation {
     }
 
     inline bool requestHugePages() noexcept {
-        assert(isLoggingReady());
-
 #if BOOST_OS_WINDOWS
         if (!isHugePagesAvailable()) {
-            LOG(WARNING) << "Large pages are not supported on this system.";
+            ALEPH_LOG(WARNING) << "Large pages are not supported on this system.";
             return false;
         }
 
         HANDLE token;
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token)) {
-            LOG(WARNING) << "Failed to open process token for SeLockMemoryPrivilege. "
+            ALEPH_LOG(WARNING) << "Failed to open process token for SeLockMemoryPrivilege. "
                          << "Large pages unavailable. Error: " << GetLastError();
             return false;
         }
 
         LUID luid;
         if (!LookupPrivilegeValue(nullptr, SE_LOCK_MEMORY_NAME, &luid)) {
-            LOG(WARNING) << "Failed to look up SeLockMemoryPrivilege LUID. "
+            ALEPH_LOG(WARNING) << "Failed to look up SeLockMemoryPrivilege LUID. "
                          << "Error: " << GetLastError();
             CloseHandle(token);
             return false;
@@ -57,7 +55,7 @@ namespace aleph::platform::allocation {
 
         if (!AdjustTokenPrivileges(token, FALSE, &tp, 0, nullptr, nullptr) ||
             GetLastError() == ERROR_NOT_ALL_ASSIGNED) {
-            LOG(WARNING)
+            ALEPH_LOG(WARNING)
                 << "Failed to acquire SeLockMemoryPrivilege. "
                 << "Large pages unavailable. Grant the privilege via Local Security Policy. "
                 << "Error: " << GetLastError();
@@ -66,17 +64,17 @@ namespace aleph::platform::allocation {
         }
 
         CloseHandle(token);
-        LOG(INFO) << "SeLockMemoryPrivilege acquired. Large pages enabled.";
+        ALEPH_LOG(INFO) << "SeLockMemoryPrivilege acquired. Large pages enabled.";
         return true;
 #elif BOOST_OS_LINUX
         if (!isHugePagesAvailable()) {
-            LOG(WARNING) << "Huge pages unavailable. "
+            ALEPH_LOG(WARNING) << "Huge pages unavailable. "
                          << "Check hugepages-total > 0 in "
                          << "/sys/kernel/mm/hugepages/hugepages-2048kB/. "
                          << "Falling back to standard pages.";
             return false;
         }
-        LOG(INFO) << "Huge pages available. Large pages enabled.";
+        ALEPH_LOG(INFO) << "Huge pages available. Large pages enabled.";
         return true;
 #endif
     }
