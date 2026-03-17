@@ -44,7 +44,7 @@ namespace aleph::platform {
             -> std::uint64_t {
             std::uint64_t result = 0;
             std::uint64_t bit    = 1;
-            while (mask != 0ULL) { 
+            while (mask != 0ULL) {
                 const std::uint64_t lowest = mask & (~mask + 1);
                 if ((src & lowest) != 0ULL) {
                     result |= bit;
@@ -103,7 +103,8 @@ namespace aleph::platform {
      * @param mask Bitmask indicating which bits to extract.
      * @return Extracted bits packed into the low bits of the result.
      */
-    [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept -> std::uint64_t {
+    [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
+        -> std::uint64_t {
         if (std::is_constant_evaluated()) {
             return detail::pext(src, mask);
         }
