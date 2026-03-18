@@ -36,8 +36,11 @@ endif()
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-find_package(absl REQUIRED)
-find_package(boost REQUIRED)
+find_package(Python REQUIRED COMPONENTS Interpreter)
+
+find_package(Boost REQUIRED)
+find_package(fmt REQUIRED)
+find_package(libassert REQUIRED)
 find_package(spdlog REQUIRED)
 
 find_package(GTest)
@@ -46,4 +49,5 @@ find_package(GTest)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
+# add_subdirectory(chess)
 add_subdirectory(platform)

@@ -1,13 +1,12 @@
 #type: ignore
 # Ignore typing for the whole file, since all it does is throw errors on my machine.
 # Easy enough to validate by hand.
+import re
+
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.build import check_min_cppstd
-
-import re
 from pathlib import Path
-string = r"""project\s*\(\s*([A-Za-z_][A-Za-z0-9_+-]*)"""
 
 project_regex_string = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
 
@@ -31,10 +30,6 @@ class AlephConan(ConanFile):
 
     def layout(self):
         cmake_layout(self)
-        
-    def package(self):
-        cmake = CMake(self)
-        cmake.install()
 
     def set_name(self):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
@@ -60,6 +55,7 @@ class AlephConan(ConanFile):
 
     def requirements(self):
         self.requires('boost/1.90.0')
+        self.requires('fmt/12.1.0')
         self.requires('libassert/2.2.1')
         self.requires('spdlog/1.17.0')
         
