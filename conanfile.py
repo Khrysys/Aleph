@@ -59,17 +59,10 @@ class AlephConan(ConanFile):
         self.version = m.group(2)
 
     def requirements(self):
-        self.requires('abseil/20250814.0')
-        self.requires('argparse/3.2')
         self.requires('boost/1.90.0')
-        self.requires('half/2.2.0')
+        self.requires('libassert/2.2.1')
         self.requires('spdlog/1.17.0')
-        self.requires('tomlplusplus/3.4.0')
-        if self.options.get_safe('with_libtorch', False):
-            self.requires('libtorch/2.9.1')
-        if self.options.get_safe('with_onnxruntime', False):
-            self.requires('onnxruntime/1.23.2')
-            
+        
         self.test_requires('gtest/1.17.0')
             
     def validate(self):
