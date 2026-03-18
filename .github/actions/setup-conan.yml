@@ -1,0 +1,33 @@
+name: Setup Conan
+description: Install Conan and restore cache
+
+inputs:
+  cache-key:
+    description: Additional cache key component
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Conan
+      shell: bash
+      run: pip install conan==2.*
+
+    - name: Cache Conan packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.conan2/p
+        key: conan-${{ inputs.cache-key }}-${{ hashFiles('conanfile.py') }}
+        restore-keys: |
+          conan-${{ inputs.cache-key }}-
+          conan-${{ inputs.profile }}-
+
+    - name: Detect Conan profile
+      shell: bash
+      run: conan profile detect --force
