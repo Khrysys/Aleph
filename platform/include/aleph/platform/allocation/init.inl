@@ -16,7 +16,8 @@
 
 namespace aleph::platform::allocation {
     inline auto isHugePagesAvailable() noexcept -> bool {
-        static const bool available = []() noexcept -> bool {
+
+        static const auto available = []() noexcept -> bool {
 #if BOOST_OS_WINDOWS
             return GetLargePageMinimum() != 0;
 #elif BOOST_OS_LINUX
@@ -90,10 +91,11 @@ namespace aleph::platform::allocation {
     }
 
     inline auto getPageSize() noexcept -> std::size_t {
-        static const std::size_t page_size = []() noexcept -> std::size_t {
+        static const auto page_size = []() noexcept -> std::size_t {
 #if BOOST_OS_WINDOWS
-            std::size_t large = GetLargePageMinimum();
-            if (large != 0) return static_cast<std::size_t>(large);
+            if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
+                return largeSize;
+            }
             SYSTEM_INFO si;
             GetSystemInfo(&si);
             return static_cast<std::size_t>(si.dwPageSize);

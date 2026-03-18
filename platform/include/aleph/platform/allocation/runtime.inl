@@ -44,9 +44,9 @@ namespace aleph::platform::allocation {
 #elif BOOST_OS_LINUX
         // Attempt explicit huge pages first.
         if (isHugePagesAvailable()) {
-            void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE,
-                             MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
-            if (ptr != MAP_FAILED) {
+            if (void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE,
+                                 MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
+                ptr != MAP_FAILED) {
                 return {ptr, size, PageSize::Large};
             }
             spdlog::warn(
