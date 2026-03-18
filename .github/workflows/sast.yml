@@ -72,10 +72,10 @@ jobs:
     # or others). This is typically only required for manual builds.
     # - name: Setup runtime (example)
     #   uses: actions/setup-example@v1
-    
+
     - name: Setup Conan
       if: matrix.language == 'c-cpp'
-      uses: ./.github/actions/setup-conan.yml
+      uses: ./.github/actions/setup-conan
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
