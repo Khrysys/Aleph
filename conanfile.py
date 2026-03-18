@@ -60,6 +60,7 @@ class AlephConan(ConanFile):
 
     def requirements(self):
         self.requires('boost/1.90.0')
+        self.requires('fmt/12.1.0')
         self.requires('libassert/2.2.1')
         self.requires('spdlog/1.17.0')
         
