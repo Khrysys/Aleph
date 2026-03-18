@@ -4,7 +4,6 @@ add_library(aleph_platform INTERFACE
     "include/aleph/platform/allocation/runtime.hpp"
     "include/aleph/platform/allocation/runtime.inl"
     "include/aleph/platform/allocation.hpp"
-    "include/aleph/platform/compiler.hpp"
     "include/aleph/platform/intrinsics.hpp"
     "include/aleph/platform/log_info.hpp"
     "include/aleph/platform.hpp"
