@@ -11,7 +11,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "../compiler.hpp"
 #include "runtime.hpp"
 
 namespace aleph::platform::allocation {

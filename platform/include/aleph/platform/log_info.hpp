@@ -8,7 +8,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "compiler.hpp"
 #include "intrinsics.hpp"
 
 namespace aleph::platform {
@@ -31,22 +30,6 @@ namespace aleph::platform {
         }
 
     }  // namespace detail
-
-    /**
-     * Logs compiler and language feature configuration.
-     * Must be called after `loggingInit()`.
-     */
-    inline auto logCompilerConfig() -> void {
-        detail::log_section("Language / Feature Support");
-
-        detail::log_flag("[[assume]]",
-#ifdef ALEPH_HAS_ASSUME
-                         true
-#else
-                         false
-#endif
-        );
-    }
 
     /**
      * Logs CPU intrinsics availability.
@@ -82,9 +65,6 @@ namespace aleph::platform {
      * Logs all platform diagnostic information.
      * Must be called after `loggingInit()` during engine startup.
      */
-    inline auto logPlatformConfig() -> void {
-        logCompilerConfig();
-        logIntrinsicsConfig();
-    }
+    inline auto logPlatformConfig() -> void { logIntrinsicsConfig(); }
 
 }  // namespace aleph::platform
