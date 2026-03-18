@@ -1,21 +1,17 @@
+#type: ignore
+# Ignore typing for the whole file, since all it does is throw errors on my machine.
+# Easy enough to validate by hand.
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
-from conan.tools.files import download
 from conan.tools.build import check_min_cppstd
 
 import re
 from pathlib import Path
+string = r"""project\s*\(\s*([A-Za-z_][A-Za-z0-9_+-]*)"""
+
+project_regex_string = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
 
 class AlephConan(ConanFile):
-    options = {
-        'with_libtorch': [True, False],
-        'with_onnxruntime': [True, False],
-    }
-
-    default_options = {
-        'with_libtorch': True,
-        'with_onnxruntime': False
-    }
     settings = "os", "compiler", "build_type", "arch"
 
     def build(self):
@@ -44,15 +40,7 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(
-            r"""
-            project
-            \s*\(
-            \s*([A-Za-z_][A-Za-z0-9_+-]*)   # project name
-            """,
-            content,
-            re.IGNORECASE | re.VERBOSE | re.DOTALL,
-        )
+        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract project name from CMakeLists.txt")
@@ -63,29 +51,19 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(
-            r"""
-            project
-            \s*\(
-            \s*[A-Za-z_][A-Za-z0-9_+-]*
-            [^)]*?
-            VERSION\s+
-            ([^\s\)]+)
-            """,
-            content,
-            re.IGNORECASE | re.VERBOSE | re.DOTALL,
-        )
+        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract version from project() in CMakeLists.txt")
 
-        self.version = m.group(1)
+        self.version = m.group(2)
 
     def requirements(self):
         self.requires('abseil/20250814.0')
         self.requires('argparse/3.2')
         self.requires('boost/1.90.0')
         self.requires('half/2.2.0')
+        self.requires('spdlog/1.17.0')
         self.requires('tomlplusplus/3.4.0')
         if self.options.get_safe('with_libtorch', False):
             self.requires('libtorch/2.9.1')

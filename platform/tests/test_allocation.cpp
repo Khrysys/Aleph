@@ -72,7 +72,7 @@ TEST(RoundToPage, LargeSize) {
 
 TEST(RoundToPage, ResultAlwaysMultipleOfPageSize) {
     std::size_t page = getPageSize();
-    for (size_t i = 0; i <= page * 2; i++) {
+    for (std::size_t i = 0; i <= page * 2; i++) {
         EXPECT_EQ(roundToPage(i, page) % page, std::size_t{0});
     }
 }
@@ -107,12 +107,12 @@ TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
     ASSERT_NE(result.ptr, nullptr);
 
     // Write and read back
-    std::uint8_t* mem = static_cast<uint8_t*>(result.ptr);
-    for (size_t i = 0; i < page; ++i) {
-        mem[i] = static_cast<uint8_t>(i & 0xFF);
+    auto mem = static_cast<uint8_t*>(result.ptr);
+    for (std::size_t i = 0; i < page; ++i) {
+        mem[i] = static_cast<std::uint8_t>(i & 0xFF);
     }
-    for (size_t i = 0; i < page; ++i) {
-        EXPECT_EQ(mem[i], static_cast<uint8_t>(i & 0xFF));
+    for (std::size_t i = 0; i < page; ++i) {
+        EXPECT_EQ(mem[i], static_cast<std::uint8_t>(i & 0xFF));
     }
 
     deallocate(result);

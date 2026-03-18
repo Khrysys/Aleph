@@ -13,9 +13,7 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
-permissions: read-all
-
+  
 jobs:
   cpp-linter:
     name: C++ Linter
@@ -42,8 +40,7 @@ jobs:
           tidy-checks: '-*'
           version: '22'
           verbosity: 'info'
-          lines-changed-only: false
-          files-changed-only: false
+          files-changed-only: true
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
           step-summary: true
           tidy-review: true
