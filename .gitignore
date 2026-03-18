@@ -1,8 +1,11 @@
 # Build Directories
 build/*
-CMakeUserPresets.json
 docs/_build/*
 docs/_static/*
 docs/_templates/*
+
+CMakeUserPresets.json
 # Local Development files
+.vscode/*
+
 profile.toml
