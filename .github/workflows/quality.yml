@@ -22,7 +22,7 @@ jobs:
     name: C++ Linter
     runs-on: ubuntu-latest    
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
  
       - name: Install codespell
-        run: pip install codespell
+        run: pip install -r .github/requirements/codespell.txt
  
       - name: Run codespell
         run: |
@@ -105,7 +105,7 @@ jobs:
     name: CMake Linter
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -116,7 +116,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
  
       - name: Install cmake-lint
-        run: pip install cmakelang[YAML]
+        run: pip install -r .github/requirements/cmakelang.txt
  
       - name: Run cmake-lint
         run: |

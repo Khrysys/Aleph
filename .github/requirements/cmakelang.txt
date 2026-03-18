@@ -1,0 +1,2 @@
+cmakelang[YAML]==0.6.13 \
+    --hash=sha256:764b9467195c7c36453d60a829f30229720d26c7dffd41cb516b99bd9c7daf4e
