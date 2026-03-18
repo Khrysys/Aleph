@@ -36,8 +36,11 @@ endif()
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-find_package(absl REQUIRED)
+find_package(Python REQUIRED COMPONENTS Interpreter)
+
 find_package(boost REQUIRED)
+find_package(fmt REQUIRED)
+find_package(libassert REQUIRED)
 find_package(spdlog REQUIRED)
 
 find_package(GTest)
