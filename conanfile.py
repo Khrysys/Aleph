@@ -20,7 +20,7 @@ class AlephConan(ConanFile):
         cmake.test()
 
     def build_requirements(self):
-        self.requires('cmake/4.2.1', force=True)
+        self.build_requires('cmake/4.2.1')
 
     def generate(self):
         deps = CMakeDeps(self)
