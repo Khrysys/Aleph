@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
+
 #include <aleph/chess/move_list.hpp>
 
 using namespace aleph::chess;
 
-static Move makeMove(uint8_t from, uint8_t to) {
-    return Move(Square(from), Square(to));
-}
+static Move makeMove(uint8_t from, uint8_t to) { return Move(Square(from), Square(to)); }
 
 TEST(MoveListTest, DefaultEmpty) {
     MoveList<256> ml;
@@ -27,8 +26,7 @@ TEST(MoveListTest, PushBack) {
 
 TEST(MoveListTest, PushBackMultiple) {
     MoveList<256> ml;
-    for (uint8_t i = 0; i < 10; i++)
-        ml.push_back(makeMove(i, i + 1));
+    for (uint8_t i = 0; i < 10; i++) ml.push_back(makeMove(i, i + 1));
     EXPECT_EQ(ml.size(), 10);
 }
 
@@ -78,28 +76,27 @@ TEST(MoveListTest, OperatorPlusEqList) {
 
 TEST(MoveListTest, OperatorPlusMove) {
     MoveList<256> ml;
-    ml += makeMove(0, 1);
-    auto result = ml + makeMove(2, 3);
+    ml          += makeMove(0, 1);
+    auto result  = ml + makeMove(2, 3);
     EXPECT_EQ(result.size(), 2);
-    EXPECT_EQ(ml.size(), 1); // original unchanged
+    EXPECT_EQ(ml.size(), 1);  // original unchanged
 }
 
 TEST(MoveListTest, OperatorPlusList) {
     MoveList<256> a, b;
-    a += makeMove(0, 1);
-    b += makeMove(2, 3);
-    auto result = a + b;
+    a           += makeMove(0, 1);
+    b           += makeMove(2, 3);
+    auto result  = a + b;
     EXPECT_EQ(result.size(), 2);
-    EXPECT_EQ(a.size(), 1); // original unchanged
+    EXPECT_EQ(a.size(), 1);  // original unchanged
 }
 
 TEST(MoveListTest, RangeFor) {
     MoveList<256> ml;
-    ml += makeMove(0, 1);
-    ml += makeMove(2, 3);
-    int count = 0;
-    for (const Move& m : ml)
-        count++;
+    ml        += makeMove(0, 1);
+    ml        += makeMove(2, 3);
+    int count  = 0;
+    for (const Move& m : ml) count++;
     EXPECT_EQ(count, 2);
 }
 

@@ -95,9 +95,7 @@ TEST(MoveTest, CornerSquares) {
     EXPECT_EQ(static_cast<uint8_t>(m.to()), 63);
 }
 
-TEST(MoveTest, ToStringNoPromo) {
-    EXPECT_EQ(Move(Square(1, 4), Square(3, 4)).toString(), "e2e4");
-}
+TEST(MoveTest, ToStringNoPromo) { EXPECT_EQ(Move(Square(1, 4), Square(3, 4)).toString(), "e2e4"); }
 
 TEST(MoveTest, ToStringPromo) {
     EXPECT_EQ(Move(Square(6, 4), Square(7, 4), QUEEN).toString(), "e7e8q");
@@ -106,13 +104,11 @@ TEST(MoveTest, ToStringPromo) {
 TEST(MoveTest, ToStringAllPromos) {
     EXPECT_EQ(Move(Square(6, 4), Square(7, 4), BISHOP).toString(), "e7e8b");
     EXPECT_EQ(Move(Square(6, 4), Square(7, 4), KNIGHT).toString(), "e7e8n");
-    EXPECT_EQ(Move(Square(6, 4), Square(7, 4), ROOK).toString(),   "e7e8r");
-    EXPECT_EQ(Move(Square(6, 4), Square(7, 4), QUEEN).toString(),  "e7e8q");
+    EXPECT_EQ(Move(Square(6, 4), Square(7, 4), ROOK).toString(), "e7e8r");
+    EXPECT_EQ(Move(Square(6, 4), Square(7, 4), QUEEN).toString(), "e7e8q");
 }
 
-TEST(MoveTest, ToStringCornerSquares) {
-    EXPECT_EQ(Move(Square(0), Square(63)).toString(), "a1h8");
-}
+TEST(MoveTest, ToStringCornerSquares) { EXPECT_EQ(Move(Square(0), Square(63)).toString(), "a1h8"); }
 
 TEST(MoveTest, ToStringMatchesFormatter) {
     Move m(Square(1, 4), Square(3, 4));
