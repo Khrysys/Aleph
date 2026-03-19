@@ -36,6 +36,9 @@ namespace aleph::chess {
                 DEBUG_ASSERT(promo != PieceType::KING);
             }
 
+            /** Constructs a default move that is null (a1a1) and has no promotion. */
+            constexpr inline Move() : data(0) {}
+
             /** Returns the origin square of this move. */
             [[nodiscard]] constexpr inline Square from() const noexcept { return data & 0x003F; }
 
@@ -64,8 +67,7 @@ namespace aleph::chess {
             /** Returns this move in UCI notation, e.g. "e2e4" or "e7e8q". */
             [[nodiscard]] constexpr inline std::string toString() const {
                 std::string r = from().toString() + to().toString();
-                if(hasPromo())
-                    r += detail::PIECE_TYPE_CHARS[promo() + 6];
+                if (hasPromo()) r += detail::PIECE_TYPE_CHARS[promo() + 6];
                 return r;
             }
 

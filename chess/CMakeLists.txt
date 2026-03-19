@@ -11,9 +11,11 @@ add_custom_command(
 )
 
 add_library(aleph_chess INTERFACE 
+    "include/aleph/chess/move_list.hpp"
     "include/aleph/chess/move.hpp"
     "include/aleph/chess/piece.hpp"
     "include/aleph/chess/square.hpp"
+    "include/aleph/chess.hpp"
 )
 unset(_generated_header)
 
