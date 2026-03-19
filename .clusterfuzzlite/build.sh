@@ -10,8 +10,9 @@ cd $SRC/aleph
 
 conan build . \
     --build=missing \
-    -c tools.build:cxxflags=$CXXFLAGS
-    -c tools.build:compiler_executables=$CXX
+    -s compiler.cppstd=20
+    -c tools.build:cxxflags=\"$CXXFLAGS\"
+    -c tools.build:compiler_executables=\"$CXX\"
     -c tools.cmake.cmaketoolchain:extra_variables={'Aleph_BUILD_FUZZING', 'ON'}
 
 # build fuzzers
