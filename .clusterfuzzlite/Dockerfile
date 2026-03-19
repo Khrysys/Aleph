@@ -1,7 +1,5 @@
-FROM gcr.io/oss-fuzz/base-builder-clang
-
-RUN apt-get update && apt-get install -y python3-pip
-RUN pip3 install conan --break-system-packages
-
+FROM gcr.io/oss-fuzz-base/base-builder:v1
+RUN apt-get update && apt-get install -y make cmake python3-pip && pip3 install conan && conan profile detect
 COPY . $SRC/aleph
-WORKDIR $SRC/aleph
+WORKDIR aleph
+COPY .clusterfuzzlite/build.sh $SRC/
