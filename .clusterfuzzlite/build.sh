@@ -14,4 +14,9 @@ conan build . \
     -s:a "compiler.version=21" \
     -s "compiler.cppstd=20" \
     -c "tools.build:cflags=$CONAN_CFLAGS" \
-    -c "tools.build:cxxflags=$CONAN_CXXFLAGS"
+    -c "tools.build:cxxflags=$CONAN_CXXFLAGS" \
+    -o "boost:without_cobalt=True" \
+    -o "boost:without_cobalt_io=True" \
+    -o "boost:without_locale=True" \
+    -o "boost:without_stacktrace_addr2line=True" \
+    -o "boost:without_stacktrace_backtrace=True"
