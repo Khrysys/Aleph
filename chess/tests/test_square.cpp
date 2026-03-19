@@ -1,3 +1,9 @@
+/**
+ * @file tests/test_square.cpp
+ * 
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #include <gtest/gtest.h>
 
 #include <aleph/chess/square.hpp>

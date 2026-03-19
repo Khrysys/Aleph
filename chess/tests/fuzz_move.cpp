@@ -1,3 +1,9 @@
+/**
+ * @file tests/fuzz_move.cpp
+ * 
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #include <cstdint>
 
 #include <libassert/assert.hpp>

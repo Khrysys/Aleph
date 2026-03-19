@@ -1,10 +1,16 @@
+/**
+ * @file include/aleph/chess/move_list.hpp
+ * 
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <array>
 #include <cstddef>
 
-#include <libassert/assert.hpp>
 #include <fmt/format.h>
+#include <libassert/assert.hpp>
 
 #include "move.hpp"
 
@@ -42,9 +48,7 @@ namespace aleph::chess {
             [[nodiscard]] constexpr inline bool empty() const noexcept { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static inline size_type capacity() noexcept {
-                return Capacity;
-            }
+            [[nodiscard]] constexpr static inline size_type capacity() noexcept { return Capacity; }
 
             // --- Element access ---
 
@@ -54,7 +58,8 @@ namespace aleph::chess {
                 return _moves[i];
             }
 
-            /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds. */
+            /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds.
+             */
             [[nodiscard]] constexpr inline const Move& operator[](size_type i) const noexcept {
                 DEBUG_ASSERT(i < _size);
                 return _moves[i];
@@ -66,8 +71,7 @@ namespace aleph::chess {
              */
             [[nodiscard]] constexpr inline bool contains(const Move& m) const noexcept {
                 for (size_type i = 0; i < _size; ++i)
-                    if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(m))
-                        return true;
+                    if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(m)) return true;
                 return false;
             }
 
@@ -87,9 +91,7 @@ namespace aleph::chess {
 
             // --- Iteration ---
 
-            [[nodiscard]] constexpr inline iterator begin() noexcept {
-                return _moves.begin();
-            }
+            [[nodiscard]] constexpr inline iterator begin() noexcept { return _moves.begin(); }
 
             [[nodiscard]] constexpr inline iterator end() noexcept {
                 return _moves.begin() + _size;
@@ -127,10 +129,10 @@ namespace aleph::chess {
              * Asserts that the combined size does not exceed capacity in debug builds.
              */
             template <std::size_t OtherCap>
-            constexpr inline MoveList<Capacity>& operator+=(const MoveList<OtherCap>& other) noexcept {
+            constexpr inline MoveList<Capacity>& operator+=(
+                const MoveList<OtherCap>& other) noexcept {
                 DEBUG_ASSERT(_size + other.size() <= Capacity);
-                for (size_type i = 0; i < other.size(); ++i)
-                    _moves[_size++] = other[i];
+                for (size_type i = 0; i < other.size(); ++i) _moves[_size++] = other[i];
                 return *this;
             }
 
@@ -154,10 +156,10 @@ namespace aleph::chess {
 
         private:
             storage_type _moves;
-            size_type    _size;
+            size_type _size;
     };
 
-} // namespace aleph::chess
+}  // namespace aleph::chess
 
 /**
  * Formats a `MoveList` as a space-separated sequence of UCI move strings,
@@ -166,15 +168,14 @@ namespace aleph::chess {
  */
 template <std::size_t Capacity>
 struct fmt::formatter<aleph::chess::MoveList<Capacity>> {
-    constexpr auto parse(fmt::format_parse_context& ctx) const { return ctx.begin(); }
+        constexpr auto parse(fmt::format_parse_context& ctx) const { return ctx.begin(); }
 
-    auto format(const aleph::chess::MoveList<Capacity>& ml,
-                fmt::format_context& ctx) const {
-        auto out = ctx.out();
-        for (std::size_t i = 0; i < ml.size(); ++i) {
-            if (i > 0) out = fmt::format_to(out, " ");
-            out = fmt::format_to(out, "{}", ml[i]);
+        auto format(const aleph::chess::MoveList<Capacity>& ml, fmt::format_context& ctx) const {
+            auto out = ctx.out();
+            for (std::size_t i = 0; i < ml.size(); ++i) {
+                if (i > 0) out = fmt::format_to(out, " ");
+                out = fmt::format_to(out, "{}", ml[i]);
+            }
+            return out;
         }
-        return out;
-    }
 };
