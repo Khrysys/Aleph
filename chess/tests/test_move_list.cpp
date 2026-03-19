@@ -102,6 +102,7 @@ TEST(MoveListTest, RangeFor) {
     ml        += makeMove(0, 1);
     ml        += makeMove(2, 3);
     int count  = 0;
+    // cppcheck-suppress[useStlAlgorithm]
     for (const Move& m : ml) count++;
     EXPECT_EQ(count, 2);
 }
