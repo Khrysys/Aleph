@@ -18,5 +18,4 @@ conan build . \
     -o "boost/*:without_cobalt=True" \
     -o "boost/*:without_cobalt_io=True" \
     -o "boost/*:without_locale=True" \
-    -o "boost/*:without_stacktrace_addr2line=True" \
-    -o "boost/*:without_stacktrace_backtrace=True"
+    -o "boost/*:without_stacktrace=True"
