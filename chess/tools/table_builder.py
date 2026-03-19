@@ -21,7 +21,7 @@ def flip_square(sq: int) -> int:
     
     :param sq: Integer square index on the board, 0-63.
     :type sq: int
-    :return: The index of the square fliped across the horizontal center.
+    :return: The index of the square flipped across the horizontal center.
     :rtype: int
     '''
     r, f = rank_file(sq)
