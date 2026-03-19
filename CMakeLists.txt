@@ -18,6 +18,18 @@ option(Aleph_BUILD_TESTS
     ON
 )
 
+if(DEFINED ENV{LIB_FUZZING_ENGINE})
+    option(Aleph_BUILD_FUZZING
+        "Build fuzz targets for the modules within the engine. This option adds fuzzing and \
+        sanitizers, which may impact performance. "
+    )
+else()
+    message(STATUS 
+        "LIB_FUZZING_ENGINE environment variable not set. Fuzzing is unavailable without it."
+    )
+    set(Aleph_BUILD_FUZZING OFF)
+endif()
+
 # Platform architecture changes
 option(Aleph_BUILD_NATIVE_ARCH "Build with native architecture flags" ON)
 option(Aleph_ENABLE_AVX2  "Enable AVX2"  ON)
@@ -49,5 +61,5 @@ find_package(GTest)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-# add_subdirectory(chess)
+add_subdirectory(chess)
 add_subdirectory(platform)
