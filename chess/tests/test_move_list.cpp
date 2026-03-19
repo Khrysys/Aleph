@@ -119,6 +119,7 @@ TEST(MoveListTest, FormatterEmpty) {
     EXPECT_EQ(fmt::format("{}", ml), "");
 }
 
+#ifndef NDEBUG
 TEST(MoveListTest, OutOfBoundsAccessAsserts) {
     MoveList<256> ml;
     EXPECT_DEATH(auto r = ml[0], "");
@@ -138,3 +139,4 @@ TEST(MoveListTest, MergeOverCapacityAsserts) {
     b += makeMove(2, 3);
     EXPECT_DEATH(a += b, "");
 }
+#endif
