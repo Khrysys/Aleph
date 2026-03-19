@@ -10,6 +10,7 @@ CONAN_CXXFLAGS=$(python3 -c "$FLAGS_PY" "$CXXFLAGS")
 
 conan build . \
     --build=missing \
+    --build="b2/* \
     -s:a "compiler.version=21" \
     -s "compiler.cppstd=20" \
     -c "tools.build:cflags=$CONAN_CFLAGS" \
