@@ -15,6 +15,7 @@ conan build . \
     -s "compiler.cppstd=20" \
     -c "tools.build:cflags=$CONAN_CFLAGS" \
     -c "tools.build:cxxflags=$CONAN_CXXFLAGS" \
+    -c "tools.cmake.cmaketoolchain:generator=Ninja" \
     -o "boost/*:without_cobalt=True" \
     -o "boost/*:without_cobalt_io=True" \
     -o "boost/*:without_locale=True" \
