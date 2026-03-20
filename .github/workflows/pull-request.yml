@@ -10,7 +10,7 @@ permissions:
   contents: none
 
 concurrency:
-  group: action-${{ github.workflow }}-${{ github.ref }}
+  group: action-${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 jobs:

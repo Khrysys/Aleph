@@ -4,12 +4,18 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    commit-message:
+      prefix: chore
   - package-ecosystem: pip
     directory: /.github/requirements
     schedule:
       interval: weekly
+    commit-message:
+      prefix: chore
 
   - package-ecosystem: pip
     directory: /docs
     schedule:
       interval: daily
+    commit-message:
+      prefix: chore!
