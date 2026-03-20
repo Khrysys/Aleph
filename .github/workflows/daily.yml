@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    concurrency:
+      group: action-ClusterFuzzLite-${{ github.ref }}
+      cancel-in-progress: true
 
     strategy:
       matrix:

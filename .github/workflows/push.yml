@@ -69,3 +69,38 @@ jobs:
         uses: github/codeql-action/upload-sarif@603b797f8b14b413fe025cd935a91c16c4782713 # v3.33.0
         with:
           sarif_file: results.sarif
+
+  clusterfuzzlite:
+    name: ClusterFuzzLite (${{ matrix.mode }}, ${{ matrix.sanitizer }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: action-ClusterFuzzLite-${{ github.ref }}
+      cancel-in-progress: true
+
+    strategy:
+      matrix:
+        include:
+          - mode: code-change
+            sanitizer: address
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+        
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run Fuzzer
+        uses: ./.github/actions/clusterfuzzlite
+        with:
+          mode: ${{ matrix.mode }}
+          fuzz-seconds: 600
+          sanitizer: ${{ matrix.sanitizer }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
