@@ -1,6 +1,6 @@
 /**
  * @file include/aleph/chess/move.hpp
- * 
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
@@ -12,10 +12,10 @@
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
 
+#include <aleph/platform.hpp>
+
 #include "piece.hpp"
 #include "square.hpp"
-
-#include <aleph/platform.hpp>
 
 namespace aleph::chess {
 
@@ -74,10 +74,10 @@ namespace aleph::chess {
 
             /** Returns this move in UCI notation, e.g. "e2e4" or "e7e8q". */
             [[nodiscard]]
-            #ifdef ALEPH_CONSTEXPR_STRING
-            constexpr 
-            #endif
-            inline std::string toString() const {
+#ifdef ALEPH_CONSTEXPR_STRING
+            constexpr
+#endif
+                inline std::string toString() const {
                 std::string r = from().toString() + to().toString();
                 if (hasPromo()) r += detail::PIECE_TYPE_CHARS[promo() + 6];
                 return r;

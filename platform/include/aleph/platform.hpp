@@ -1,6 +1,6 @@
 /**
  * @file include/aleph/platform.hpp
- * 
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */

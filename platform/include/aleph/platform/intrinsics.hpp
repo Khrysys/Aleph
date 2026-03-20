@@ -1,6 +1,6 @@
 /**
  * @file include/aleph/platform/intrinsics.hpp
- * 
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
@@ -12,9 +12,9 @@
 
 // ===== Intrinsics Includes =====
 #if BOOST_OS_WINDOWS
-#  include <intrin.h>
+    #include <intrin.h>
 #else
-#  include <x86intrin.h>
+    #include <x86intrin.h>
 #endif
 
 /**
