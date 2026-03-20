@@ -30,10 +30,11 @@ namespace aleph::chess {
     template <std::size_t Capacity>
     class MoveList {
         public:
-            using value_type     = Move;
+            /** The type of the underlying container used to store the moves on the stack. */
             using storage_type   = std::array<Move, Capacity>;
-            using size_type      = std::size_t;
+            /** Iterator type, used for range-for loop support. */
             using iterator       = typename storage_type::iterator;
+            /** Constant iterator type, used for range-for loop support. */
             using const_iterator = typename storage_type::const_iterator;
 
             /** Constructs an empty move list. */
@@ -42,25 +43,25 @@ namespace aleph::chess {
             // --- Capacity / size ---
 
             /** Returns the number of moves currently in the list. */
-            [[nodiscard]] constexpr inline size_type size() const noexcept { return _size; }
+            [[nodiscard]] constexpr inline std::size_t size() const noexcept { return _size; }
 
             /** Returns true if the list contains no moves. */
             [[nodiscard]] constexpr inline bool empty() const noexcept { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static inline size_type capacity() noexcept { return Capacity; }
+            [[nodiscard]] constexpr static inline std::size_t capacity() noexcept { return Capacity; }
 
             // --- Element access ---
 
             /** Returns a reference to the move at index `i`. Asserts bounds in debug builds. */
-            [[nodiscard]] constexpr inline Move& operator[](size_type i) noexcept {
+            [[nodiscard]] constexpr inline Move& operator[](std::size_t i) noexcept {
                 DEBUG_ASSERT(i < _size);
                 return _moves[i];
             }
 
             /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds.
              */
-            [[nodiscard]] constexpr inline const Move& operator[](size_type i) const noexcept {
+            [[nodiscard]] constexpr inline const Move& operator[](std::size_t i) const noexcept {
                 DEBUG_ASSERT(i < _size);
                 return _moves[i];
             }
@@ -70,7 +71,7 @@ namespace aleph::chess {
              * Comparison is performed via `uint16_t` conversion.
              */
             [[nodiscard]] constexpr inline bool contains(const Move& m) const noexcept {
-                for (size_type i = 0; i < _size; ++i)
+                for (std::size_t i = 0; i < _size; ++i)
                     if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(m)) return true;
                 return false;
             }
@@ -132,7 +133,7 @@ namespace aleph::chess {
             constexpr inline MoveList<Capacity>& operator+=(
                 const MoveList<OtherCap>& other) noexcept {
                 DEBUG_ASSERT(_size + other.size() <= Capacity);
-                for (size_type i = 0; i < other.size(); ++i) _moves[_size++] = other[i];
+                for (std::size_t i = 0; i < other.size(); ++i) _moves[_size++] = other[i];
                 return *this;
             }
 
@@ -158,7 +159,7 @@ namespace aleph::chess {
             /** Storage container for the moves in the move list. */
             storage_type _moves;
             /** Number of slots filled in the move list. */
-            size_type _size;
+            std::size_t _size;
     };
 
 }  // namespace aleph::chess
