@@ -40,6 +40,18 @@ jobs:
             -print0 \
             | xargs -0 cmake-lint -c ./.cmake-lint
 
+  codeql:
+    name: CodeQL Analysis
+    uses: ./.github/workflows/codeql.yml
+    concurrency:
+      group: action-CodeQL Analysis-${{ github.event.pull_request.head.sha || github.sha }}
+      cancel-in-progress: true
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
   dependency-review:
     name: dependency-review 
     runs-on: ubuntu-latest
