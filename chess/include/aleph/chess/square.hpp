@@ -97,6 +97,7 @@ namespace aleph::chess {
 
 }  // namespace aleph::chess
 
+/// @cond INTERNAL
 /**
  * Formats a `Square` as its algebraic notation (e.g. "e4") for use with spdlog and fmtlib.
  * Registered outside `aleph::chess` per fmtlib specialization requirements.
@@ -109,3 +110,4 @@ struct fmt::formatter<aleph::chess::Square> {
             return fmt::format_to(ctx.out(), "{}", sq.toString());
         }
 };
+/// @endcond

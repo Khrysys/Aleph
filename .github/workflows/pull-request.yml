@@ -1,0 +1,269 @@
+name: Pull Requests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: action-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  action-lint:
+    name: Action Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Check workflow files
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
+
+  cmake-lint:
+    name: CMake Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+ 
+      - name: Install cmake-lint
+        run: pip install -r .github/requirements/cmakelang.txt
+ 
+      - name: Run cmake-lint
+        run: |
+          find . \( -name 'CMakeLists.txt' -o -name '*.cmake' \) \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0 \
+            | xargs -0 cmake-lint -c ./.cmake-lint
+
+  codeql:
+    name: CodeQL Analysis
+    uses: ./.github/workflows/codeql.yml
+    concurrency:
+      group: action-CodeQL Analysis-${{ github.ref }}
+      cancel-in-progress: true
+
+  dependency-review:
+    name: dependency-review 
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls) ${{ github.job }}
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+ 
+      - name: Dependency review
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            perf
+            test
+            ci
+            build
+            release
+
+  doxygen:
+    name: doxygen-coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+ 
+      - name: Install doxygen
+        run: sudo apt-get install -y doxygen
+ 
+      - name: Check documentation coverage
+        run: |
+          cat > /tmp/doxygen-lint.cfg << 'EOF'
+          PROJECT_NAME           = Aleph
+          INPUT                  = .
+          RECURSIVE              = YES
+          EXCLUDE                = build .conan
+          EXTRACT_ALL            = NO
+          WARN_IF_UNDOCUMENTED   = YES
+          WARN_AS_ERROR          = YES
+          GENERATE_HTML          = NO
+          GENERATE_XML           = NO
+          GENERATE_LATEX         = NO
+          QUIET                  = YES
+          FILE_PATTERNS          = *.hpp *.inl
+          EOF
+          doxygen /tmp/doxygen-lint.cfg
+
+  cpp-linter:
+    name: C++ Linter
+    runs-on: ubuntu-latest    
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run cpp-linter
+        uses: cpp-linter/cpp-linter-action@24467985494bed9bfc398489b6ec12469beaf4da # v2.17.0
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
+          extensions: 'c,h,cpp,hpp'
+          tidy-checks: '-*'
+          version: '22'
+          verbosity: 'info'
+          files-changed-only: true
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          step-summary: true
+          tidy-review: true
+          format-review: true
+
+      - name: Fail if issues found
+        if: steps.linter.outputs.checks-failed > 0
+        run: exit 1
+
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+ 
+      - name: Install cppcheck
+        run: sudo apt-get install -y cppcheck
+ 
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+          --enable=all \
+          --error-exitcode=1 \
+          --suppress=missingIncludeSystem \
+          --inline-suppr \
+          .
+  
+  codespell:
+    name: codespell
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+ 
+      - name: Install codespell
+        run: pip install -r .github/requirements/codespell.txt
+ 
+      - name: Run codespell
+        run: |
+          codespell \
+            --skip="../.git" \
+            --ignore-words-list="aleph" \
+            .
+            
+  license-headers:
+    name: license-headers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+ 
+      - name: Check SPDX and copyright headers
+        run: |
+          missing=0
+          while IFS= read -r -d '' file; do
+            if ! grep -q 'SPDX-License-Identifier: GPL-3.0-only' "$file"; then
+              echo "Missing SPDX header: $file"
+              missing=1
+            fi
+            if ! grep -q 'Copyright (c)' "$file"; then
+              echo "Missing copyright header: $file"
+              missing=1
+            fi
+          done < <(find . \( -name '*.cpp' -o -name '*.hpp' -o -name '*.inl' \) \
+            -not -path './build/*' \
+            -not -path './.conan/*' \
+            -print0)
+          exit $missing

@@ -1,0 +1,63 @@
+name: CodeQL Analysis
+ 
+on:
+  workflow_call:
+ 
+permissions:
+  contents: read
+ 
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+ 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: manual
+          - language: python
+            build-mode: none
+ 
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Conan
+        if: matrix.language == 'c-cpp'
+        uses: ./.github/actions/setup-conan
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Run manual build steps
+        if: matrix.build-mode == 'manual'
+        shell: bash
+        run: |
+          conan build . \
+          --build=missing \
+          -s:h=compiler.cppstd=20 \
+          -c "tools.build:skip_test=True"
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
+        with:
+          category: "/language:${{matrix.language}}"

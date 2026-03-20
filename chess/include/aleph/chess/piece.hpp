@@ -97,6 +97,7 @@ namespace aleph::chess {
 
 }  // namespace aleph::chess
 
+/// @cond INTERNAL
 /**
  * Formats a `Piece` as its FEN character representation: uppercase for white,
  * lowercase for black (e.g. "P", "n", "K"). Registered outside `aleph::chess`
@@ -110,3 +111,4 @@ struct fmt::formatter<aleph::chess::Piece> {
             return fmt::format_to(ctx.out(), "{}", p.toChar());
         }
 };
+/// @endcond

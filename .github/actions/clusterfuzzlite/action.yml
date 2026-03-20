@@ -1,0 +1,44 @@
+name: ClusterFuzzLite
+description: Build and run fuzzers via ClusterFuzzLite
+
+inputs:
+  mode:
+    description: Fuzzing mode
+    required: true
+  fuzz-seconds:
+    description: Number of seconds to run fuzzers
+    required: false
+    default: 300
+  sanitizer:
+    description: Sanitizer to use
+    required: false
+    default: 'address'
+  github-token: 
+    description: GitHub token for corpus storage repository
+    required: false
+    default: ''
+  token:
+    description: Personal Access Token for Corpus storage repository
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Build fuzzers
+      id: build
+      uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+      with:
+        github-token: ${{ inputs.token }}
+        language: c++
+        sanitizer: ${{ inputs.sanitizer }}
+
+    - name: Run fuzzers
+      id: run
+      uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+      with:
+        github-token: ${{ inputs.token }}
+        fuzz-seconds: ${{ inputs.fuzz-seconds }}
+        mode: ${{ inputs.mode }}
+        sanitizer: ${{ inputs.sanitizer }}
+        storage-repo: https://${{ inputs.token }}@github.com/Khrysys/AlephCorpusStorage.git

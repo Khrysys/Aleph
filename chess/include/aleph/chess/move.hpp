@@ -92,6 +92,7 @@ namespace aleph::chess {
 
 }  // namespace aleph::chess
 
+/// @cond INTERNAL
 /**
  * Formats a `Move` in UCI notation, e.g. "e2e4" or "e7e8q".
  * Promotion piece is appended as a lowercase character when present.
@@ -105,3 +106,4 @@ struct fmt::formatter<aleph::chess::Move> {
             return fmt::format_to(ctx.out(), "{}", m.toString());
         }
 };
+/// @endcond

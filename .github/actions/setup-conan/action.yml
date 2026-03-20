@@ -26,7 +26,7 @@ runs:
         key: conan-${{ inputs.cache-key }}-${{ hashFiles('conanfile.py') }}
         restore-keys: |
           conan-${{ inputs.cache-key }}-
-          conan-${{ inputs.profile }}-
+          conan--
 
     - name: Detect Conan profile
       shell: bash

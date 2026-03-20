@@ -161,6 +161,7 @@ namespace aleph::chess {
 
 }  // namespace aleph::chess
 
+/// @cond INTERNAL
 /**
  * Formats a `MoveList` as a space-separated sequence of UCI move strings,
  * e.g. "e2e4 d7d5 g1f3". Registered outside `aleph::chess` per fmtlib
@@ -179,3 +180,4 @@ struct fmt::formatter<aleph::chess::MoveList<Capacity>> {
             return out;
         }
 };
+/// @endcond
