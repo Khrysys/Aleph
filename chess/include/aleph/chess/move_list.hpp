@@ -155,7 +155,9 @@ namespace aleph::chess {
             }
 
         private:
+            /** Storage container for the moves in the move list. */
             storage_type _moves;
+            /** Number of slots filled in the move list. */
             size_type _size;
     };
 

@@ -18,7 +18,11 @@ namespace aleph::chess {
 
     /** Character lookup tables for algebraic notation formatting. */
     namespace detail {
+        /** Characters for each file. Index 0 is 'a', as it would be for a square, and index 7 is
+         * 'h'.  */
         constexpr std::string_view FILE_CHARS = "abcdefgh";
+        /** Characters for each file. Index 0 is '1', as it would be for a square, and index 7 is
+         * '8'.  */
         constexpr std::string_view RANK_CHARS = "12345678";
     }  // namespace detail
 
@@ -78,6 +82,9 @@ namespace aleph::chess {
             constexpr inline operator std::uint8_t() const noexcept { return data; }
 
         private:
+            /**
+             * Internal type representation. Should always be in the range [0, 63].
+             */
             std::uint8_t data;
     };
 

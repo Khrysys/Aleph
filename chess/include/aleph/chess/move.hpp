@@ -87,6 +87,9 @@ namespace aleph::chess {
             constexpr inline operator std::uint16_t() const noexcept { return data; }
 
         private:
+            /**
+             * Internal type representation. Should always be in the range [0, 2**]
+             */
             std::uint16_t data;
     };
 

@@ -34,8 +34,10 @@ namespace aleph::chess {
     };
 
     namespace detail {
+        /** Characters of each piece in FEN notation. A Piece can be directly used as an index to
+         * this string to give the char for that piece. */
         constexpr std::string_view PIECE_TYPE_CHARS = "PBNRQKpbnrqk";
-    }
+    }  // namespace detail
 
     /**
      * Represents a chess piece as a compact index encoding both type and color.
@@ -92,6 +94,9 @@ namespace aleph::chess {
             constexpr inline operator std::uint8_t() const noexcept { return data; }
 
         private:
+            /**
+             * Internal type representation. Should always be in the range [0, 11].
+             */
             std::uint8_t data;
     };
 
