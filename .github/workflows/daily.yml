@@ -4,8 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
+
 permissions:
-  contents: none
+  contents: read
 
 concurrency:
   group: action-${{ github.workflow }}-${{ github.ref }}

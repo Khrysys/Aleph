@@ -7,7 +7,7 @@ on:
       - staging
 
 permissions:
-  contents: read
+  contents: none
 
 concurrency:
   group: action-${{ github.workflow }}-${{ github.ref }}
@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
 
       - name: Check workflow files
-        uses: docker://rhysd/actionlint:latest
+        uses: docker://rhysd/actionlint:6f03470d0152251d7f07f7c4dc019dbe7024c72cd952f839544c7798843efa8f
         with:
           args: -color
 

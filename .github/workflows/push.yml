@@ -20,6 +20,11 @@ jobs:
     concurrency:
       group: action-CodeQL Analysis-${{ github.ref }}
       cancel-in-progress: true
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
         
   scorecard:
     name: OpenSSF Scorecard
