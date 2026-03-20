@@ -11,13 +11,10 @@
 #include <type_traits>
 
 // ===== Intrinsics Includes =====
-#if __has_include(<x86intrin.h>)
-    #include <x86intrin.h>
-    #define ALEPH_HAS_X86INTRIN_H
-#endif
-#if __has_include(<intrin.h>)
-    #include <intrin.h>
-    #define ALEPH_HAS_INTRIN_H
+#if BOOST_OS_WINDOWS
+#  include <intrin.h>
+#else
+#  include <x86intrin.h>
 #endif
 
 /**

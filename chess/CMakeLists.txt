@@ -28,6 +28,8 @@ target_link_libraries(aleph_chess INTERFACE
     spdlog::spdlog
     fmt::fmt
     libassert::assert
+
+    Aleph::Platform
 )
 
 add_library(Aleph::Chess ALIAS aleph_chess)

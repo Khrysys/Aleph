@@ -12,6 +12,8 @@
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
 
+#include <aleph/platform.hpp>
+
 namespace aleph::chess {
 
     /** Character lookup tables for algebraic notation formatting. */
@@ -63,7 +65,11 @@ namespace aleph::chess {
              * The returned string is always exactly two characters: file letter followed by rank
              * digit.
              */
-            [[nodiscard]] constexpr inline std::string toString() const noexcept {
+            [[nodiscard]] 
+            #ifdef ALEPH_CONSTEXPR_STRING
+            constexpr 
+            #endif
+            inline std::string toString() const noexcept {
                 return {detail::FILE_CHARS[file()], detail::RANK_CHARS[rank()]};
             }
 
