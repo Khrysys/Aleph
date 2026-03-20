@@ -49,7 +49,9 @@ namespace aleph::chess {
             [[nodiscard]] constexpr inline bool empty() const noexcept { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static inline std::size_t capacity() noexcept { return Capacity; }
+            [[nodiscard]] constexpr static inline std::size_t capacity() noexcept {
+                return Capacity;
+            }
 
             // --- Element access ---
 
@@ -92,24 +94,30 @@ namespace aleph::chess {
 
             // --- Iteration ---
 
+            /** Accessor method to MoveList._moves.begin(). */
             [[nodiscard]] constexpr inline iterator begin() noexcept { return _moves.begin(); }
 
+            /** Accessor method to MoveList._moves.end(). */
             [[nodiscard]] constexpr inline iterator end() noexcept {
                 return _moves.begin() + _size;
             }
 
+            /** Accessor method to MoveList._moves.begin(). */
             [[nodiscard]] constexpr inline const_iterator begin() const noexcept {
                 return _moves.begin();
             }
 
+            /** Accessor method to MoveList._moves.end(). */
             [[nodiscard]] constexpr inline const_iterator end() const noexcept {
                 return _moves.begin() + _size;
             }
 
+            /** Accessor method to MoveList._moves.cbegin(). */
             [[nodiscard]] constexpr inline const_iterator cbegin() const noexcept {
                 return _moves.begin();
             }
 
+            /** Accessor method to MoveList._moves.cend(). */
             [[nodiscard]] constexpr inline const_iterator cend() const noexcept {
                 return _moves.begin() + _size;
             }
