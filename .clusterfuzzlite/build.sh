@@ -2,7 +2,7 @@
 
 cd $SRC/aleph
 
-pip3 install -r "$SRC/aleph./.github/requirements/conan.txt" --require-hashes
+pip3 install -r .github/requirements/conan.txt --require-hashes
 conan profile detect
 
 # Convert space-separated CXXFLAGS/CFLAGS into Conan-compatible TOML list format
