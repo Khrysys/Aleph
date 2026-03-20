@@ -12,11 +12,18 @@ project(Aleph LANGUAGES CXX VERSION 0.0.1.0)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-option(Aleph_BUILD_TESTS 
-    "Build tests for the modules within the engine. Has no impact on the regular usage of the \
-    engine." 
-    ON
-)
+# We need knowledge of GTest existing for the check of Aleph_BUILD_TESTS
+find_package(GTest)
+
+if(TARGET GTest::gtest_main)
+    option(Aleph_BUILD_TESTS 
+        "Build tests for the modules within the engine. Has no impact on the regular usage of the \
+        engine." 
+        ON
+    )
+else()
+    set(Aleph_BUILD_TESTS OFF)
+endif()
 
 if(DEFINED ENV{LIB_FUZZING_ENGINE})
     option(Aleph_BUILD_FUZZING
@@ -55,7 +62,6 @@ find_package(fmt REQUIRED)
 find_package(libassert REQUIRED)
 find_package(spdlog REQUIRED)
 
-find_package(GTest)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
