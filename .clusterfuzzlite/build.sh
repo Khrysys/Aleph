@@ -22,3 +22,14 @@ conan build . \
     -o "boost/*:without_cobalt_io=True" \
     -o "boost/*:without_locale=True" \
     -o "boost/*:without_stacktrace=True"
+
+# Diagnose what was built and where
+echo "=== Build directory contents ==="
+find . -name "fuzz_*" -type f
+echo "=== OUT dir before copy ==="
+ls -la $OUT/
+
+find ./build -name "fuzz_*" -type f -perm /111 | xargs -I{} cp {} $OUT/
+
+echo "=== OUT dir after copy ==="
+ls -la $OUT/
