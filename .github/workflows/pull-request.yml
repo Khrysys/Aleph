@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
  
       - name: Install cmake-lint
-        run: pip install -r .github/requirements/cmakelang.txt
+        run: pip install -r .github/requirements/cmakelang.txt --require-hashes
  
       - name: Run cmake-lint
         run: |
@@ -39,18 +39,6 @@ jobs:
             -not -path './.conan/*' \
             -print0 \
             | xargs -0 cmake-lint -c ./.cmake-lint
-
-  codeql:
-    name: CodeQL Analysis
-    uses: ./.github/workflows/codeql.yml
-    concurrency:
-      group: action-CodeQL Analysis-${{ github.ref }}
-      cancel-in-progress: true
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
 
   dependency-review:
     name: dependency-review 
@@ -210,7 +198,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
  
       - name: Install codespell
-        run: pip install -r .github/requirements/codespell.txt
+        run: pip install -r .github/requirements/codespell.txt --require-hashes
  
       - name: Run codespell
         run: |
@@ -218,7 +206,7 @@ jobs:
             --skip="../.git" \
             --ignore-words-list="aleph" \
             .
-            
+
   license-headers:
     name: license-headers
     runs-on: ubuntu-latest

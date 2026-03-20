@@ -2,7 +2,7 @@ name: Daily Checks
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '45 5 * * *'
 
 
 permissions:
@@ -18,13 +18,23 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    concurrency:
+      group: action-ClusterFuzzLite-${{ github.ref }}
+      cancel-in-progress: true
 
     strategy:
       matrix:
-        mode:
-          - batch
-        sanitizer:
-          - address
+        include:
+          - mode: batch
+            sanitizer: address
+          - mode: batch
+            sanitizer: memory
+          - mode: batch
+            sanitizer: undefined
+          - mode: prune
+            sanitizer: address # Address is the default, should keep it here
+          - mode: coverage
+            sanitizer: coverage
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

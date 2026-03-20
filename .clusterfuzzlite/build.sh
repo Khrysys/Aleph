@@ -2,6 +2,9 @@
 
 cd $SRC/aleph
 
+pip3 install -r .github/requirements/conan.txt --require-hashes
+conan profile detect
+
 # Convert space-separated CXXFLAGS/CFLAGS into Conan-compatible TOML list format
 FLAGS_PY="import sys; flags=sys.argv[1].split(); print('[' + ', '.join(f\"'{f}'\" for f in flags if f and 'libc++' not in f) + ']')"
 
