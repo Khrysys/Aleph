@@ -10,7 +10,7 @@ permissions:
   contents: none
 
 concurrency:
-  group: action-${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  group: action-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
     name: CodeQL Analysis
     uses: ./.github/workflows/codeql.yml
     concurrency:
-      group: action-CodeQL Analysis-${{ github.event.pull_request.head.sha || github.sha }}
+      group: action-CodeQL Analysis-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
     permissions:
       security-events: write
@@ -36,7 +36,7 @@ jobs:
       contents: read
       actions: read
     concurrency:
-      group: action-OpenSSF Scorecard-${{ github.event.pull_request.head.sha || github.sha }}
+      group: action-OpenSSF Scorecard-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
 
     steps:
@@ -76,7 +76,7 @@ jobs:
     permissions:
       contents: read
     concurrency:
-      group: action-ClusterFuzzLite-code-change-${{ github.event.pull_request.head.sha || github.sha }}
+      group: action-ClusterFuzzLite-code-change-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
 
     steps:
