@@ -17,7 +17,7 @@ runs:
 
     - name: Install Conan
       shell: bash
-      run: pip install conan==2.*
+      run: pip install -r .github/requirements/conan.txt --require-hashes
 
     - name: Cache Conan packages
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
