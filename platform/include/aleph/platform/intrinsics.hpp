@@ -1,4 +1,6 @@
 /**
+ * @file include/aleph/platform/intrinsics.hpp
+ *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
@@ -9,13 +11,10 @@
 #include <type_traits>
 
 // ===== Intrinsics Includes =====
-#if __has_include(<x86intrin.h>)
-    #include <x86intrin.h>
-    #define ALEPH_HAS_X86INTRIN_H
-#endif
-#if __has_include(<intrin.h>)
+#if BOOST_OS_WINDOWS
     #include <intrin.h>
-    #define ALEPH_HAS_INTRIN_H
+#else
+    #include <x86intrin.h>
 #endif
 
 /**

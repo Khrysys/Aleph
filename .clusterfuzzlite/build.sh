@@ -1,0 +1,35 @@
+#!/bin/bash -eu
+
+cd $SRC/aleph
+
+# Convert space-separated CXXFLAGS/CFLAGS into Conan-compatible TOML list format
+FLAGS_PY="import sys; flags=sys.argv[1].split(); print('[' + ', '.join(f\"'{f}'\" for f in flags if f and 'libc++' not in f) + ']')"
+
+CONAN_CFLAGS=$(python3 -c "$FLAGS_PY" "$CFLAGS")
+CONAN_CXXFLAGS=$(python3 -c "$FLAGS_PY" "$CXXFLAGS")
+
+conan build . \
+    --build=missing \
+    --build="b2/*" \
+    -s:a "compiler.version=21" \
+    -s "compiler.cppstd=20" \
+    -c "tools.build:cflags=$CONAN_CFLAGS" \
+    -c "tools.build:cxxflags=$CONAN_CXXFLAGS" \
+    -c "tools.cmake.cmaketoolchain:extra_variables={'Aleph_BUILD_FUZZING':True,'CPPTRACE_DISABLE_CXX_20_MODULES':True,'LIBASSERT_DISABLE_CXX_20_MODULES':True}" \
+    -c "tools.build:skip_test=True" \
+    -c "tools.graph:skip_test=True" \
+    -o "boost/*:without_cobalt=True" \
+    -o "boost/*:without_cobalt_io=True" \
+    -o "boost/*:without_locale=True" \
+    -o "boost/*:without_stacktrace=True"
+
+# Diagnose what was built and where
+echo "=== Build directory contents ==="
+find . -name "fuzz_*" -type f
+echo "=== OUT dir before copy ==="
+ls -la $OUT/
+
+find ./build -name "fuzz_*" -type f -perm /111 | xargs -I{} cp {} $OUT/
+
+echo "=== OUT dir after copy ==="
+ls -la $OUT/
