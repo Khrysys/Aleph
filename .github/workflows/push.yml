@@ -76,7 +76,7 @@ jobs:
     permissions:
       contents: read
     concurrency:
-      group: action-ClusterFuzzLite-code-change-${{ github.event.pull_request.head.sha || github.sha }}
+      group: action-ClusterFuzzLite-code-change-${{ matrix.sanitizer }}-${{ github.event.pull_request.head.sha || github.sha }}
       cancel-in-progress: true
     strategy:
       matrix:
