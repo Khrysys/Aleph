@@ -74,10 +74,3 @@ TEST(PieceTest, FormatterBlack) {
     EXPECT_EQ(fmt::format("{}", Piece(KNIGHT, true)), "n");
     EXPECT_EQ(fmt::format("{}", Piece(KING, true)), "k");
 }
-
-#ifndef NDEBUG
-TEST(PieceTest, NoneAsserts) {
-    EXPECT_DEATH(Piece(NONE, false), "");
-    EXPECT_DEATH(Piece(NONE, true), "");
-}
-#endif

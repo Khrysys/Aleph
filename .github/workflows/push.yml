@@ -71,13 +71,19 @@ jobs:
           sarif_file: results.sarif
 
   clusterfuzzlite:
-    name: ClusterFuzzLite (code-change, address)
+    name: ClusterFuzzLite (code-change, ${{ matrix.sanitizer }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
     concurrency:
       group: action-ClusterFuzzLite-code-change-${{ github.event.pull_request.head.sha || github.sha }}
       cancel-in-progress: true
+    strategy:
+      matrix:
+        sanitizer: 
+          - address
+          - memory
+          - undefined
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -95,6 +101,6 @@ jobs:
         with:
           mode: code-change
           fuzz-seconds: 300
-          sanitizer: address
+          sanitizer: ${{ matrix.sanitizer }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

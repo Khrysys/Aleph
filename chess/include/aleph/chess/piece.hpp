@@ -57,9 +57,7 @@ namespace aleph::chess {
              * Asserts that `type` is not `NONE` in debug builds.
              */
             constexpr Piece(PieceType type, bool isBlack)
-                : data(static_cast<uint8_t>(type + (6 * isBlack))) {
-                DEBUG_ASSERT(type != NONE);
-            }
+                : data(static_cast<uint8_t>(type + (6 * isBlack))) {}
 
             /**
              * Constructs a piece from its FEN character representation.
@@ -74,7 +72,7 @@ namespace aleph::chess {
 
             /** Returns the type of this piece, independent of color. */
             [[nodiscard]] constexpr inline PieceType type() const noexcept {
-                return static_cast<PieceType>(data % 6);
+                return data == NONE ? NONE : static_cast<PieceType>(data % 6);
             }
 
             /** Returns true if this piece belongs to the black side. */

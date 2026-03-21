@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # The project name and version must be a literal in the top-level project()
 # call. It is read by Conan to populate the conan-side package name and version.
-project(Aleph LANGUAGES CXX VERSION 0.0.1.0)
+project(Aleph LANGUAGES CXX VERSION 0.0.1.1)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -22,6 +22,9 @@ if(TARGET GTest::gtest_main)
         ON
     )
 else()
+    message(STATUS
+        "GTest::gtest_main target was not found. Tests are unavailable without it."
+    )
     set(Aleph_BUILD_TESTS OFF)
 endif()
 
