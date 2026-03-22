@@ -31,7 +31,7 @@ source_suffix = {
     ".md": "markdown",
 }
 
-root_doc = "index"
+root_doc = "src/index"
 
 exclude_patterns = [
     "_build",
