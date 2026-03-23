@@ -24,15 +24,15 @@ namespace aleph::chess {
      * Encodes the fields packed into the 32-bit `metadata` word of `Board`.
      *
      * Layout:
-     *   [2:0]   EN_PASSANT_FILE_MASK  — file index (0-7) of the en passant target square.
-     *   [3]     EN_PASSANT_VALID      — set if an en passant capture is currently available.
-     *   [4]     BLACK_TO_MOVE         — set if it is black's turn to move.
-     *   [5]     WHITE_KINGSIDE_CASTLE — set if white retains kingside castling rights.
-     *   [6]     WHITE_QUEENSIDE_CASTLE— set if white retains queenside castling rights.
-     *   [7]     BLACK_KINGSIDE_CASTLE — set if black retains kingside castling rights.
-     *   [8]     BLACK_QUEENSIDE_CASTLE— set if black retains queenside castling rights.
+     *   [2:0]   EN_PASSANT_FILE_MASK   — file index (0-7) of the en passant target square.
+     *   [3]     EN_PASSANT_VALID       — set if an en passant capture is currently available.
+     *   [4]     BLACK_TO_MOVE          — set if it is black's turn to move.
+     *   [5]     WHITE_KINGSIDE_CASTLE  — set if white retains kingside castling rights.
+     *   [6]     WHITE_QUEENSIDE_CASTLE — set if white retains queenside castling rights.
+     *   [7]     BLACK_KINGSIDE_CASTLE  — set if black retains kingside castling rights.
+     *   [8]     BLACK_QUEENSIDE_CASTLE — set if black retains queenside castling rights.
      *   [15:9]  HALF_MOVE_CLOCK        — halfmove clock for the 50-move rule (0-100).
-     *                                   Extract via `(metadata & HALF_MOVE_CLOCK) >> 9`.
+     *                                    Extract via `(metadata & HALF_MOVE_CLOCK) >> 9`.
      *   [31:16] — unused, must be zero.
      */
     enum BoardMetadataFlags : uint32_t {
@@ -49,9 +49,9 @@ namespace aleph::chess {
     /**
      * Bitmask flags indicating which lazy cache fields on `Board` are currently valid.
      *
-     * Cache fields are invalidated by zeroing the relevant bits in `_cacheValid`
-     * whenever `push()` produces a new board. Fields are recomputed on demand and
-     * marked valid at that point. All fields start invalid on a freshly constructed board.
+     * Cache fields are invalidated by zeroing `_cacheValid` entirely whenever `push()`
+     * produces a new board. Fields are recomputed on demand and marked valid at that
+     * point. All fields start invalid on a freshly constructed board.
      */
     enum BoardCacheValidFlags : uint8_t {
         OCCUPANCY_VALID       = 0x01,  ///< `_occupancy` is up to date.
@@ -69,91 +69,161 @@ namespace aleph::chess {
      * en passant state, and the halfmove clock. See `BoardMetadataFlags` for the
      * exact bit layout.
      *
-     * Mutating the position is done exclusively via `push()`, which returns a new
-     * `Board` with the move applied. The original board is never modified. Mutable
-     * fields (`_cacheValid`, `_occupancy`, etc.) exist only for lazy recomputation
-     * of derived values and do not affect observable board state.
+     * Positions are mutated exclusively via `push()`, which returns a new `Board`
+     * with the move applied. The original board is never modified. Mutable fields
+     * (`_cacheValid`, `_occupancy`, etc.) exist solely for lazy recomputation of
+     * derived values and do not affect observable board state — the type behaves
+     * as a value type for all practical purposes.
      *
      * Castling and en passant are detected contextually in `push()` rather than
-     * encoded in move bits — a king moving two squares triggers castling, and a pawn
-     * capturing onto the en passant square triggers en passant removal of the captured
-     * pawn.
+     * encoded in move bits — a king moving two squares triggers rook relocation,
+     * and a pawn capturing onto the en passant square triggers removal of the
+     * captured pawn. This keeps `Move` representation minimal at the cost of
+     * slightly more inference per `push()` call.
      *
      * In debug builds, `push()` asserts `isLegal(m)` before applying the move.
-     * `isLegalFast()` is the hot-path legality check used inside `getLegalMoves()`;
-     * it must never call `push()` to avoid infinite recursion through the debug assert.
+     * `isLegalFast()` must never call `push()` to avoid infinite recursion through
+     * this assert.
      */
     class Board {
         public:
-            inline Board() : Board(detail::STARTING_POSITION_FEN) {}
+            /**
+             * Constructs the standard chess starting position.
+             * Equivalent to `Board(detail::STARTING_POSITION_FEN)`.
+             */
+            inline Board();
+
+            /**
+             * Constructs a board from a FEN string.
+             *
+             * Parses all six FEN fields, validating piece placement, side to move,
+             * castling rights, en passant square, halfmove clock, and fullmove number.
+             * Validation is strict — any inconsistency between fields (e.g. castling
+             * rights claimed when the king or rook is absent, en passant square on the
+             * wrong rank, the non-moving side in check) throws `std::invalid_argument`
+             * with a descriptive message. The fullmove number is validated but not stored.
+             * A minimum of four fields is required; fields five and six are optional.
+             *
+             * Throws `std::invalid_argument` on any validation failure.
+             */
             inline Board(std::string_view fen);
 
             /**
-             *
+             * Returns the piece occupying the given square, or a `Piece` with type
+             * `NONE` if the square is empty. Checks occupancy first to avoid scanning
+             * all twelve bitboards on empty squares.
              */
             [[nodiscard]] inline Piece get(Square sq) const;
 
             /**
              * Returns a new board with the given move applied.
-             * Asserts `isLegal(m)` in debug builds. Detects castling and en passant
-             * contextually from the move and current board state.
+             *
+             * Asserts `isLegal(m)` in debug builds — callers on the movegen hot path
+             * should ensure moves come from `getLegalMoves()` to avoid this overhead.
+             * Castling is detected by a king moving exactly two files; the rook is
+             * relocated accordingly. En passant is detected by a pawn capturing onto
+             * the en passant square recorded in metadata; the captured pawn is removed
+             * from the rank behind the destination. Castling rights are updated by
+             * checking whether the from or to square matches any rook or king starting
+             * square — this handles both rook moves and captures on those squares.
+             * The halfmove clock is reset on pawn moves and captures, incremented
+             * otherwise. The cache is fully invalidated on the returned board.
              */
             [[nodiscard]] inline Board push(Move m) const;
 
-            // Move Generation
+            // --- Move generation ---
 
-            /** Returns the list of fully legal moves from this position. */
+            /**
+             * Returns the list of fully legal moves from this position.
+             *
+             * Generates pseudo-legal moves via `getPseudoLegalMoves()`, then filters
+             * them through `isLegalFast()`. Under double check, only king moves are
+             * considered — this short-circuits the filter loop entirely since no other
+             * piece can resolve a double check. The returned list is guaranteed to
+             * contain only moves that leave the king out of check and satisfy all other
+             * legality conditions. An empty list indicates checkmate or stalemate;
+             * callers must distinguish between the two by checking `getCheckers()`.
+             */
             [[nodiscard]] inline MoveList<256> getLegalMoves() const;
 
             /**
              * Returns a superset of legal moves from this position.
-             * The list may include illegal moves (e.g. leaving the king in check);
-             * all entries are filtered by `isLegalFast()` in `getLegalMoves()`.
+             *
+             * Intentionally overgenerates to keep the implementation simple and
+             * correct — the returned list may include moves that leave the king in
+             * check, illegal slider moves through intervening pieces, and other
+             * geometrically invalid moves. All such moves are filtered by
+             * `isLegalFast()` inside `getLegalMoves()`. Sliders emit all squares
+             * along unblocked rays from the movement table; path validity is not
+             * checked here. Castling emits the king's destination square when the
+             * path between king and rook is clear; check and pass-through square
+             * validation is deferred to `isLegalFast()`.
              */
             [[nodiscard]] inline MoveList<512> getPseudoLegalMoves() const;
 
             /**
              * Returns true if the given move is legal in this position.
-             * This is the heavyweight check used for UCI input validation — it
-             * first checks pseudo-legality and then delegates to `isLegalFast()`.
-             * Do not use on the movegen hot path.
+             *
+             * The heavyweight legality check intended for UCI input validation.
+             * First verifies the move exists in the pseudo-legal set, then delegates
+             * to `isLegalFast()`. Do not use on the movegen hot path — prefer
+             * `getLegalMoves()` which amortizes the pseudo-legal generation cost
+             * across all moves.
              */
             [[nodiscard]] inline bool isLegal(Move m) const;
 
             /**
              * Returns true if the given move is legal in this position.
-             * This is the hot-path check used inside `getLegalMoves()`. It operates
-             * directly on bitboards without calling `push()`, avoiding infinite
-             * recursion through the debug assert in `push()`.
+             *
+             * The hot-path legality check used inside `getLegalMoves()`. Assumes the
+             * move is already in the pseudo-legal set — passing an arbitrary move may
+             * produce incorrect results. Operates directly on bitboards without calling
+             * `push()`, avoiding infinite recursion through the debug assert in `push()`.
+             *
+             * Legality is determined by simulating the post-move board state in local
+             * variables and checking whether the king is attacked. For sliders, alignment
+             * and path clarity are verified against the movement and between tables. For
+             * castling, the king's origin and pass-through squares are checked against
+             * the pre- and post-move occupancy respectively. En passant correctly accounts
+             * for the captured pawn's removal when evaluating king safety. The final king
+             * safety check uses a post-move enemy bitboard with the captured piece removed.
              */
             [[nodiscard]] inline bool isLegalFast(Move m) const;
 
-            // Metadata accessors
+            // --- Metadata accessors ---
 
-            /**
-             * Returns true if it is black's turn to move.
-             * Reads directly from the `BLACK_TO_MOVE` flag in `metadata`.
-             */
+            /** Returns true if it is black's turn to move. */
             [[nodiscard]] inline bool isBlackTurn() const;
 
-            /**
-             * Returns true if it is white's turn to move.
-             * Reads directly from the `BLACK_TO_MOVE` flag in `metadata`.
-             */
+            /** Returns true if it is white's turn to move. */
             [[nodiscard]] inline bool isWhiteTurn() const;
 
-            /**
-             *
-             */
+            /** Returns true if white retains kingside castling rights. */
             [[nodiscard]] inline bool canWhiteKingsideCastle() const;
+
+            /** Returns true if white retains queenside castling rights. */
             [[nodiscard]] inline bool canWhiteQueensideCastle() const;
+
+            /** Returns true if black retains kingside castling rights. */
             [[nodiscard]] inline bool canBlackKingsideCastle() const;
+
+            /** Returns true if black retains queenside castling rights. */
             [[nodiscard]] inline bool canBlackQueensideCastle() const;
+
+            /** Returns true if an en passant capture is available on this turn. */
             [[nodiscard]] inline bool isEnPassantValid() const;
+
+            /**
+             * Returns the file index (0-7) of the en passant target square.
+             * Only meaningful when `isEnPassantValid()` returns true.
+             */
             [[nodiscard]] inline std::uint8_t getEnPassantFile() const;
+
+            /** Returns the current halfmove clock value in [0, 100]. */
             [[nodiscard]] inline std::uint8_t getHalfMoveClock() const;
 
-            // Mutable field loaders
+            // --- Cached derived values ---
+
             /**
              * Returns the combined occupancy of all pieces on the board.
              * Result is cached after the first call and invalidated by `push()`.
@@ -172,20 +242,34 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getBlackOccupancy() const;
 
+            /**
+             * Returns a bitboard of all enemy pieces currently giving check to the
+             * side to move.
+             *
+             * Computed by testing each enemy piece type against the king square using
+             * the movement and between tables. Result is cached after the first call
+             * and invalidated by `push()`. Used by `getLegalMoves()` to detect double
+             * check and short-circuit the filter loop, and by the FEN constructor to
+             * validate that the non-moving side is not in check.
+             */
             [[nodiscard]] inline std::uint64_t getCheckers() const;
 
         private:
-            std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per PieceType for white.
-            std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per PieceType for black.
-            uint32_t metadata;  ///< Packed position metadata; see BoardMetadataFlags.
+            std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per `PieceType` for white,
+                                                     ///< indexed by `PieceType` value.
+            std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per `PieceType` for black,
+                                                     ///< indexed by `PieceType` value.
+            uint32_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
 
-            mutable uint8_t
-                _cacheValid;  ///< Bitmask of valid cache fields; see BoardCacheValidFlags.
-            mutable uint64_t _occupancy;       ///< Cached combined occupancy.
-            mutable uint64_t _whiteOccupancy;  ///< Cached white occupancy.
-            mutable uint64_t _blackOccupancy;  ///< Cached black occupancy.
-            mutable uint64_t _zobristHash;     ///< Cached Zobrist hash of this position.
-            mutable uint64_t _checkers;
+            mutable uint8_t _cacheValid;       ///< Bitmask of currently valid cache fields; see
+                                               ///< `BoardCacheValidFlags`.
+            mutable uint64_t _occupancy;       ///< Cached combined occupancy of all pieces.
+            mutable uint64_t _whiteOccupancy;  ///< Cached occupancy of white pieces.
+            mutable uint64_t _blackOccupancy;  ///< Cached occupancy of black pieces.
+            mutable uint64_t
+                _zobristHash;  ///< Cached Zobrist hash of this position. Not yet computed.
+            mutable uint64_t
+                _checkers;  ///< Cached bitboard of enemy pieces giving check to the side to move.
     };
 
 }  // namespace aleph::chess

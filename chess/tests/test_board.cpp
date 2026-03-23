@@ -1,4 +1,4 @@
-#include <iostream>
+#pragma once
 
 #include <gtest/gtest.h>
 
@@ -6,7 +6,32 @@
 
 using namespace aleph::chess;
 
-// --- Valid positions ---
+static Move makeAlgebraicMove(std::string_view from, std::string_view to) {
+    uint8_t fromFile = from[0] - 'a';
+    uint8_t fromRank = from[1] - '1';
+    uint8_t toFile   = to[0] - 'a';
+    uint8_t toRank   = to[1] - '1';
+    return Move(Square(fromRank, fromFile), Square(toRank, toFile));
+}
+
+static Move makePromoMove(std::string_view from, std::string_view to, PieceType promo) {
+    uint8_t fromFile = from[0] - 'a';
+    uint8_t fromRank = from[1] - '1';
+    uint8_t toFile   = to[0] - 'a';
+    uint8_t toRank   = to[1] - '1';
+    return Move(Square(fromRank, fromFile), Square(toRank, toFile), promo);
+}
+
+static bool isLegal(const Board& b, std::string_view from, std::string_view to) {
+    return b.getLegalMoves().contains(makeAlgebraicMove(from, to));
+}
+
+static bool isLegalPromo(const Board& b, std::string_view from, std::string_view to,
+                         PieceType promo) {
+    return b.getLegalMoves().contains(makePromoMove(from, to, promo));
+}
+
+// --- FEN constructor ---
 
 TEST(BoardFenTest, DefaultConstructor) { EXPECT_NO_THROW(Board()); }
 
@@ -46,14 +71,10 @@ TEST(BoardFenTest, KiwipetePosition) {
     EXPECT_NO_THROW(Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"));
 }
 
-// --- Field count ---
-
 TEST(BoardFenTest, TooFewFields) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"),
                  std::invalid_argument);
 }
-
-// --- Piece placement ---
 
 TEST(BoardFenTest, TooManyRanks) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
@@ -80,8 +101,6 @@ TEST(BoardFenTest, InvalidPieceCharacter) {
                  std::invalid_argument);
 }
 
-// --- King validation ---
-
 TEST(BoardFenTest, MissingWhiteKing) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w KQkq - 0 1"),
                  std::invalid_argument);
@@ -97,8 +116,6 @@ TEST(BoardFenTest, TwoWhiteKings) {
                  std::invalid_argument);
 }
 
-// --- Pawn validation ---
-
 TEST(BoardFenTest, PawnOnRank1) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNP w KQkq - 0 1"),
                  std::invalid_argument);
@@ -113,8 +130,6 @@ TEST(BoardFenTest, TooManyWhitePawns) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/PPPPPPPPP/8/RNBQKBNR w KQkq - 0 1"),
                  std::invalid_argument);
 }
-
-// --- Castling validation ---
 
 TEST(BoardFenTest, CastlingWhiteKingsideNoRook) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1"),
@@ -136,8 +151,6 @@ TEST(BoardFenTest, InvalidCastlingCharacter) {
                  std::invalid_argument);
 }
 
-// --- En passant validation ---
-
 TEST(BoardFenTest, EnPassantWrongRankForBlackToMove) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 1"),
                  std::invalid_argument);
@@ -158,8 +171,6 @@ TEST(BoardFenTest, EnPassantInvalidFile) {
                  std::invalid_argument);
 }
 
-// --- Halfmove clock ---
-
 TEST(BoardFenTest, HalfmoveClockValid) {
     EXPECT_NO_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 42 1"));
 }
@@ -174,33 +185,12 @@ TEST(BoardFenTest, HalfmoveClockInvalidCharacter) {
                  std::invalid_argument);
 }
 
-// --- Fullmove number ---
-
 TEST(BoardFenTest, FullmoveInvalidCharacter) {
     EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 x"),
                  std::invalid_argument);
 }
 
-// --- push() tests ---
-
-// Helper to make a move from algebraic notation
-static Move makeAlgebraicMove(std::string_view from, std::string_view to) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile));
-}
-
-static Move makePromoMove(std::string_view from, std::string_view to, PieceType promo) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile), promo);
-}
-
-// --- Side to move ---
+// --- push() ---
 
 TEST(BoardPushTest, FlipsSideToMove) {
     Board b;
@@ -210,8 +200,6 @@ TEST(BoardPushTest, FlipsSideToMove) {
     Board b3 = b2.push(makeAlgebraicMove("e7", "e5"));
     EXPECT_FALSE(b3.isBlackTurn());
 }
-
-// --- Pawn moves ---
 
 TEST(BoardPushTest, WhitePawnSinglePush) {
     Board b;
@@ -241,20 +229,18 @@ TEST(BoardPushTest, BlackPawnDoublePush) {
     EXPECT_EQ(b2.get(Square(6, 4)).type(), NONE);
 }
 
-// --- En passant ---
-
 TEST(BoardPushTest, WhiteDoublePushSetsEnPassant) {
     Board b;
     Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
     EXPECT_TRUE(b2.isEnPassantValid());
-    EXPECT_EQ(b2.getEnPassantFile(), 4);  // e-file
+    EXPECT_EQ(b2.getEnPassantFile(), 4);
 }
 
 TEST(BoardPushTest, BlackDoublePushSetsEnPassant) {
     Board b("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
     Board b2 = b.push(makeAlgebraicMove("d7", "d5"));
     EXPECT_TRUE(b2.isEnPassantValid());
-    EXPECT_EQ(b2.getEnPassantFile(), 3);  // d-file
+    EXPECT_EQ(b2.getEnPassantFile(), 3);
 }
 
 TEST(BoardPushTest, NonDoublePushClearsEnPassant) {
@@ -266,23 +252,20 @@ TEST(BoardPushTest, NonDoublePushClearsEnPassant) {
 }
 
 TEST(BoardPushTest, WhiteEnPassantCapture) {
-    // e5, black plays d5, white captures en passant exd6
     Board b("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1");
     Board b2 = b.push(makeAlgebraicMove("e5", "d6"));
-    EXPECT_EQ(b2.get(Square(5, 3)).type(), PAWN);  // white pawn on d6
-    EXPECT_EQ(b2.get(Square(4, 3)).type(), NONE);  // captured pawn removed from d5
-    EXPECT_EQ(b2.get(Square(4, 4)).type(), NONE);  // e5 vacated
+    EXPECT_EQ(b2.get(Square(5, 3)).type(), PAWN);
+    EXPECT_EQ(b2.get(Square(4, 3)).type(), NONE);
+    EXPECT_EQ(b2.get(Square(4, 4)).type(), NONE);
 }
 
 TEST(BoardPushTest, BlackEnPassantCapture) {
     Board b("rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
     Board b2 = b.push(makeAlgebraicMove("d4", "e3"));
-    EXPECT_EQ(b2.get(Square(2, 4)).type(), PAWN);  // black pawn on e3
-    EXPECT_EQ(b2.get(Square(3, 4)).type(), NONE);  // captured pawn removed from e4
-    EXPECT_EQ(b2.get(Square(3, 3)).type(), NONE);  // d4 vacated
+    EXPECT_EQ(b2.get(Square(2, 4)).type(), PAWN);
+    EXPECT_EQ(b2.get(Square(3, 4)).type(), NONE);
+    EXPECT_EQ(b2.get(Square(3, 3)).type(), NONE);
 }
-
-// --- Captures ---
 
 TEST(BoardPushTest, WhiteCapturesBlackPiece) {
     Board b("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
@@ -297,8 +280,6 @@ TEST(BoardPushTest, BlackCapturesWhitePiece) {
     EXPECT_EQ(b2.get(Square(3, 4)).type(), PAWN);
     EXPECT_EQ(b2.get(Square(4, 3)).type(), NONE);
 }
-
-// --- Promotions ---
 
 TEST(BoardPushTest, WhitePromotionToQueen) {
     Board b("8/4P3/8/8/8/8/8/4K2k w - - 0 1");
@@ -319,8 +300,6 @@ TEST(BoardPushTest, BlackPromotionToQueen) {
     EXPECT_EQ(b2.get(Square(0, 4)).type(), QUEEN);
     EXPECT_EQ(b2.get(Square(1, 4)).type(), NONE);
 }
-
-// --- Castling moves ---
 
 TEST(BoardPushTest, WhiteKingsideCastle) {
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1");
@@ -357,8 +336,6 @@ TEST(BoardPushTest, BlackQueensideCastle) {
     EXPECT_EQ(b2.get(Square(7, 4)).type(), NONE);
     EXPECT_EQ(b2.get(Square(7, 0)).type(), NONE);
 }
-
-// --- Castling rights ---
 
 TEST(BoardPushTest, WhiteKingMoveClearsBothWhiteRights) {
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1");
@@ -400,8 +377,6 @@ TEST(BoardPushTest, BlackRookCapturedOnA8ClearsQueensideRight) {
     EXPECT_FALSE(b2.canBlackQueensideCastle());
 }
 
-// --- Halfmove clock ---
-
 TEST(BoardPushTest, HalfmoveClockIncrements) {
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     Board b2 = b.push(makeAlgebraicMove("g1", "f3"));
@@ -420,8 +395,6 @@ TEST(BoardPushTest, HalfmoveClockResetsOnCapture) {
     EXPECT_EQ(b2.getHalfMoveClock(), 0);
 }
 
-// --- Occupancy ---
-
 TEST(BoardPushTest, OccupancyUpdatesAfterMove) {
     Board b;
     Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
@@ -437,16 +410,12 @@ TEST(BoardPushTest, OccupancyUpdatesAfterCapture) {
     EXPECT_FALSE(occ & (1ULL << static_cast<uint8_t>(Square(3, 4))));
 }
 
-// --- Immutability ---
-
 TEST(BoardPushTest, OriginalBoardUnchangedAfterPush) {
     Board b;
     uint64_t occBefore = b.getOccupancy();
-    auto r             = b.push(makeAlgebraicMove("e2", "e4"));
+    (void)b.push(makeAlgebraicMove("e2", "e4"));
     EXPECT_EQ(b.getOccupancy(), occBefore);
 }
-
-// --- Piece identity after move ---
 
 TEST(BoardPushTest, KnightMoveCorrect) {
     Board b;
@@ -476,24 +445,7 @@ TEST(BoardPushTest, QueenMoveCorrect) {
     EXPECT_EQ(b2.get(Square(0, 3)).type(), NONE);
 }
 
-// --- isLegalFast tests ---
-// These test via getLegalMoves() since isLegalFast is not public
-
-// Helper — checks if a specific move is in the legal move list
-static bool isLegal(const Board& b, std::string_view from, std::string_view to) {
-    auto moves = b.getLegalMoves();
-    std::cout << fmt::format("{}", b.getLegalMoves()) << std::endl;
-    return moves.contains(makeAlgebraicMove(from, to));
-}
-
-static bool isLegalPromo(const Board& b, std::string_view from, std::string_view to,
-                         PieceType promo) {
-    auto moves = b.getLegalMoves();
-    std::cout << fmt::format("{}", b.getLegalMoves()) << std::endl;
-    return moves.contains(makePromoMove(from, to, promo));
-}
-
-// --- Basic legality ---
+// --- isLegalFast (tested via getLegalMoves) ---
 
 TEST(IsLegalFastTest, StartingPositionMoveCount) {
     Board b;
@@ -516,44 +468,36 @@ TEST(IsLegalFastTest, KnightMoveFromStartLegal) {
     EXPECT_TRUE(isLegal(b, "b1", "c3"));
 }
 
-// --- Pin detection ---
-
 TEST(IsLegalFastTest, PinnedPieceCannotMoveOffRay) {
-    // Bishop on e2 is pinned by rook on e8 via king on e1
     Board b("4k3/4r3/8/8/8/8/4B3/4K3 w - - 0 1");
     EXPECT_FALSE(isLegal(b, "e2", "d3"));
     EXPECT_FALSE(isLegal(b, "e2", "f3"));
 }
 
 TEST(IsLegalFastTest, PinnedPieceCanMoveAlongRay) {
-    // Rook on e2 is pinned by rook on e8 via king on e1 — can still move along e-file
     Board b("4k3/4r3/8/8/8/8/4R3/4K3 w - - 0 1");
     EXPECT_TRUE(isLegal(b, "e2", "e3"));
     EXPECT_TRUE(isLegal(b, "e2", "e4"));
-    EXPECT_TRUE(isLegal(b, "e2", "e7"));  // capture the pinner
+    EXPECT_TRUE(isLegal(b, "e2", "e7"));
 }
 
 TEST(IsLegalFastTest, DiagonalPinCannotMoveOffDiagonal) {
     Board b("8/8/6b1/8/8/3B4/8/1K5k w - - 0 1");
-    EXPECT_FALSE(isLegal(b, "d3", "e2"));  // off diagonal — wrong diagonal
-    EXPECT_FALSE(isLegal(b, "d3", "f1"));  // off diagonal — wrong diagonal
-    EXPECT_FALSE(isLegal(b, "d3", "b5"));  // off diagonal — wrong diagonal
+    EXPECT_FALSE(isLegal(b, "d3", "e2"));
+    EXPECT_FALSE(isLegal(b, "d3", "f1"));
+    EXPECT_FALSE(isLegal(b, "d3", "b5"));
 }
 
 TEST(IsLegalFastTest, DiagonalPinCanMoveAlongDiagonal) {
     Board b("8/8/6b1/8/8/3B4/8/1K5k w - - 0 1");
-    EXPECT_TRUE(isLegal(b, "d3", "c2"));  // along pin ray toward king
-    EXPECT_TRUE(isLegal(b, "d3", "e4"));  // along pin ray toward pinner
-    EXPECT_TRUE(isLegal(b, "d3", "g6"));  // capture the pinner
+    EXPECT_TRUE(isLegal(b, "d3", "c2"));
+    EXPECT_TRUE(isLegal(b, "d3", "e4"));
+    EXPECT_TRUE(isLegal(b, "d3", "g6"));
 }
-
-// --- Check evasion ---
 
 TEST(IsLegalFastTest, MustEvadeCheck) {
     Board b("4r3/8/8/8/8/8/8/4K2k w - - 0 1");
-    // Cannot stay on e-file
     EXPECT_FALSE(isLegal(b, "e1", "e2"));
-    // Can move off e-file
     EXPECT_TRUE(isLegal(b, "e1", "f1"));
     EXPECT_TRUE(isLegal(b, "e1", "d1"));
     EXPECT_TRUE(isLegal(b, "e1", "d2"));
@@ -561,13 +505,11 @@ TEST(IsLegalFastTest, MustEvadeCheck) {
 }
 
 TEST(IsLegalFastTest, CanBlockCheck) {
-    // White king on e1 checked by black rook on e8, white rook on a4 can block
     Board b("4r3/8/8/8/R7/8/8/4K2k w - - 0 1");
-    EXPECT_TRUE(isLegal(b, "a4", "e4"));  // block on e4
+    EXPECT_TRUE(isLegal(b, "a4", "e4"));
 }
 
 TEST(IsLegalFastTest, CanCaptureChecker) {
-    // White king on e1 checked by black rook on e2
     Board b("4k3/8/8/8/8/8/4r3/R3K3 w - - 0 1");
     EXPECT_TRUE(isLegal(b, "e1", "e2"));
     EXPECT_FALSE(isLegal(b, "e1", "d2"));
@@ -575,18 +517,12 @@ TEST(IsLegalFastTest, CanCaptureChecker) {
 }
 
 TEST(IsLegalFastTest, DoubleCheckOnlyKingCanMove) {
-    // Double check — only king moves are legal
     Board b("4k3/8/8/8/b7/8/4r3/4K3 w - - 0 1");
     auto moves = b.getLegalMoves();
-    for (auto m : moves) {
-        EXPECT_EQ(b.get(m.from()).type(), KING);
-    }
+    for (auto m : moves) EXPECT_EQ(b.get(m.from()).type(), KING);
 }
 
-// --- King safety ---
-
 TEST(IsLegalFastTest, KingCannotMoveIntoCheck) {
-    // Black rook on f8 controls f-file
     Board b("5r2/8/8/8/8/8/8/4K2k w - - 0 1");
     EXPECT_FALSE(isLegal(b, "e1", "f1"));
     EXPECT_FALSE(isLegal(b, "e1", "f2"));
@@ -604,12 +540,9 @@ TEST(IsLegalFastTest, KingCanCaptureUndefendedPiece) {
 }
 
 TEST(IsLegalFastTest, KingCannotCaptureDefendedPiece) {
-    // Black rook on f2 defended by black rook on f8
     Board b("5r2/8/8/8/8/8/5r2/4K2k w - - 0 1");
     EXPECT_FALSE(isLegal(b, "e1", "f2"));
 }
-
-// --- Castling legality ---
 
 TEST(IsLegalFastTest, CastlingLegalWhenClear) {
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1");
@@ -617,24 +550,19 @@ TEST(IsLegalFastTest, CastlingLegalWhenClear) {
 }
 
 TEST(IsLegalFastTest, CastlingIllegalWhenInCheck) {
-    // White king in check from black rook on e8
     Board b("4rk2/8/8/8/8/8/8/RNBQK2R w KQ - 0 1");
     EXPECT_FALSE(isLegal(b, "e1", "g1"));
 }
 
 TEST(IsLegalFastTest, CastlingIllegalWhenPassingThroughCheck) {
-    // Black rook on f8 controls f1
     Board b("5rk1/8/8/8/8/8/8/RNBQK2R w KQ - 0 1");
     EXPECT_FALSE(isLegal(b, "e1", "g1"));
 }
 
 TEST(IsLegalFastTest, CastlingIllegalWhenLandingInCheck) {
-    // Black rook on g8 controls g1
     Board b("5kr1/8/8/8/8/8/8/RNBQK2R w KQ - 0 1");
     EXPECT_FALSE(isLegal(b, "e1", "g1"));
 }
-
-// --- En passant legality ---
 
 TEST(IsLegalFastTest, EnPassantLegal) {
     Board b("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1");
@@ -642,18 +570,14 @@ TEST(IsLegalFastTest, EnPassantLegal) {
 }
 
 TEST(IsLegalFastTest, EnPassantIllegalIfExposesDiagonalCheck) {
-    // En passant capture would expose king on e-file to rook
     Board b("k7/1b6/8/3Pp3/8/8/6K1/8 w - - 0 1");
     EXPECT_FALSE(isLegal(b, "d5", "e6"));
 }
 
 TEST(IsLegalFastTest, EnPassantIllegalIfExposesRankCheck) {
-    // Both pawns on same rank as king, removing both exposes king to rook
     Board b("8/8/8/KPp3rk/8/8/8/8 w - c6 0 1");
     EXPECT_FALSE(isLegal(b, "b5", "c6"));
 }
-
-// --- Promotion legality ---
 
 TEST(IsLegalFastTest, PromotionLegal) {
     Board b("k7/4P3/8/8/8/8/8/4K3 w - - 0 1");
@@ -664,12 +588,9 @@ TEST(IsLegalFastTest, PromotionLegal) {
 }
 
 TEST(IsLegalFastTest, PromotionIllegalIfLeavesKingInCheck) {
-    // Pawn on e7, king on e1 in check from rook on e8 — promoting blocks but king still in check
-    Board b("4rk2/4P3/8/8/8/8/8/4K3 w - - 0 1");
-    EXPECT_FALSE(isLegalPromo(b, "e7", "e8", QUEEN));  // capturing rook is legal though
+    Board b("K6k/1P6/2b5/8/8/8/8/8 w - - 0 1");
+    EXPECT_FALSE(isLegalPromo(b, "b7", "b8", QUEEN));
 }
-
-// --- Perft spot checks ---
 
 TEST(IsLegalFastTest, PerftStartingPositionDepth1) {
     Board b;

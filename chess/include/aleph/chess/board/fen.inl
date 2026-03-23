@@ -11,7 +11,8 @@ namespace aleph::chess {
           _occupancy(0),
           _whiteOccupancy(0),
           _blackOccupancy(0),
-          _zobristHash(0) {
+          _zobristHash(0),
+          _checkers(0) {
         // --- Split FEN into fields ---
         std::array<std::string_view, 6> fields;
         std::size_t fieldCount = 0;
@@ -31,7 +32,6 @@ namespace aleph::chess {
         {
             std::size_t rankIdx = 7;  // FEN starts from rank 8 (index 7)
             std::size_t fileIdx = 0;
-            int rankCount       = 0;
 
             for (char c : fields[0]) {
                 if (c == '/') {
@@ -40,16 +40,13 @@ namespace aleph::chess {
                     if (rankIdx == 0) throw std::invalid_argument("FEN has too many ranks");
                     --rankIdx;
                     fileIdx = 0;
-                    ++rankCount;
                 } else if (c >= '1' && c <= '8') {
                     fileIdx += static_cast<std::size_t>(c - '0');
                     if (fileIdx > 8) throw std::invalid_argument("FEN rank exceeds 8 squares");
                 } else {
-                    // Validate it's a known piece character before constructing
                     if (detail::PIECE_TYPE_CHARS.find(c) == std::string_view::npos)
                         throw std::invalid_argument(
                             std::string("FEN contains invalid piece character: ") + c);
-
                     if (fileIdx >= 8) throw std::invalid_argument("FEN rank exceeds 8 squares");
 
                     Piece p(c);
@@ -65,7 +62,6 @@ namespace aleph::chess {
                 }
             }
 
-            // Final rank check
             if (fileIdx != 8)
                 throw std::invalid_argument("FEN final rank does not sum to 8 squares");
             if (rankIdx != 0) throw std::invalid_argument("FEN has too few ranks");
@@ -73,21 +69,16 @@ namespace aleph::chess {
 
         // --- Piece validity checks ---
         {
-            // King counts
-            auto whiteKings = platform::popcnt(whiteBitboards[KING]);
-            auto blackKings = platform::popcnt(blackBitboards[KING]);
-            if (whiteKings != 1)
+            if (platform::popcnt(whiteBitboards[KING]) != 1)
                 throw std::invalid_argument("FEN must have exactly one white king");
-            if (blackKings != 1)
+            if (platform::popcnt(blackBitboards[KING]) != 1)
                 throw std::invalid_argument("FEN must have exactly one black king");
 
-            // Pawn counts
-            auto whitePawns = platform::popcnt(whiteBitboards[PAWN]);
-            auto blackPawns = platform::popcnt(blackBitboards[PAWN]);
-            if (whitePawns > 8) throw std::invalid_argument("FEN has too many white pawns");
-            if (blackPawns > 8) throw std::invalid_argument("FEN has too many black pawns");
+            if (platform::popcnt(whiteBitboards[PAWN]) > 8)
+                throw std::invalid_argument("FEN has too many white pawns");
+            if (platform::popcnt(blackBitboards[PAWN]) > 8)
+                throw std::invalid_argument("FEN has too many black pawns");
 
-            // Pawns on back ranks
             constexpr uint64_t RANK_1 = 0x00000000000000FFULL;
             constexpr uint64_t RANK_8 = 0xFF00000000000000ULL;
             if (whiteBitboards[PAWN] & (RANK_1 | RANK_8))
@@ -95,9 +86,8 @@ namespace aleph::chess {
             if (blackBitboards[PAWN] & (RANK_1 | RANK_8))
                 throw std::invalid_argument("FEN has pawns on back rank");
 
-            // Total piece counts
-            auto whitePieces = 0;
-            auto blackPieces = 0;
+            uint32_t whitePieces = 0;
+            uint32_t blackPieces = 0;
             for (int i = 0; i < 6; i++) {
                 whitePieces += platform::popcnt(whiteBitboards[i]);
                 blackPieces += platform::popcnt(blackBitboards[i]);
@@ -105,7 +95,6 @@ namespace aleph::chess {
             if (whitePieces > 16) throw std::invalid_argument("FEN has too many white pieces");
             if (blackPieces > 16) throw std::invalid_argument("FEN has too many black pieces");
 
-            // Pieces cannot overlap
             uint64_t allWhite = 0, allBlack = 0;
             for (int i = 0; i < 6; i++) {
                 if (whiteBitboards[i] & allWhite)
@@ -195,25 +184,23 @@ namespace aleph::chess {
                 if (file > 7) throw std::invalid_argument("FEN en passant file is invalid");
                 if (rank > 7) throw std::invalid_argument("FEN en passant rank is invalid");
 
-                bool blackToMove = metadata & BLACK_TO_MOVE;
-
-                // En passant rank must be 3 (after white double push, black to move)
-                // or 6 (after black double push, white to move) — 0-indexed
-                if (blackToMove && rank != 2)
+                // En passant rank must be 2 (black to move, white just pushed) or
+                // 5 (white to move, black just pushed) — 0-indexed.
+                if (isBlackTurn() && rank != 2)
                     throw std::invalid_argument(
                         "FEN en passant rank must be 3 when black is to move");
-                if (!blackToMove && rank != 5)
+                if (isWhiteTurn() && rank != 5)
                     throw std::invalid_argument(
                         "FEN en passant rank must be 6 when white is to move");
 
-                // There must be a pawn that made the double push
-                uint64_t pawnBit = blackToMove ? 1ULL << static_cast<uint8_t>(Square(3, file))
-                                               : 1ULL << static_cast<uint8_t>(Square(4, file));
+                // There must be a pawn on the rank it landed on after the double push.
+                uint64_t pawnBit = isBlackTurn() ? 1ULL << static_cast<uint8_t>(Square(3, file))
+                                                 : 1ULL << static_cast<uint8_t>(Square(4, file));
 
-                if (blackToMove && !(whiteBitboards[PAWN] & pawnBit))
+                if (isBlackTurn() && !(whiteBitboards[PAWN] & pawnBit))
                     throw std::invalid_argument(
                         "FEN en passant square is invalid: no white pawn on expected square");
-                if (!blackToMove && !(blackBitboards[PAWN] & pawnBit))
+                if (isWhiteTurn() && !(blackBitboards[PAWN] & pawnBit))
                     throw std::invalid_argument(
                         "FEN en passant square is invalid: no black pawn on expected square");
 
@@ -234,7 +221,7 @@ namespace aleph::chess {
             metadata |= (halfmove << 9) & HALF_MOVE_CLOCK;
         }
 
-        // --- Field 6: Fullmove number (ignored, no storage) ---
+        // --- Field 6: Fullmove number (parsed for validation only, not stored) ---
         if (fieldCount >= 6) {
             for (char c : fields[5]) {
                 if (c < '0' || c > '9')
@@ -242,7 +229,15 @@ namespace aleph::chess {
             }
         }
 
-        // --- Check detection: side not to move must not be in check ---
-        // Deferred until isLegalFast is implemented.
+        // --- Check detection ---
+        // The side that just moved must not be in check. Temporarily flip side to move
+        // so that getCheckers() evaluates from the non-moving side's perspective.
+        metadata ^= BLACK_TO_MOVE;
+        if (getCheckers()) throw std::invalid_argument("FEN has the non-moving side in check");
+        metadata    ^= BLACK_TO_MOVE;
+        _cacheValid  = 0;  // invalidate checkers cache after metadata flip
     }
-}
+
+    Board::Board() : Board(detail::STARTING_POSITION_FEN) {}
+
+}  // namespace aleph::chess

@@ -22,36 +22,37 @@ namespace aleph::chess {
         auto& ownBitboards    = blackTurn ? next.blackBitboards : next.whiteBitboards;
         auto& enemyBitboards  = blackTurn ? next.whiteBitboards : next.blackBitboards;
 
-        // --- Determine moving piece type ---
         PieceType movingPiece = get(from).type();
         DEBUG_ASSERT(movingPiece != NONE);
 
-        // --- Clear en passant state ---
+        // Clear en passant state unconditionally — a new en passant square will be set
+        // below if this move is a double pawn push.
         next.metadata &= ~(EN_PASSANT_FILE_MASK | EN_PASSANT_VALID);
 
-        // --- Remove captured piece (if any) ---
+        // Remove any enemy piece on the destination square.
         for (int i = 0; i < 6; i++) enemyBitboards[i] &= ~toBit;
 
-        // --- Move the piece ---
+        // Vacate the origin square and place the piece on the destination.
         ownBitboards[movingPiece] &= ~fromBit;
-
-        // --- Handle promotion ---
         if (m.hasPromo())
+            // Replace the pawn with the promoted piece type.
             ownBitboards[m.promo()] |= toBit;
         else
             ownBitboards[movingPiece] |= toBit;
 
-        // --- Handle castling (king moves two squares) ---
+        // --- Castling ---
+        // Detected contextually: a king moving exactly two files triggers rook relocation.
+        // Castling rights in metadata are trusted as authoritative.
         if (movingPiece == KING) {
             int8_t fileDelta = static_cast<int8_t>(to.file()) - static_cast<int8_t>(from.file());
             if (fileDelta == 2) {
-                // Kingside — move rook from h-file to f-file
+                // Kingside — rook moves from h-file to f-file.
                 Square rookFrom(from.rank(), 7);
                 Square rookTo(from.rank(), 5);
                 ownBitboards[ROOK] &= ~(1ULL << static_cast<uint8_t>(rookFrom));
                 ownBitboards[ROOK] |= (1ULL << static_cast<uint8_t>(rookTo));
             } else if (fileDelta == -2) {
-                // Queenside — move rook from a-file to d-file
+                // Queenside — rook moves from a-file to d-file.
                 Square rookFrom(from.rank(), 0);
                 Square rookTo(from.rank(), 3);
                 ownBitboards[ROOK] &= ~(1ULL << static_cast<uint8_t>(rookFrom));
@@ -59,18 +60,21 @@ namespace aleph::chess {
             }
         }
 
-        // --- Handle en passant capture ---
+        // --- En passant ---
+        // Detected contextually: a pawn moving to a different file onto the en passant
+        // square triggers removal of the captured pawn from the rank behind the target.
         if (movingPiece == PAWN) {
-            // Double push — set en passant file
             int8_t rankDelta = static_cast<int8_t>(to.rank()) - static_cast<int8_t>(from.rank());
             if (rankDelta == 2 || rankDelta == -2) {
+                // Double push — record the en passant file for the opponent.
                 next.metadata |= EN_PASSANT_VALID;
                 next.metadata |= (to.file() & EN_PASSANT_FILE_MASK);
             }
 
-            // En passant capture — remove the captured pawn
             if (isEnPassantValid() && to.file() == getEnPassantFile() &&
                 from.file() != getEnPassantFile()) {
+                // En passant capture — remove the captured pawn from the rank it sits on,
+                // which is one rank behind the destination from the moving side's perspective.
                 uint8_t capturedRank = blackTurn ? static_cast<uint8_t>(to.rank() + 1)
                                                  : static_cast<uint8_t>(to.rank() - 1);
                 Square capturedSq(capturedRank, to.file());
@@ -78,7 +82,9 @@ namespace aleph::chess {
             }
         }
 
-        // --- Update castling rights ---
+        // --- Castling rights ---
+        // Any move from or to a rook's starting square clears the corresponding right,
+        // handling both rook moves and captures on those squares in one pass.
         constexpr uint8_t E1 = static_cast<uint8_t>(Square(0, 4));
         constexpr uint8_t E8 = static_cast<uint8_t>(Square(7, 4));
         constexpr uint8_t A1 = static_cast<uint8_t>(Square(0, 0));
@@ -93,7 +99,9 @@ namespace aleph::chess {
         if (fromIdx == H8 || toIdx == H8) next.metadata &= ~BLACK_KINGSIDE_CASTLE;
         if (fromIdx == A8 || toIdx == A8) next.metadata &= ~BLACK_QUEENSIDE_CASTLE;
 
-        // --- Update halfmove clock ---
+        // --- Halfmove clock ---
+        // Capture detection reads from the original board's occupancy before any pieces
+        // were removed, ensuring a correct result even for en passant captures.
         bool isCapture = (blackTurn ? getWhiteOccupancy() : getBlackOccupancy()) & toBit;
 
         if (movingPiece == PAWN || isCapture) {
@@ -103,7 +111,6 @@ namespace aleph::chess {
             next.metadata  = (next.metadata & ~HALF_MOVE_CLOCK) | ((clock << 9) & HALF_MOVE_CLOCK);
         }
 
-        // --- Flip side to move ---
         next.metadata ^= BLACK_TO_MOVE;
 
         return next;

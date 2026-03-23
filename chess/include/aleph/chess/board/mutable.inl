@@ -46,16 +46,21 @@ namespace aleph::chess {
 
             _checkers                  = 0;
 
-            // Pawn checkers
+            // Pawn attack tables are asymmetric — index 0..5 are white pieces, 6..11 are black.
+            // To find enemy pawns that attack the king, use the enemy color's attack table,
+            // since a black pawn on sq attacks the squares given by movement[PAWN+6][sq].
             uint64_t pawns             = enemyBitboards[PAWN];
             while (pawns) {
                 uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(pawns));
                 pawns      &= pawns - 1;
-                if (attackTables.movement[blackTurn ? PAWN : (PAWN + 6)][sq] & kingSqBit)
+                // Piece(PAWN, !blackTurn) exploits the Piece index encoding (white=0..5,
+                // black=6..11) to select the correct pawn attack table: white pawns at index 0,
+                // black at index 6.
+                if (attackTables.movement[Piece(PAWN, !blackTurn)][sq] & kingSqBit)
                     _checkers |= 1ULL << sq;
             }
 
-            // Knight checkers
+            // Knights
             uint64_t knights = enemyBitboards[KNIGHT];
             while (knights) {
                 uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(knights));
@@ -63,7 +68,7 @@ namespace aleph::chess {
                 if (attackTables.movement[KNIGHT][sq] & kingSqBit) _checkers |= 1ULL << sq;
             }
 
-            // Bishop and diagonal queen checkers
+            // Diagonal sliders — bishops and queens
             uint64_t sliders = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];
             while (sliders) {
                 uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(sliders));
@@ -72,7 +77,7 @@ namespace aleph::chess {
                     if ((attackTables.between[sq][kingSq] & occ) == 0) _checkers |= 1ULL << sq;
             }
 
-            // Rook and orthogonal queen checkers
+            // Orthogonal sliders — rooks and queens
             sliders = enemyBitboards[ROOK] | enemyBitboards[QUEEN];
             while (sliders) {
                 uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(sliders));

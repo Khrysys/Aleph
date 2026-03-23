@@ -33,7 +33,8 @@ namespace aleph::chess {
             if (whiteBitboards[i] & bit) return Piece(PieceType(i), false);
             if (blackBitboards[i] & bit) return Piece(PieceType(i), true);
         }
-        return Piece(NONE, false);  // unreachable but satisfies compiler
+        // Unreachable: occupancy check guarantees a piece exists on this square.
+        return Piece(NONE, false);
     }
 
 }  // namespace aleph::chess
