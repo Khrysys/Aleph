@@ -84,6 +84,7 @@ jobs:
           - address
           - memory
           - undefined
+      fail-fast: false
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

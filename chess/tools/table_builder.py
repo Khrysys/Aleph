@@ -30,8 +30,9 @@ def flip_square(sq: int) -> int:
 def flip_bb(bb: int) -> int:
     nbb = 0
     for i in range(64):
-        j = flip_square(i)
-        nbb |= (bb >> j & 1) << i
+        if (bb >> i) & 1:
+            j = flip_square(i)
+            nbb |= 1 << j
     return nbb
 
 
@@ -256,4 +257,6 @@ def main():
 
 
 if __name__ == '__main__':
+
+    
     main()

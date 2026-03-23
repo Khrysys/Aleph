@@ -43,7 +43,7 @@ namespace aleph::chess {
         WHITE_QUEENSIDE_CASTLE = 0x00000040,
         BLACK_KINGSIDE_CASTLE  = 0x00000080,
         BLACK_QUEENSIDE_CASTLE = 0x00000100,
-        HALF_MOVE_CLOCK         = 0x0000FE00
+        HALF_MOVE_CLOCK        = 0x0000FE00
     };
 
     /**
@@ -57,7 +57,8 @@ namespace aleph::chess {
         OCCUPANCY_VALID       = 0x01,  ///< `_occupancy` is up to date.
         WHITE_OCCUPANCY_VALID = 0x02,  ///< `_whiteOccupancy` is up to date.
         BLACK_OCCUPANCY_VALID = 0x04,  ///< `_blackOccupancy` is up to date.
-        ZOBRIST_HASH_VALID    = 0x08   ///< `_zobristHash` is up to date.
+        ZOBRIST_HASH_VALID    = 0x08,  ///< `_zobristHash` is up to date.
+        CHECKERS_VALID        = 0x10,  ///< `_checkers` is up to date.
     };
 
     /**
@@ -88,7 +89,7 @@ namespace aleph::chess {
             inline Board(std::string_view fen);
 
             /**
-             * 
+             *
              */
             [[nodiscard]] inline Piece get(Square sq) const;
 
@@ -98,6 +99,9 @@ namespace aleph::chess {
              * contextually from the move and current board state.
              */
             [[nodiscard]] inline Board push(Move m) const;
+
+
+            // Move Generation
 
             /** Returns the list of fully legal moves from this position. */
             [[nodiscard]] inline MoveList<256> getLegalMoves() const;
@@ -125,24 +129,6 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline bool isLegalFast(Move m) const;
 
-            /**
-             * Returns the combined occupancy of all pieces on the board.
-             * Result is cached after the first call and invalidated by `push()`.
-             */
-            [[nodiscard]] inline uint64_t occupancy() const;
-
-            /**
-             * Returns the occupancy of all white pieces.
-             * Result is cached after the first call and invalidated by `push()`.
-             */
-            [[nodiscard]] inline uint64_t whiteOccupancy() const;
-
-            /**
-             * Returns the occupancy of all black pieces.
-             * Result is cached after the first call and invalidated by `push()`.
-             */
-            [[nodiscard]] inline uint64_t blackOccupancy() const;
-
             // Metadata accessors
 
             /**
@@ -161,18 +147,33 @@ namespace aleph::chess {
              *
              */
             [[nodiscard]] inline bool canWhiteKingsideCastle() const;
-
             [[nodiscard]] inline bool canWhiteQueensideCastle() const;
-
             [[nodiscard]] inline bool canBlackKingsideCastle() const;
-
             [[nodiscard]] inline bool canBlackQueensideCastle() const;
-
             [[nodiscard]] inline bool isEnPassantValid() const;
+            [[nodiscard]] inline std::uint8_t getEnPassantFile() const;
+            [[nodiscard]] inline std::uint8_t getHalfMoveClock() const;
 
-            [[nodiscard]] inline std::uint8_t enPassantFile() const;
+            // Mutable field loaders
+            /**
+             * Returns the combined occupancy of all pieces on the board.
+             * Result is cached after the first call and invalidated by `push()`.
+             */
+            [[nodiscard]] inline uint64_t getOccupancy() const;
 
-            [[nodiscard]] inline std::uint8_t halfMoveClock() const;
+            /**
+             * Returns the occupancy of all white pieces.
+             * Result is cached after the first call and invalidated by `push()`.
+             */
+            [[nodiscard]] inline uint64_t getWhiteOccupancy() const;
+
+            /**
+             * Returns the occupancy of all black pieces.
+             * Result is cached after the first call and invalidated by `push()`.
+             */
+            [[nodiscard]] inline uint64_t getBlackOccupancy() const;
+
+            [[nodiscard]] inline std::uint64_t getCheckers() const;
 
         private:
             std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per PieceType for white.
@@ -185,6 +186,7 @@ namespace aleph::chess {
             mutable uint64_t _whiteOccupancy;  ///< Cached white occupancy.
             mutable uint64_t _blackOccupancy;  ///< Cached black occupancy.
             mutable uint64_t _zobristHash;     ///< Cached Zobrist hash of this position.
+            mutable uint64_t _checkers;
     };
 
 }  // namespace aleph::chess

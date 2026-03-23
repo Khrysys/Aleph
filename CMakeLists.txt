@@ -12,8 +12,10 @@ project(Aleph LANGUAGES CXX VERSION 0.0.1.1)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-# We need knowledge of GTest existing for the check of Aleph_BUILD_TESTS
+# We need knowledge of GTest and benchmark for the check of Aleph_BUILD_TESTS 
+# and Aleph_BUILD_BENCHMARKS
 find_package(GTest)
+find_package(benchmark)
 
 if(TARGET GTest::gtest_main)
     option(Aleph_BUILD_TESTS 
@@ -31,13 +33,23 @@ endif()
 if(DEFINED ENV{LIB_FUZZING_ENGINE})
     option(Aleph_BUILD_FUZZING
         "Build fuzz targets for the modules within the engine. This option adds fuzzing and \
-        sanitizers, which may impact performance. "
+        may add sanitizers, which would impact performance. "
     )
 else()
     message(STATUS 
         "LIB_FUZZING_ENGINE environment variable not set. Fuzzing is unavailable without it."
     )
     set(Aleph_BUILD_FUZZING OFF)
+endif()
+
+if(TARGET benchmark::benchmark)
+    option(Aleph_BUILD_BENCHMARKS "Build benchmarks for the modules within the engine. Has no \
+        impact on the regular usage of the engine." ON)
+else()
+    message(STATUS
+        "benchmark::benchmark target was not found. Benchmarks are unavailable without it."
+    )
+    set(Aleph_BUILD_BENCHMARKS OFF)
 endif()
 
 # Platform architecture changes

@@ -25,8 +25,8 @@ namespace aleph::chess {
      */
     enum PieceType : std::uint8_t {
         PAWN   = 0,
-        BISHOP = 1,
-        KNIGHT = 2,
+        KNIGHT = 1,
+        BISHOP = 2,
         ROOK   = 3,
         QUEEN  = 4,
         KING   = 5,
@@ -36,7 +36,7 @@ namespace aleph::chess {
     namespace detail {
         /** Characters of each piece in FEN notation. A Piece can be directly used as an index to
          * this string to give the char for that piece. */
-        constexpr std::string_view PIECE_TYPE_CHARS = "PBNRQKpbnrqk";
+        constexpr std::string_view PIECE_TYPE_CHARS = "PNBRQKpnbrqk";
     }  // namespace detail
 
     /**
