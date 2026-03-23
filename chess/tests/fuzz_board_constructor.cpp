@@ -1,3 +1,9 @@
+/**
+ * @file tests/fuzz_board_constructor.cpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #include <cstdint>
 #include <stdexcept>
 #include <string_view>

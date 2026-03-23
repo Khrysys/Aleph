@@ -1,3 +1,9 @@
+/**
+ * @file include/aleph/chess/board/metadata.inl
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include "../board.hpp"

@@ -1,3 +1,9 @@
+/**
+ * @file include/aleph/chess/attack_tables.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <array>

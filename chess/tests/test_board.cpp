@@ -1,3 +1,9 @@
+/**
+ * @file tests/test_board.cpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <gtest/gtest.h>

@@ -1,3 +1,9 @@
+/**
+ * @file tests/bench_board.cpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #include <benchmark/benchmark.h>
 
 #include <aleph/chess/board.hpp>
@@ -48,6 +54,7 @@ static void runPerft(benchmark::State& state, const char* fen) {
     Board board(fen);
     uint64_t nodes = 0;
 
+    // NOLINTNEXTLINE
     for (auto _ : state) nodes = perft(board, state.range(0));
 
     state.counters["nodes"] =
@@ -80,7 +87,7 @@ BENCHMARK(BM_PerftStarting)->Unit(benchmark::kMillisecond)->Arg(4)->Arg(5)->Arg(
 static void BM_PerftKiwipete(benchmark::State& state) {
     runPerft(state, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 }
-BENCHMARK(BM_PerftKiwipete)->Unit(benchmark::kMillisecond)->Arg(4)->Arg(5);
+BENCHMARK(BM_PerftKiwipete)->Unit(benchmark::kMillisecond)->Arg(4)->Arg(5)->Arg(6);
 
 static void BM_PerftPosition3(benchmark::State& state) {
     runPerft(state, "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");

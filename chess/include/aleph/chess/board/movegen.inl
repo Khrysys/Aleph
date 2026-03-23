@@ -1,3 +1,9 @@
+/**
+ * @file include/aleph/chess/board/movegen.inl
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <aleph/platform.hpp>
@@ -7,6 +13,23 @@
 
 namespace aleph::chess {
     namespace detail {
+        /**
+         * Returns true if the square at `sqIdx` is attacked by any piece in `attackers`.
+         *
+         * Used by `isLegalFast` to validate king safety after a simulated move. Takes
+         * a pre-constructed attacker bitboard array rather than reading from the board
+         * directly, allowing callers to pass post-move enemy bitboards with captured
+         * pieces already removed. The `occ` parameter reflects the post-move occupancy
+         * and is used to validate slider paths via the between table.
+         *
+         * `attackersAreBlack` selects the correct pawn attack table — pawn attacks are
+         * asymmetric, so the color of the attacking pawns must be known. Pass `!blackTurn`
+         * at call sites since attackers are always the enemy of the side to move.
+         *
+         * Called twice for castling moves: once with original occupancy for the king's
+         * origin square, and once with post-move occupancy for the pass-through square.
+         * The final king safety check always uses post-move occupancy.
+         */
         [[nodiscard]] inline bool isAttackedBy(uint8_t sqIdx, uint64_t occ,
                                                const std::array<uint64_t, 6>& attackers,
                                                bool attackersAreBlack) {
