@@ -248,6 +248,7 @@ class AttackTables:
 def main():
     file_name = argv[1]
     file_path = Path(file_name)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     file = file_path.open('w')
 
     file.write(AttackTables().output())
