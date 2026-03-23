@@ -25,7 +25,7 @@ namespace aleph::chess {
         /** FEN string corresponding to the traditional starting chess position. */
         constexpr std::string_view STARTING_POSITION_FEN =
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    }
+    }  // namespace detail
 
     /**
      * Encodes the fields packed into the 32-bit `metadata` word of `Board`.
