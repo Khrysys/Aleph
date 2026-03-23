@@ -35,7 +35,7 @@ jobs:
             sanitizer: address # Address is the default, should keep it here
           - mode: coverage
             sanitizer: coverage
-        fail-fast: false
+      fail-fast: true
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
