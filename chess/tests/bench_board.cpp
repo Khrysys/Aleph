@@ -54,8 +54,9 @@ static void runPerft(benchmark::State& state, const char* fen) {
     Board board(fen);
     uint64_t nodes = 0;
 
-    // NOLINTNEXTLINE
+    // clang-format off
     for (auto _ : state) nodes = perft(board, state.range(0));
+    // clang-format on
 
     state.counters["nodes"] =
         benchmark::Counter(static_cast<double>(nodes), benchmark::Counter::kDefaults);
