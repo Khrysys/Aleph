@@ -1,14 +1,14 @@
 #include <iostream>
+
 #include <gtest/gtest.h>
+
 #include <aleph/chess/board.hpp>
 
 using namespace aleph::chess;
 
 // --- Valid positions ---
 
-TEST(BoardFenTest, DefaultConstructor) {
-    EXPECT_NO_THROW(Board());
-}
+TEST(BoardFenTest, DefaultConstructor) { EXPECT_NO_THROW(Board()); }
 
 TEST(BoardFenTest, StartingPosition) {
     EXPECT_NO_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
@@ -49,93 +49,113 @@ TEST(BoardFenTest, KiwipetePosition) {
 // --- Field count ---
 
 TEST(BoardFenTest, TooFewFields) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"),
+                 std::invalid_argument);
 }
 
 // --- Piece placement ---
 
 TEST(BoardFenTest, TooManyRanks) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, TooFewRanks) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, RankExceeds8Squares) {
-    EXPECT_THROW(Board("rnbqkbnrr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnrr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, RankUnder8Squares) {
-    EXPECT_THROW(Board("rnbqkbn/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbn/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, InvalidPieceCharacter) {
-    EXPECT_THROW(Board("rnbqkbnx/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnx/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 // --- King validation ---
 
 TEST(BoardFenTest, MissingWhiteKing) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, MissingBlackKing) {
-    EXPECT_THROW(Board("rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, TwoWhiteKings) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKKNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKKNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 // --- Pawn validation ---
 
 TEST(BoardFenTest, PawnOnRank1) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNP w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNP w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, PawnOnRank8) {
-    EXPECT_THROW(Board("rnbqkbnP/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnP/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, TooManyWhitePawns) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/PPPPPPPPP/8/RNBQKBNR w KQkq - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/PPPPPPPPP/8/RNBQKBNR w KQkq - 0 1"),
+                 std::invalid_argument);
 }
 
 // --- Castling validation ---
 
 TEST(BoardFenTest, CastlingWhiteKingsideNoRook) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, CastlingWhiteKingsideNoKing) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, CastlingBlackQueensideNoRook) {
-    EXPECT_THROW(Board("1nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w q - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("1nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w q - 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, InvalidCastlingCharacter) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w X - 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w X - 0 1"),
+                 std::invalid_argument);
 }
 
 // --- En passant validation ---
 
 TEST(BoardFenTest, EnPassantWrongRankForBlackToMove) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, EnPassantWrongRankForWhiteToMove) {
-    EXPECT_THROW(Board("rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, EnPassantNoPawnPresent) {
-    EXPECT_THROW(Board("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq e3 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq e3 0 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, EnPassantInvalidFile) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq x3 0 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq x3 0 1"),
+                 std::invalid_argument);
 }
 
 // --- Halfmove clock ---
@@ -145,17 +165,20 @@ TEST(BoardFenTest, HalfmoveClockValid) {
 }
 
 TEST(BoardFenTest, HalfmoveClockExceeds100) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 101 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 101 1"),
+                 std::invalid_argument);
 }
 
 TEST(BoardFenTest, HalfmoveClockInvalidCharacter) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - x 1"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - x 1"),
+                 std::invalid_argument);
 }
 
 // --- Fullmove number ---
 
 TEST(BoardFenTest, FullmoveInvalidCharacter) {
-    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 x"), std::invalid_argument);
+    EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 x"),
+                 std::invalid_argument);
 }
 
 // --- push() tests ---
@@ -224,14 +247,14 @@ TEST(BoardPushTest, WhiteDoublePushSetsEnPassant) {
     Board b;
     Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
     EXPECT_TRUE(b2.isEnPassantValid());
-    EXPECT_EQ(b2.getEnPassantFile(), 4); // e-file
+    EXPECT_EQ(b2.getEnPassantFile(), 4);  // e-file
 }
 
 TEST(BoardPushTest, BlackDoublePushSetsEnPassant) {
     Board b("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
     Board b2 = b.push(makeAlgebraicMove("d7", "d5"));
     EXPECT_TRUE(b2.isEnPassantValid());
-    EXPECT_EQ(b2.getEnPassantFile(), 3); // d-file
+    EXPECT_EQ(b2.getEnPassantFile(), 3);  // d-file
 }
 
 TEST(BoardPushTest, NonDoublePushClearsEnPassant) {
@@ -408,9 +431,9 @@ TEST(BoardPushTest, OccupancyUpdatesAfterMove) {
 
 TEST(BoardPushTest, OccupancyUpdatesAfterCapture) {
     Board b("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-    Board b2 = b.push(makeAlgebraicMove("e4", "d5"));
+    Board b2     = b.push(makeAlgebraicMove("e4", "d5"));
     uint64_t occ = b2.getOccupancy();
-    EXPECT_TRUE(occ  & (1ULL << static_cast<uint8_t>(Square(4, 3))));
+    EXPECT_TRUE(occ & (1ULL << static_cast<uint8_t>(Square(4, 3))));
     EXPECT_FALSE(occ & (1ULL << static_cast<uint8_t>(Square(3, 4))));
 }
 
@@ -419,7 +442,7 @@ TEST(BoardPushTest, OccupancyUpdatesAfterCapture) {
 TEST(BoardPushTest, OriginalBoardUnchangedAfterPush) {
     Board b;
     uint64_t occBefore = b.getOccupancy();
-    auto r = b.push(makeAlgebraicMove("e2", "e4"));
+    auto r             = b.push(makeAlgebraicMove("e2", "e4"));
     EXPECT_EQ(b.getOccupancy(), occBefore);
 }
 
@@ -463,7 +486,8 @@ static bool isLegal(const Board& b, std::string_view from, std::string_view to) 
     return moves.contains(makeAlgebraicMove(from, to));
 }
 
-static bool isLegalPromo(const Board& b, std::string_view from, std::string_view to, PieceType promo) {
+static bool isLegalPromo(const Board& b, std::string_view from, std::string_view to,
+                         PieceType promo) {
     auto moves = b.getLegalMoves();
     std::cout << fmt::format("{}", b.getLegalMoves()) << std::endl;
     return moves.contains(makePromoMove(from, to, promo));
@@ -506,14 +530,14 @@ TEST(IsLegalFastTest, PinnedPieceCanMoveAlongRay) {
     Board b("4k3/4r3/8/8/8/8/4R3/4K3 w - - 0 1");
     EXPECT_TRUE(isLegal(b, "e2", "e3"));
     EXPECT_TRUE(isLegal(b, "e2", "e4"));
-    EXPECT_TRUE(isLegal(b, "e2", "e7")); // capture the pinner
+    EXPECT_TRUE(isLegal(b, "e2", "e7"));  // capture the pinner
 }
 
 TEST(IsLegalFastTest, DiagonalPinCannotMoveOffDiagonal) {
     Board b("8/8/6b1/8/8/3B4/8/1K5k w - - 0 1");
-    EXPECT_FALSE(isLegal(b, "d3", "e2")); // off diagonal — wrong diagonal
-    EXPECT_FALSE(isLegal(b, "d3", "f1")); // off diagonal — wrong diagonal
-    EXPECT_FALSE(isLegal(b, "d3", "b5")); // off diagonal — wrong diagonal
+    EXPECT_FALSE(isLegal(b, "d3", "e2"));  // off diagonal — wrong diagonal
+    EXPECT_FALSE(isLegal(b, "d3", "f1"));  // off diagonal — wrong diagonal
+    EXPECT_FALSE(isLegal(b, "d3", "b5"));  // off diagonal — wrong diagonal
 }
 
 TEST(IsLegalFastTest, DiagonalPinCanMoveAlongDiagonal) {
@@ -539,13 +563,13 @@ TEST(IsLegalFastTest, MustEvadeCheck) {
 TEST(IsLegalFastTest, CanBlockCheck) {
     // White king on e1 checked by black rook on e8, white rook on a4 can block
     Board b("4r3/8/8/8/R7/8/8/4K2k w - - 0 1");
-    EXPECT_TRUE(isLegal(b, "a4", "e4")); // block on e4
+    EXPECT_TRUE(isLegal(b, "a4", "e4"));  // block on e4
 }
 
 TEST(IsLegalFastTest, CanCaptureChecker) {
     // White king on e1 checked by black rook on e2
     Board b("4k3/8/8/8/8/8/4r3/R3K3 w - - 0 1");
-    EXPECT_TRUE(isLegal(b, "e1", "e2")); 
+    EXPECT_TRUE(isLegal(b, "e1", "e2"));
     EXPECT_FALSE(isLegal(b, "e1", "d2"));
     EXPECT_FALSE(isLegal(b, "e1", "f2"));
 }
@@ -642,7 +666,7 @@ TEST(IsLegalFastTest, PromotionLegal) {
 TEST(IsLegalFastTest, PromotionIllegalIfLeavesKingInCheck) {
     // Pawn on e7, king on e1 in check from rook on e8 — promoting blocks but king still in check
     Board b("4rk2/4P3/8/8/8/8/8/4K3 w - - 0 1");
-    EXPECT_FALSE(isLegalPromo(b, "e7", "e8", QUEEN)); // capturing rook is legal though
+    EXPECT_FALSE(isLegalPromo(b, "e7", "e8", QUEEN));  // capturing rook is legal though
 }
 
 // --- Perft spot checks ---

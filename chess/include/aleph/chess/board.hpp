@@ -58,7 +58,7 @@ namespace aleph::chess {
         WHITE_OCCUPANCY_VALID = 0x02,  ///< `_whiteOccupancy` is up to date.
         BLACK_OCCUPANCY_VALID = 0x04,  ///< `_blackOccupancy` is up to date.
         ZOBRIST_HASH_VALID    = 0x08,  ///< `_zobristHash` is up to date.
-        CHECKERS_VALID        = 0x10,  ///< `_checkers` is up to date.
+        CHECKERS_VALID        = 0x10   ///< `_checkers` is up to date.
     };
 
     /**
@@ -99,7 +99,6 @@ namespace aleph::chess {
              * contextually from the move and current board state.
              */
             [[nodiscard]] inline Board push(Move m) const;
-
 
             // Move Generation
 

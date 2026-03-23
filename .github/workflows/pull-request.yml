@@ -164,7 +164,7 @@ jobs:
           version: '22'
           verbosity: 'info'
           files-changed-only: true
-          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          thread-comments: 'false'
           step-summary: true
           tidy-review: true
           format-review: true

@@ -17,7 +17,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         // If construction succeeded, verify basic invariants
         ASSERT(aleph::platform::popcnt(b.getWhiteOccupancy() & b.getBlackOccupancy()) == 0);
         ASSERT(aleph::platform::popcnt(b.getOccupancy()) ==
-               aleph::platform::popcnt(b.getWhiteOccupancy()) + aleph::platform::popcnt(b.getBlackOccupancy()));
+               aleph::platform::popcnt(b.getWhiteOccupancy()) +
+                   aleph::platform::popcnt(b.getBlackOccupancy()));
         ASSERT(aleph::platform::popcnt(b.getBlackOccupancy()) >= 1);
         ASSERT(aleph::platform::popcnt(b.getWhiteOccupancy()) >= 1);
 
