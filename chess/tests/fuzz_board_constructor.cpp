@@ -15,11 +15,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         Board b(fen);
 
         // If construction succeeded, verify basic invariants
-        ASSERT(aleph::platform::popcnt(b.whiteOccupancy() & b.blackOccupancy()) == 0);
-        ASSERT(aleph::platform::popcnt(b.occupancy()) ==
-               aleph::platform::popcnt(b.whiteOccupancy()) + aleph::platform::popcnt(b.blackOccupancy()));
-        ASSERT(aleph::platform::popcnt(b.blackOccupancy()) >= 1);
-        ASSERT(aleph::platform::popcnt(b.whiteOccupancy()) >= 1);
+        ASSERT(aleph::platform::popcnt(b.getWhiteOccupancy() & b.getBlackOccupancy()) == 0);
+        ASSERT(aleph::platform::popcnt(b.getOccupancy()) ==
+               aleph::platform::popcnt(b.getWhiteOccupancy()) + aleph::platform::popcnt(b.getBlackOccupancy()));
+        ASSERT(aleph::platform::popcnt(b.getBlackOccupancy()) >= 1);
+        ASSERT(aleph::platform::popcnt(b.getWhiteOccupancy()) >= 1);
 
     } catch (const std::invalid_argument&) {
         // Expected for malformed FEN — not a bug
