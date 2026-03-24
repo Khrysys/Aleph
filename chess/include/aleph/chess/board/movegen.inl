@@ -10,7 +10,7 @@
 
 #include "../attack_tables.hpp"
 #include "../board.hpp"
-#include "ray_helpers.hpp"
+#include "ray_helpers.inl"
 
 namespace aleph::chess {
     namespace detail {

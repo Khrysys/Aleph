@@ -1,5 +1,5 @@
 /**
- * @file include/aleph/chess/board/ray_helpers.hpp
+ * @file include/aleph/chess/board/ray_helpers.inl
  *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
