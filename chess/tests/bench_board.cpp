@@ -1,5 +1,13 @@
-#include <benchmark/benchmark.h>
+/**
+ * @file tests/bench_board.cpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #include <vector>
+
+#include <benchmark/benchmark.h>
+
 #include <aleph/chess.hpp>
 
 static std::vector<aleph::chess::Board> loadPositions() {
@@ -17,23 +25,21 @@ static void BM_isAttackedBy(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
-    std::array<uint64_t, 6> enemy{};
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        std::array<uint64_t, 6> enemy{};
+        auto& b        = positions[idx++ % positions.size()];
 
         bool blackTurn = b.isBlackTurn();
-        enemy = blackTurn ? b.getWhiteBitboards() : b.getBlackBitboards();
+        enemy          = blackTurn ? b.getWhiteBitboards() : b.getBlackBitboards();
 
-        uint64_t occ = b.getOccupancy();
+        uint64_t occ   = b.getOccupancy();
 
-        uint8_t sq = static_cast<uint8_t>(idx % 64);
+        uint8_t sq     = static_cast<uint8_t>(idx % 64);
 
-        benchmark::DoNotOptimize(
-            detail::isAttackedBy(sq, occ, enemy, !blackTurn)
-        );
+        benchmark::DoNotOptimize(detail::isAttackedBy(sq, occ, enemy, !blackTurn));
     }
 }
 BENCHMARK(BM_isAttackedBy);
@@ -42,10 +48,10 @@ static void BM_isLegalFast(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        auto& b    = positions[idx++ % positions.size()];
 
         auto moves = b.getPseudoLegalMoves();
 
@@ -60,10 +66,10 @@ static void BM_push(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        auto& b    = positions[idx++ % positions.size()];
 
         auto moves = b.getPseudoLegalMoves();
 
@@ -81,10 +87,10 @@ static void BM_getLegalMoves(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        auto& b    = positions[idx++ % positions.size()];
 
         auto moves = b.getLegalMoves();
         benchmark::DoNotOptimize(moves);
@@ -96,10 +102,10 @@ static void BM_perft_node(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        auto& b    = positions[idx++ % positions.size()];
 
         auto moves = b.getLegalMoves();
 
@@ -115,13 +121,13 @@ static void BM_bishopAttacks(benchmark::State& state) {
     using namespace aleph::chess;
 
     static auto positions = loadPositions();
-    size_t idx = 0;
+    size_t idx            = 0;
 
     for (auto _ : state) {
-        auto& b = positions[idx++ % positions.size()];
+        auto& b      = positions[idx++ % positions.size()];
         uint64_t occ = b.getOccupancy();
 
-        uint8_t sq = idx % 64;
+        uint8_t sq   = idx % 64;
 
         benchmark::DoNotOptimize(detail::bishopAttacks(sq, occ));
     }

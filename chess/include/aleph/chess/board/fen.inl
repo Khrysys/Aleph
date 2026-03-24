@@ -10,10 +10,7 @@
 
 namespace aleph::chess {
     Board::Board(std::string_view fen)
-        : whiteBitboards{},
-          blackBitboards{},
-          metadata(0),
-          _zobristHash(0) {
+        : whiteBitboards{}, blackBitboards{}, metadata(0), _zobristHash(0) {
         // --- Split FEN into fields ---
         std::array<std::string_view, 6> fields;
         std::size_t fieldCount = 0;
@@ -235,7 +232,7 @@ namespace aleph::chess {
         // so that getCheckers() evaluates from the non-moving side's perspective.
         metadata ^= BLACK_TO_MOVE;
         // if (getCheckers()) throw std::invalid_argument("FEN has the non-moving side in check");
-        metadata    ^= BLACK_TO_MOVE;
+        metadata ^= BLACK_TO_MOVE;
     }
 
     Board::Board() : Board(detail::STARTING_POSITION_FEN) {}

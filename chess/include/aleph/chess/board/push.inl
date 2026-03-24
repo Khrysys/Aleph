@@ -109,7 +109,8 @@ namespace aleph::chess {
         // --- Halfmove clock ---
         // Capture detection reads from the original board's occupancy before any pieces
         // were removed, ensuring a correct result even for en passant captures.
-        bool isCapture = isEP | (((blackTurn ? getWhiteOccupancy() : getBlackOccupancy()) & toBit) != 0);
+        bool isCapture =
+            isEP | (((blackTurn ? getWhiteOccupancy() : getBlackOccupancy()) & toBit) != 0);
 
         if (movingPiece == PAWN || isCapture) {
             next.metadata &= ~HALF_MOVE_CLOCK;

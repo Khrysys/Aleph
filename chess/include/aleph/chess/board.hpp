@@ -235,8 +235,12 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getBlackOccupancy() const;
 
-            [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {return whiteBitboards; }
-            [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {return blackBitboards; }
+            [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {
+                return whiteBitboards;
+            }
+            [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {
+                return blackBitboards;
+            }
 
             [[nodiscard]] inline uint64_t getCheckers() const;
 
@@ -246,11 +250,11 @@ namespace aleph::chess {
             std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per `PieceType` for black,
                                                      ///< indexed by `PieceType` value.
 
-            mutable uint64_t _zobristHash;     ///< Cached Zobrist hash of this position.
+            mutable uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
             mutable uint64_t _checkers;
 
-            mutable uint64_t metadata; ///< Packed position metadata; see `BoardMetadataFlags`.
-            uint64_t __padding; ///< Unused padding, DO NOT SET.
+            mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
+            uint64_t __padding;         ///< Unused padding, DO NOT SET.
     };
 
     static_assert(sizeof(Board) == 128);

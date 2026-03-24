@@ -1,5 +1,5 @@
 /**
- * @file tests/bench_board.cpp
+ * @file tests/bench_perft.cpp
  *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
@@ -27,25 +27,26 @@ static uint64_t perft(Board& board, int depth) {
 
 template <class... Args>
 static void BM_Perft(benchmark::State& state, Args&&... args) {
-    auto argsTuple      = std::make_tuple(std::move(args)...);
-    auto fen            = std::get<0>(argsTuple);
-    auto depth          = std::get<1>(argsTuple);
-    auto targetNodes    = std::get<2>(argsTuple);
+    auto argsTuple   = std::make_tuple(std::move(args)...);
+    auto fen         = std::get<0>(argsTuple);
+    auto depth       = std::get<1>(argsTuple);
+    auto targetNodes = std::get<2>(argsTuple);
 
-    uint64_t nodes      = 0;
+    uint64_t nodes   = 0;
 
     Board board{fen};
     for (auto _ : state) {
+        // cppchec-suppress[useStlAlgorithm]
         nodes = perft(board, depth);
     }
     if (nodes != targetNodes) {
         state.SkipWithError(("Perft mismatch: got " + std::to_string(nodes) + " expected " +
-                                std::to_string(targetNodes))
+                             std::to_string(targetNodes))
                                 .c_str());
     }
     state.counters["nodes"] = nodes;
-    state.counters["nps"] =
-        benchmark::Counter(static_cast<double>(nodes), benchmark::Counter::kIsIterationInvariantRate);
+    state.counters["nps"]   = benchmark::Counter(static_cast<double>(nodes),
+                                                 benchmark::Counter::kIsIterationInvariantRate);
 }
 
 // clang-format off

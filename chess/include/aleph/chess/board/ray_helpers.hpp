@@ -1,5 +1,5 @@
 /**
- * @file include/aleph/chess/board/ray_math.hpp
+ * @file include/aleph/chess/board/ray_helpers.hpp
  *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
@@ -10,7 +10,8 @@ namespace aleph::chess {
     namespace detail {
         enum Direction : uint8_t { N, S, E, W, NE, NW, SE, SW };
 
-        [[nodiscard]] inline constexpr uint64_t rayAttackForward(uint64_t occ, Direction d, Square sq) {
+        [[nodiscard]] inline constexpr uint64_t rayAttackForward(uint64_t occ, Direction d,
+                                                                 Square sq) {
             uint64_t ray      = attackTables.rays[d][sq];
             uint64_t blockers = ray & occ;
 
@@ -20,7 +21,8 @@ namespace aleph::chess {
             return ray & ~cut;
         }
 
-        [[nodiscard]] inline constexpr uint64_t rayAttackBackward(uint64_t occ, Direction d, Square sq) {
+        [[nodiscard]] inline constexpr uint64_t rayAttackBackward(uint64_t occ, Direction d,
+                                                                  Square sq) {
             uint64_t ray      = attackTables.rays[d][sq];
             uint64_t blockers = ray & occ;
 

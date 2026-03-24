@@ -41,12 +41,13 @@ namespace aleph::chess {
             // Pawn attack tables are asymmetric — index 0..5 are white pieces, 6..11 are black.
             // To find enemy pawns that attack the king, use the enemy color's attack table,
             // since a black pawn on sq attacks the squares given by movement[PAWN+6][sq].
-            _checkers |= (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
+            _checkers |=
+                (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
             // Knights
-            _checkers |= (attackTables.movement[false][kingSq] & enemyBitboards[KNIGHT]);
+            _checkers        |= (attackTables.movement[false][kingSq] & enemyBitboards[KNIGHT]);
 
             // Diagonal sliders — bishops and queens
-            uint64_t sliders = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];
+            uint64_t sliders  = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];
             while (sliders) {
                 uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(sliders));
                 sliders    &= sliders - 1;
