@@ -10,6 +10,7 @@
 
 #include "../attack_tables.hpp"
 #include "../board.hpp"
+#include "ray_helpers.hpp"
 
 namespace aleph::chess {
     namespace detail {
@@ -45,23 +46,11 @@ namespace aleph::chess {
             if (attackTables.movement[KNIGHT][sqIdx] & attackers[KNIGHT]) return true;
             if (attackTables.movement[KING][sqIdx] & attackers[KING]) return true;
 
-            // Diagonal sliders — bishops and queens.
-            uint64_t sliders = attackers[BISHOP] | attackers[QUEEN];
-            while (sliders) {
-                uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(sliders));
-                sliders    &= sliders - 1;
-                if (attackTables.movement[BISHOP][sq] & sqBit)
-                    if ((attackTables.between[sq][sqIdx] & occ) == 0) return true;
-            }
+            uint64_t bishopLike = bishopAttacks(sqIdx, occ);
+            if (bishopLike & (attackers[BISHOP] | attackers[QUEEN])) return true;
 
-            // Orthogonal sliders — rooks and queens.
-            sliders = attackers[ROOK] | attackers[QUEEN];
-            while (sliders) {
-                uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(sliders));
-                sliders    &= sliders - 1;
-                if (attackTables.movement[ROOK][sq] & sqBit)
-                    if ((attackTables.between[sq][sqIdx] & occ) == 0) return true;
-            }
+            uint64_t rookLike = rookAttacks(sqIdx, occ);
+            if (rookLike & (attackers[ROOK] | attackers[QUEEN])) return true;
 
             return false;
         }
@@ -73,9 +62,18 @@ namespace aleph::chess {
 
         // Under double check only king moves can be legal — filter early to avoid
         // calling isLegalFast on every pseudo-legal move.
-        if (platform::popcnt(getCheckers()) == 2) {
-            for (const auto& m : pseudoLegal)
-                if (get(m.from()).type() == KING && isLegalFast(m)) result += m;
+        if (platform::popcnt(getCheckers()) == 2) [[unlikely]] {
+            auto blackTurn = isBlackTurn();
+            auto attackers = blackTurn ? getWhiteBitboards() : getBlackBitboards();
+            auto occ       = getOccupancy();
+            for (const auto& m : pseudoLegal) {
+                if (get(m.from()).type() == KING) [[unlikely]] {
+                    auto sq = m.to();
+                    if (!detail::isAttackedBy(sq, occ, attackers, !blackTurn)) {
+                        result += m;
+                    }
+                }
+            }
             return result;
         }
 
@@ -114,14 +112,9 @@ namespace aleph::chess {
         // Sliders must be aligned with the target square and have a clear path.
         // The movement table gives unblocked rays; the between table gives the
         // squares that must be empty for the move to be geometrically valid.
-        if (movingPiece == BISHOP || movingPiece == ROOK || movingPiece == QUEEN) {
-            bool aligned = false;
-            if (movingPiece == BISHOP || movingPiece == QUEEN)
-                aligned |= (bool)(attackTables.movement[BISHOP][fromIdx] & toBit);
-            if (movingPiece == ROOK || movingPiece == QUEEN)
-                aligned |= (bool)(attackTables.movement[ROOK][fromIdx] & toBit);
-            if (!aligned) return false;
-            if (attackTables.between[fromIdx][toIdx] & occ) return false;
+        if ((movingPiece == BISHOP || movingPiece == ROOK || movingPiece == QUEEN) &&
+            attackTables.between[fromIdx][toIdx] & occ) {
+            return false;
         }
 
         // Simulate the post-move board state without constructing a full Board object.

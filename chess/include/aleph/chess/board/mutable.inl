@@ -41,24 +41,9 @@ namespace aleph::chess {
             // Pawn attack tables are asymmetric — index 0..5 are white pieces, 6..11 are black.
             // To find enemy pawns that attack the king, use the enemy color's attack table,
             // since a black pawn on sq attacks the squares given by movement[PAWN+6][sq].
-            uint64_t pawns             = enemyBitboards[PAWN];
-            while (pawns) {
-                uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(pawns));
-                pawns      &= pawns - 1;
-                // Piece(PAWN, !blackTurn) exploits the Piece index encoding (white=0..5,
-                // black=6..11) to select the correct pawn attack table: white pawns at index 0,
-                // black at index 6.
-                if (attackTables.movement[Piece(PAWN, !blackTurn)][sq] & kingSqBit)
-                    _checkers |= 1ULL << sq;
-            }
-
+            _checkers |= (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
             // Knights
-            uint64_t knights = enemyBitboards[KNIGHT];
-            while (knights) {
-                uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(knights));
-                knights    &= knights - 1;
-                if (attackTables.movement[KNIGHT][sq] & kingSqBit) _checkers |= 1ULL << sq;
-            }
+            _checkers |= (attackTables.movement[false][kingSq] & enemyBitboards[KNIGHT]);
 
             // Diagonal sliders — bishops and queens
             uint64_t sliders = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];

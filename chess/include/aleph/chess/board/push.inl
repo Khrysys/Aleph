@@ -65,6 +65,9 @@ namespace aleph::chess {
             }
         }
 
+        bool isEP = movingPiece == PAWN && isEnPassantValid() && to.file() == getEnPassantFile() &&
+                    from.file() != to.file() && !(getOccupancy() & toBit);
+
         // --- En passant ---
         // Detected contextually: a pawn moving to a different file onto the en passant
         // square triggers removal of the captured pawn from the rank behind the target.
@@ -76,8 +79,7 @@ namespace aleph::chess {
                 next.metadata |= (to.file() & EN_PASSANT_FILE_MASK);
             }
 
-            if (isEnPassantValid() && to.file() == getEnPassantFile() &&
-                from.file() != getEnPassantFile()) {
+            if (isEP) {
                 // En passant capture — remove the captured pawn from the rank it sits on,
                 // which is one rank behind the destination from the moving side's perspective.
                 uint8_t capturedRank = blackTurn ? static_cast<uint8_t>(to.rank() + 1)
@@ -107,7 +109,7 @@ namespace aleph::chess {
         // --- Halfmove clock ---
         // Capture detection reads from the original board's occupancy before any pieces
         // were removed, ensuring a correct result even for en passant captures.
-        bool isCapture = (blackTurn ? getWhiteOccupancy() : getBlackOccupancy()) & toBit;
+        bool isCapture = isEP | (((blackTurn ? getWhiteOccupancy() : getBlackOccupancy()) & toBit) != 0);
 
         if (movingPiece == PAWN || isCapture) {
             next.metadata &= ~HALF_MOVE_CLOCK;
@@ -117,6 +119,7 @@ namespace aleph::chess {
         }
 
         next.metadata ^= BLACK_TO_MOVE;
+        // Clear Cache
         next.metadata &= ~CACHED_CHECKERS_VALID;
 
         return next;

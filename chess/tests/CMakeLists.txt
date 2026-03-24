@@ -10,4 +10,4 @@ aleph_add_fuzz_target(fuzz_board_constructor Aleph::Chess)
 aleph_add_fuzz_target(fuzz_board_push Aleph::Chess)
 
 aleph_add_benchmark(bench_board Aleph::Chess)
-aleph_add_benchmark(tests Aleph::Chess)
+aleph_add_benchmark(bench_perft Aleph::Chess)

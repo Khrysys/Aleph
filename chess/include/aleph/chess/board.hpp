@@ -235,6 +235,9 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getBlackOccupancy() const;
 
+            [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {return whiteBitboards; }
+            [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {return blackBitboards; }
+
             [[nodiscard]] inline uint64_t getCheckers() const;
 
         private:
