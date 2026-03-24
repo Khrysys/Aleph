@@ -262,7 +262,7 @@ namespace aleph::chess {
                                                      ///< indexed by `PieceType` value.
 
             mutable uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
-            mutable uint64_t _checkers;   ///< Cached bitboard for the checkers of this position.
+            mutable uint64_t _checkers;     ///< Cached bitboard for the checkers of this position.
 
             mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
             uint64_t __padding;         ///< Unused padding, DO NOT SET.
