@@ -235,13 +235,24 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getBlackOccupancy() const;
 
+            /**
+             * Returns the current white bitboards.
+             */
             [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {
                 return whiteBitboards;
             }
+
+            /**
+             * Returns the current black bitboards.
+             */
             [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {
                 return blackBitboards;
             }
 
+            /**
+             * Returns a bitboard of where the current pieces of the opponent's are that are
+             * checking the side to move's king.
+             */
             [[nodiscard]] inline uint64_t getCheckers() const;
 
         private:
@@ -251,7 +262,7 @@ namespace aleph::chess {
                                                      ///< indexed by `PieceType` value.
 
             mutable uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
-            mutable uint64_t _checkers;
+            mutable uint64_t _checkers;   ///< Cached bitboard for the checkers of this position.
 
             mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
             uint64_t __padding;         ///< Unused padding, DO NOT SET.

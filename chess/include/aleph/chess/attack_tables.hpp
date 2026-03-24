@@ -58,6 +58,14 @@ namespace aleph::chess {
                  * and to compute block masks for check evasion in `isLegalFast`.
                  */
                 std::array<std::array<uint64_t, 64>, 64> between;
+                /**
+                 * Squares strictly in a direction from a square, indexed as
+                 * `rays[direction][from]`.
+                 *
+                 * Returns a bitboard of all squares lying strictly in a direction from `from` in a
+                 * direction (See `aleph::chess::detail::Direction`). `from` itself is not included.
+                 * Used to validate sliding pieces for check detection.
+                 */
                 std::array<std::array<uint64_t, 64>, 8> rays;
         };
     }  // namespace detail
