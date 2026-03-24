@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <libassert/assert.h>
+#include <libassert/assert.hpp>
 
 namespace aleph::chess {
     namespace detail {
@@ -26,7 +26,7 @@ namespace aleph::chess {
             uint64_t ray      = attackTables.rays[d][sq];
             uint64_t blockers = ray & occ;
 
-            uint8_t first     = static_cast<uint8_t>(platform::tzcnt(blockers | (1ULL << 63)));
+            auto first        = static_cast<Square>(platform::tzcnt(blockers | (1ULL << 63)));
             uint64_t cut      = attackTables.rays[d][first];
 
             return ray & ~cut;
@@ -35,25 +35,33 @@ namespace aleph::chess {
         /**
          * Gets the ray from a square in a direction while respecting occupancy. This method only
          * works for directions that would count up in their index (`S`, `W`, `SE`, and `SW`). Other
-         * directions should use `rayAttackBackward`.
+         * directions should use `rayAttackForward`.
          */
         [[nodiscard]] inline constexpr uint64_t rayAttackBackward(uint64_t occ, Direction d,
                                                                   Square sq) {
+            DEBUG_ASSERT(d == S || d == W || d == SE || d == SW);
             uint64_t ray      = attackTables.rays[d][sq];
             uint64_t blockers = ray & occ;
 
-            uint8_t first     = static_cast<uint8_t>(63 - platform::lzcnt(blockers | 1ULL));
+            auto first        = static_cast<Square>(63 - platform::lzcnt(blockers | 1ULL));
             uint64_t cut      = attackTables.rays[d][first];
 
             return ray & ~cut;
         }
 
-        [[nodiscard]] inline constexpr uint64_t bishopAttacks(uint8_t sq, uint64_t occ) {
+        /**
+         * Returns all bishop attacks from a given square with respect to the occupancy of the
+         * position.
+         */
+        [[nodiscard]] inline constexpr uint64_t bishopAttacks(Square sq, uint64_t occ) {
             return rayAttackForward(occ, NE, sq) | rayAttackForward(occ, NW, sq) |
                    rayAttackBackward(occ, SE, sq) | rayAttackBackward(occ, SW, sq);
         }
 
-        [[nodiscard]] inline constexpr uint64_t rookAttacks(uint8_t sq, uint64_t occ) {
+        /** Returns all rook attacks from a given square with respect to the occupancy of the
+         * position.
+         */
+        [[nodiscard]] inline constexpr uint64_t rookAttacks(Square sq, uint64_t occ) {
             return rayAttackForward(occ, N, sq) | rayAttackBackward(occ, S, sq) |
                    rayAttackForward(occ, E, sq) | rayAttackBackward(occ, W, sq);
         }
