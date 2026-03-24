@@ -38,12 +38,8 @@ namespace aleph::chess {
             // Pawn attack tables are asymmetric — index 0..5 are white, 6..11 are black.
             // Piece(PAWN, !attackersAreBlack) exploits the Piece index encoding to select
             // the correct table: white pawns at index 0, black at index 6.
-            uint64_t pawns = attackers[PAWN];
-            while (pawns) {
-                uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(pawns));
-                pawns      &= pawns - 1;
-                if (attackTables.movement[Piece(PAWN, attackersAreBlack)][sq] & sqBit) return true;
-            }
+            if (attackTables.movement[Piece(PAWN, !attackersAreBlack)][sqIdx] & attackers[PAWN])
+                return true;
 
             // Knights and kings use symmetric attack tables — lookup from sqIdx directly.
             if (attackTables.movement[KNIGHT][sqIdx] & attackers[KNIGHT]) return true;
@@ -89,9 +85,7 @@ namespace aleph::chess {
         return result;
     }
 
-    bool Board::isLegal(Move m) const {
-        return getPseudoLegalMoves().contains(m) && isLegalFast(m);
-    }
+    bool Board::isLegal(Move m) const { return getLegalMoves().contains(m); }
 
     bool Board::isLegalFast(Move m) const {
         Square from                = m.from();

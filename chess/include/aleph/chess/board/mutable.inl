@@ -13,34 +13,20 @@
 #include "../board.hpp"
 
 namespace aleph::chess {
-    std::uint64_t Board::getOccupancy() const {
-        if ((_cacheValid & OCCUPANCY_VALID) == 0) {
-            _occupancy   = getWhiteOccupancy() | getBlackOccupancy();
-            _cacheValid |= OCCUPANCY_VALID;
-        }
-        return _occupancy;
-    }
+    std::uint64_t Board::getOccupancy() const { return getWhiteOccupancy() | getBlackOccupancy(); }
 
     std::uint64_t Board::getWhiteOccupancy() const {
-        if ((_cacheValid & WHITE_OCCUPANCY_VALID) == 0) {
-            _whiteOccupancy  = std::reduce(whiteBitboards.begin(), whiteBitboards.end(), 0ULL,
-                                           std::bit_or<uint64_t>{});
-            _cacheValid     |= WHITE_OCCUPANCY_VALID;
-        }
-        return _whiteOccupancy;
+        return whiteBitboards[0] | whiteBitboards[1] | whiteBitboards[2] | whiteBitboards[3] |
+               whiteBitboards[4] | whiteBitboards[5];
     }
 
     std::uint64_t Board::getBlackOccupancy() const {
-        if ((_cacheValid & BLACK_OCCUPANCY_VALID) == 0) {
-            _blackOccupancy  = std::reduce(blackBitboards.begin(), blackBitboards.end(), 0ULL,
-                                           std::bit_or<uint64_t>{});
-            _cacheValid     |= BLACK_OCCUPANCY_VALID;
-        }
-        return _blackOccupancy;
+        return blackBitboards[0] | blackBitboards[1] | blackBitboards[2] | blackBitboards[3] |
+               blackBitboards[4] | blackBitboards[5];
     }
 
-    uint64_t Board::getCheckers() const {
-        if ((_cacheValid & CHECKERS_VALID) == 0) {
+    std::uint64_t Board::getCheckers() const {
+        if ((metadata & CACHED_CHECKERS_VALID) != 0) {
             bool blackTurn             = isBlackTurn();
 
             const auto& ownBitboards   = blackTurn ? blackBitboards : whiteBitboards;
@@ -91,10 +77,8 @@ namespace aleph::chess {
                 if (attackTables.movement[ROOK][sq] & kingSqBit)
                     if ((attackTables.between[sq][kingSq] & occ) == 0) _checkers |= 1ULL << sq;
             }
-
-            _cacheValid |= CHECKERS_VALID;
+            metadata |= CACHED_CHECKERS_VALID;
         }
         return _checkers;
     }
-
 }  // namespace aleph::chess

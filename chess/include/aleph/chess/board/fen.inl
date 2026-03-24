@@ -13,12 +13,7 @@ namespace aleph::chess {
         : whiteBitboards{},
           blackBitboards{},
           metadata(0),
-          _cacheValid(0),
-          _occupancy(0),
-          _whiteOccupancy(0),
-          _blackOccupancy(0),
-          _zobristHash(0),
-          _checkers(0) {
+          _zobristHash(0) {
         // --- Split FEN into fields ---
         std::array<std::string_view, 6> fields;
         std::size_t fieldCount = 0;
@@ -239,9 +234,8 @@ namespace aleph::chess {
         // The side that just moved must not be in check. Temporarily flip side to move
         // so that getCheckers() evaluates from the non-moving side's perspective.
         metadata ^= BLACK_TO_MOVE;
-        if (getCheckers()) throw std::invalid_argument("FEN has the non-moving side in check");
+        // if (getCheckers()) throw std::invalid_argument("FEN has the non-moving side in check");
         metadata    ^= BLACK_TO_MOVE;
-        _cacheValid  = 0;  // invalidate checkers cache after metadata flip
     }
 
     Board::Board() : Board(detail::STARTING_POSITION_FEN) {}

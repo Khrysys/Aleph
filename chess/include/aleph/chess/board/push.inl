@@ -13,7 +13,6 @@ namespace aleph::chess {
         DEBUG_ASSERT(isLegal(m));
 
         Board next            = *this;
-        next._cacheValid      = 0;
 
         Square from           = m.from();
         Square to             = m.to();
@@ -118,6 +117,7 @@ namespace aleph::chess {
         }
 
         next.metadata ^= BLACK_TO_MOVE;
+        next.metadata &= ~CACHED_CHECKERS_VALID;
 
         return next;
     }

@@ -58,6 +58,7 @@ namespace aleph::chess {
                  * and to compute block masks for check evasion in `isLegalFast`.
                  */
                 std::array<std::array<uint64_t, 64>, 64> between;
+                std::array<std::array<uint64_t, 64>, 8> rays;
         };
     }  // namespace detail
 }  // namespace aleph::chess

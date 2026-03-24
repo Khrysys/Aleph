@@ -50,22 +50,8 @@ namespace aleph::chess {
         WHITE_QUEENSIDE_CASTLE = 0x00000040,
         BLACK_KINGSIDE_CASTLE  = 0x00000080,
         BLACK_QUEENSIDE_CASTLE = 0x00000100,
-        HALF_MOVE_CLOCK        = 0x0000FE00
-    };
-
-    /**
-     * Bitmask flags indicating which lazy cache fields on `Board` are currently valid.
-     *
-     * Cache fields are invalidated by zeroing `_cacheValid` entirely whenever `push()`
-     * produces a new board. Fields are recomputed on demand and marked valid at that
-     * point. All fields start invalid on a freshly constructed board.
-     */
-    enum BoardCacheValidFlags : uint8_t {
-        OCCUPANCY_VALID       = 0x01,  ///< `_occupancy` is up to date.
-        WHITE_OCCUPANCY_VALID = 0x02,  ///< `_whiteOccupancy` is up to date.
-        BLACK_OCCUPANCY_VALID = 0x04,  ///< `_blackOccupancy` is up to date.
-        ZOBRIST_HASH_VALID    = 0x08,  ///< `_zobristHash` is up to date.
-        CHECKERS_VALID        = 0x10   ///< `_checkers` is up to date.
+        HALF_MOVE_CLOCK        = 0x0000FE00,
+        CACHED_CHECKERS_VALID  = 0x80000000
     };
 
     /**
@@ -249,35 +235,22 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getBlackOccupancy() const;
 
-            /**
-             * Returns a bitboard of all enemy pieces currently giving check to the
-             * side to move.
-             *
-             * Computed by testing each enemy piece type against the king square using
-             * the movement and between tables. Result is cached after the first call
-             * and invalidated by `push()`. Used by `getLegalMoves()` to detect double
-             * check and short-circuit the filter loop, and by the FEN constructor to
-             * validate that the non-moving side is not in check.
-             */
-            [[nodiscard]] inline std::uint64_t getCheckers() const;
+            [[nodiscard]] inline uint64_t getCheckers() const;
 
         private:
             std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per `PieceType` for white,
                                                      ///< indexed by `PieceType` value.
             std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per `PieceType` for black,
                                                      ///< indexed by `PieceType` value.
-            uint32_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
 
-            mutable uint8_t _cacheValid;       ///< Bitmask of currently valid cache fields; see
-                                               ///< `BoardCacheValidFlags`.
-            mutable uint64_t _occupancy;       ///< Cached combined occupancy of all pieces.
-            mutable uint64_t _whiteOccupancy;  ///< Cached occupancy of white pieces.
-            mutable uint64_t _blackOccupancy;  ///< Cached occupancy of black pieces.
-            mutable uint64_t
-                _zobristHash;  ///< Cached Zobrist hash of this position. Not yet computed.
-            mutable uint64_t
-                _checkers;  ///< Cached bitboard of enemy pieces giving check to the side to move.
+            mutable uint64_t _zobristHash;     ///< Cached Zobrist hash of this position.
+            mutable uint64_t _checkers;
+
+            mutable uint64_t metadata; ///< Packed position metadata; see `BoardMetadataFlags`.
+            uint64_t __padding; ///< Unused padding, DO NOT SET.
     };
+
+    static_assert(sizeof(Board) == 128);
 
 }  // namespace aleph::chess
 
