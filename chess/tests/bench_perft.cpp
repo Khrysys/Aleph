@@ -36,7 +36,7 @@ static void BM_Perft(benchmark::State& state, Args&&... args) {
 
     Board board{fen};
     for (auto _ : state) {
-        // cppchec-suppress[useStlAlgorithm]
+        // cppcheck-suppress[useStlAlgorithm]
         nodes = perft(board, depth);
     }
     if (nodes != targetNodes) {

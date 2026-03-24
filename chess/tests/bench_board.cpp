@@ -27,7 +27,6 @@ static void BM_isAttackedBy(benchmark::State& state) {
     static auto positions = loadPositions();
     size_t idx            = 0;
 
-
     for (auto _ : state) {
         std::array<uint64_t, 6> enemy{};
         auto& b        = positions[idx++ % positions.size()];
