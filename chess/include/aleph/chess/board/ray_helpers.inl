@@ -6,12 +6,23 @@
  */
 #pragma once
 
+#include <libassert/assert.h>
+
 namespace aleph::chess {
     namespace detail {
-        enum Direction : uint8_t { N, S, E, W, NE, NW, SE, SW };
+        /**
+         * Direction used for selecting a ray from `attackTables.rays.
+         */
+        enum Direction : uint8_t { N = 0, S = 1, E = 2, W = 3, NE = 4, NW = 5, SE = 6, SW = 7 };
 
+        /**
+         * Gets the ray from a square in a direction while respecting occupancy. This method only
+         * works for directions that would count up in their index (`N`, `E`, `NE`, and `NW`). Other
+         * directions should use `rayAttackBackward`.
+         */
         [[nodiscard]] inline constexpr uint64_t rayAttackForward(uint64_t occ, Direction d,
                                                                  Square sq) {
+            DEBUG_ASSERT(d == N || d == E || d == NE || d == NW);
             uint64_t ray      = attackTables.rays[d][sq];
             uint64_t blockers = ray & occ;
 
@@ -21,6 +32,11 @@ namespace aleph::chess {
             return ray & ~cut;
         }
 
+        /**
+         * Gets the ray from a square in a direction while respecting occupancy. This method only
+         * works for directions that would count up in their index (`S`, `W`, `SE`, and `SW`). Other
+         * directions should use `rayAttackBackward`.
+         */
         [[nodiscard]] inline constexpr uint64_t rayAttackBackward(uint64_t occ, Direction d,
                                                                   Square sq) {
             uint64_t ray      = attackTables.rays[d][sq];

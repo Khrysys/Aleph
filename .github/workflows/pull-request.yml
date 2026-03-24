@@ -102,8 +102,8 @@ jobs:
             build
             release
 
-  doxygen:
-    name: doxygen-coverage
+  docstrings:
+    name: docstring-coverage
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -118,7 +118,7 @@ jobs:
  
       - name: Install doxygen
         run: sudo apt-get install -y doxygen
- 
+
       - name: Check documentation coverage
         run: |
           cat > /tmp/doxygen-lint.cfg << 'EOF'
@@ -126,16 +126,37 @@ jobs:
           INPUT                  = .
           RECURSIVE              = YES
           EXCLUDE                = build .conan
+          FILE_PATTERNS          = *.hpp *.inl
+
           EXTRACT_ALL            = NO
+          EXTRACT_PRIVATE        = YES
+          EXTRACT_STATIC         = YES
+          EXTRACT_LOCAL_CLASSES  = YES
+
           WARN_IF_UNDOCUMENTED   = YES
-          WARN_AS_ERROR          = YES
+          WARN_IF_DOC_ERROR      = YES
+          WARN_NO_PARAMDOC       = YES
+          WARN_IF_INCOMPLETE_DOC = YES
+
+          WARN_AS_ERROR          = NO
+          WARN_LOGFILE           = doxygen_warnings.log
+
           GENERATE_HTML          = NO
           GENERATE_XML           = NO
           GENERATE_LATEX         = NO
           QUIET                  = YES
-          FILE_PATTERNS          = *.hpp *.inl
+
+          HIDE_UNDOC_MEMBERS     = NO
+          HIDE_UNDOC_CLASSES     = NO
           EOF
+
           doxygen /tmp/doxygen-lint.cfg
+
+          if [ -s doxygen_warnings.log ]; then
+            echo "Undocumented items found:"
+            cat doxygen_warnings.log
+            exit 1
+          fi
 
   cpp-linter:
     name: C++ Linter
