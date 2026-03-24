@@ -10,7 +10,7 @@
 
 namespace aleph::chess {
     Board::Board(std::string_view fen)
-        : whiteBitboards{}, blackBitboards{}, metadata(0), _zobristHash(0) {
+        : whiteBitboards{}, blackBitboards{}, metadata(0), _zobristHash(0), _checkers(0) {
         // --- Split FEN into fields ---
         std::array<std::string_view, 6> fields;
         std::size_t fieldCount = 0;
