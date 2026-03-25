@@ -26,7 +26,6 @@ class AlephConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_EXPORT_COMPILE_COMMANDS"] = True
         tc.generate()
 
     def layout(self):
@@ -61,6 +60,7 @@ class AlephConan(ConanFile):
         self.requires('spdlog/1.17.0')
         
         self.test_requires('gtest/1.17.0')
+        self.test_requires('benchmark/1.9.4')
             
     def validate(self):
         check_min_cppstd(self, 20)

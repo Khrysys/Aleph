@@ -87,21 +87,6 @@ namespace aleph::chess {
              */
             std::uint8_t data;
     };
-
-    /**
-     * Represents a cardinal or diagonal step direction as a signed square index delta.
-     *
-     * These values can be added to a square index to step in the given direction,
-     * provided the result remains on the board. No wraparound checking is performed
-     * by the direction itself.
-     */
-    enum Direction : int8_t {
-        TOWARDS_A_FILE = -1,  ///< One step toward the a-file (decreasing file).
-        TOWARDS_H_FILE = 1,   ///< One step toward the h-file (increasing file).
-        TOWARDS_1_RANK = -8,  ///< One step toward the first rank (decreasing rank).
-        TOWARDS_8_RANK = 8    ///< One step toward the eighth rank (increasing rank).
-    };
-
 }  // namespace aleph::chess
 
 /// @cond INTERNAL

@@ -25,8 +25,8 @@ namespace aleph::chess {
      */
     enum PieceType : std::uint8_t {
         PAWN   = 0,
-        BISHOP = 1,
-        KNIGHT = 2,
+        KNIGHT = 1,
+        BISHOP = 2,
         ROOK   = 3,
         QUEEN  = 4,
         KING   = 5,
@@ -36,7 +36,7 @@ namespace aleph::chess {
     namespace detail {
         /** Characters of each piece in FEN notation. A Piece can be directly used as an index to
          * this string to give the char for that piece. */
-        constexpr std::string_view PIECE_TYPE_CHARS = "PBNRQKpbnrqk";
+        constexpr std::string_view PIECE_TYPE_CHARS = "PNBRQKpnbrqk";
     }  // namespace detail
 
     /**
@@ -57,9 +57,7 @@ namespace aleph::chess {
              * Asserts that `type` is not `NONE` in debug builds.
              */
             constexpr Piece(PieceType type, bool isBlack)
-                : data(static_cast<uint8_t>(type + (6 * isBlack))) {
-                DEBUG_ASSERT(type != NONE);
-            }
+                : data(static_cast<uint8_t>(type + (6 * isBlack))) {}
 
             /**
              * Constructs a piece from its FEN character representation.
@@ -74,7 +72,7 @@ namespace aleph::chess {
 
             /** Returns the type of this piece, independent of color. */
             [[nodiscard]] constexpr inline PieceType type() const noexcept {
-                return static_cast<PieceType>(data % 6);
+                return data == NONE ? NONE : static_cast<PieceType>(data % 6);
             }
 
             /** Returns true if this piece belongs to the black side. */

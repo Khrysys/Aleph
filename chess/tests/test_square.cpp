@@ -47,13 +47,6 @@ TEST(SquareTest, OutOfRangeAsserts) {
 }
 #endif
 
-TEST(SquareTest, DirectionValues) {
-    EXPECT_EQ(TOWARDS_A_FILE, -1);
-    EXPECT_EQ(TOWARDS_H_FILE, 1);
-    EXPECT_EQ(TOWARDS_1_RANK, -8);
-    EXPECT_EQ(TOWARDS_8_RANK, 8);
-}
-
 TEST(SquareTest, FormatterAlgebraic) {
     EXPECT_EQ(fmt::format("{}", Square(0, 0)), "a1");
     EXPECT_EQ(fmt::format("{}", Square(7, 7)), "h8");

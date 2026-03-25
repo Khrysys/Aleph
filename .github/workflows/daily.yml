@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: read
     concurrency:
-      group: action-ClusterFuzzLite-${{ github.event.pull_request.head.sha || github.sha }}
+      group: action-ClusterFuzzLite-${{ matrix.mode }}-${{ matrix.sanitizer }}-${{ github.event.pull_request.head.sha || github.sha }}
       cancel-in-progress: true
 
     strategy:
@@ -35,6 +35,7 @@ jobs:
             sanitizer: address # Address is the default, should keep it here
           - mode: coverage
             sanitizer: coverage
+      fail-fast: true
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

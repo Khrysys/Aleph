@@ -1,16 +1,20 @@
 set(_generated_header
-    ${CMAKE_CURRENT_BINARY_DIR}/include/aleph/chess/generated_tables.hpp
+    "${CMAKE_CURRENT_BINARY_DIR}/include/aleph/chess/generated_tables.inl"
 )
 
 add_custom_command(
     OUTPUT ${_generated_header}
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/table_builder.py ${_generated_header}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/table_builder.py
+    COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/table_builder.py" ${_generated_header}
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tools/table_builder.py"
     COMMENT "Building Magic Attack Tables (Python)"
     VERBATIM
 )
 
 add_library(aleph_chess INTERFACE 
+    ${_generated_header}
+    "include/aleph/chess/attack_tables.hpp"
+    "include/aleph/chess/board.hpp"
+    "include/aleph/chess/board.inl"
     "include/aleph/chess/move_list.hpp"
     "include/aleph/chess/move.hpp"
     "include/aleph/chess/piece.hpp"

@@ -26,3 +26,17 @@ else()
     macro(aleph_add_fuzz_target fuzz_name package)
     endmacro()
 endif()
+
+if(Aleph_BUILD_BENCHMARKS)
+    macro(aleph_add_benchmark benchmark_name package)
+        add_executable(${benchmark_name} ${benchmark_name}.cpp)
+        target_link_libraries(${benchmark_name}
+            PRIVATE
+                ${package}
+                benchmark::benchmark
+        )
+    endmacro()
+else()
+    macro(aleph_add_benchmark benchmark_name package)
+    endmacro()
+endif()

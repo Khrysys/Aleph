@@ -2,13 +2,16 @@
 
 ## Supported Versions
 
-Only the latest release on `main` is supported with security updates.
+Only the latest commit on `main` is supported with security updates.
 
 ## Reporting a Vulnerability
 
 Please do not report security vulnerabilities through public GitHub issues.
 
-Report vulnerabilities by emailing **khrysystem@proton.me**. Include a description
+Report vulnerabilities privately through GitHub at
+https://github.com/Khrysys/Aleph/security/advisories/new
+
+ Include a description
 of the issue, steps to reproduce, and potential impact. You can expect an
 acknowledgement within 7 days and a resolution timeline within 30 days of
 confirmation.

@@ -24,6 +24,7 @@ version = ".".join(release.split(".")[:2])  # major.minor only for |version|
 
 extensions = [
     "myst_parser",
+    "sphinx_multiversion",
 ]
 
 source_suffix = {
@@ -31,7 +32,7 @@ source_suffix = {
     ".md": "markdown",
 }
 
-root_doc = "index"
+root_doc = "src/index"
 
 exclude_patterns = [
     "_build",
@@ -56,3 +57,11 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
 }
+
+# -- sphinx-multiversion configuration ----------------------------------------
+ 
+smv_branch_whitelist = r'^(master|staging)$'
+smv_tag_whitelist = r'^v\d+\.\d+.*$'
+smv_remote_whitelist = r'^origin$'
+smv_rename_latest = 'latest'
+smv_latest_version = 'master'
