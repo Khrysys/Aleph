@@ -7,6 +7,7 @@
 #pragma once
 
 #include "../board.hpp"
+#include "../zobrist.hpp"
 
 namespace aleph::chess {
     Board::Board(std::string_view fen)
@@ -227,11 +228,56 @@ namespace aleph::chess {
             }
         }
 
+        // --- Zobrist hash construction ---
+        {
+            uint64_t hash = 0;
+
+            // Pieces
+            for (int piece = 0; piece < 6; piece++) {
+                uint64_t bb = whiteBitboards[piece];
+                while (bb) {
+                    uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(bb));
+                    bb         &= bb - 1;
+                    hash       ^= zobrist.pieces[piece][sq];
+                }
+
+                bb = blackBitboards[piece];
+                while (bb) {
+                    uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(bb));
+                    bb         &= bb - 1;
+                    hash       ^= zobrist.pieces[piece + 6][sq];
+                }
+            }
+
+            // Side to move
+            if (isBlackTurn()) {
+                hash ^= zobrist.sideToMove;
+            }
+
+            // Castling rights (encode as 4-bit index)
+            uint8_t castleIndex = 0;
+            if (metadata & WHITE_KINGSIDE_CASTLE) castleIndex |= 1;
+            if (metadata & WHITE_QUEENSIDE_CASTLE) castleIndex |= 2;
+            if (metadata & BLACK_KINGSIDE_CASTLE) castleIndex |= 4;
+            if (metadata & BLACK_QUEENSIDE_CASTLE) castleIndex |= 8;
+
+            hash ^= zobrist.castling[castleIndex];
+
+            // En passant
+            if (metadata & EN_PASSANT_VALID) {
+                uint8_t file  = metadata & EN_PASSANT_FILE_MASK;
+                hash         ^= zobrist.enPassant[file];
+            }
+
+            _zobristHash = hash;
+        }
+
         // --- Check detection ---
         // The side that just moved must not be in check. Temporarily flip side to move
         // so that getCheckers() evaluates from the non-moving side's perspective.
         metadata ^= BLACK_TO_MOVE;
-        // if (getCheckers()) throw std::invalid_argument("FEN has the non-moving side in check");
+        if (platform::popcnt(getCheckers() != 0))
+            throw std::invalid_argument("FEN has the non-moving side in check");
         metadata ^= BLACK_TO_MOVE;
     }
 

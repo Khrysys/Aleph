@@ -255,13 +255,18 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getCheckers() const;
 
+            /**
+             * Returns the current zobrist hash of the position.
+             */
+            [[nodiscard]] inline uint64_t getHash() const;
+
         private:
             std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per `PieceType` for white,
                                                      ///< indexed by `PieceType` value.
             std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per `PieceType` for black,
                                                      ///< indexed by `PieceType` value.
 
-            mutable uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
+            uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
             mutable uint64_t _checkers;     ///< Cached bitboard for the checkers of this position.
 
             mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
