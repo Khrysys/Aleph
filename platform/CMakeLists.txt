@@ -1,4 +1,6 @@
-add_library(aleph_platform INTERFACE
+include("${CMAKE_SOURCE_DIR}/cmake/target_macros.cmake")
+
+aleph_add_library(aleph_platform INTERFACE Aleph::Platform INTERFACE
     "include/aleph/platform/allocation/init.hpp"
     "include/aleph/platform/allocation/init.inl"
     "include/aleph/platform/allocation/runtime.hpp"
@@ -40,7 +42,5 @@ else()
     aleph_arch_option(Aleph_ENABLE_BMI2   -mbmi2    "")
     aleph_arch_option(Aleph_ENABLE_POPCNT -mpopcnt  "")
 endif()
-
-add_library(Aleph::Platform ALIAS aleph_platform)
 
 add_subdirectory(tests)

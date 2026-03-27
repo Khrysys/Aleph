@@ -1,3 +1,25 @@
+macro(aleph_add_library lib_name lib_type alias_name option_type source_files)
+    add_library(${lib_name} ${lib_type} ${source_files})
+        if(Aleph_REPRODUCIBLE_BUILDS)
+            if(MSVC)
+                if(MSVC_TOOLSET_VERSION LESS 120)
+                    message(WARNING "Reproducible builds were enabled, but the MSVC Toolset "
+                    "version is less than 120. This version does not have support for `/Brepro`. "
+                    "Upgrade or set `Aleph_REPRODUCIBLE_BUILDS=OFF`.")
+                else()
+                    target_compile_options(${lib_name} ${option_type} /Brepro /Z7)
+                    target_link_options(${lib_name} ${option_type} /Brepro)
+                endif()
+            else()
+                target_compile_options(${lib_name} ${option_type}
+                    "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
+                    "-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=."
+                )
+            endif()
+        endif()
+    add_library(${alias_name} ALIAS ${lib_name})
+endmacro()
+
 if(Aleph_BUILD_TESTS)
     if(NOT COMMAND gtest_discover_tests)
         include(GoogleTest)
