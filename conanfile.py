@@ -1,30 +1,13 @@
 #type: ignore
 # Ignore typing for the whole file, since all it does is throw errors on my machine.
 # Easy enough to validate by hand.
-import json
-import os
 import re
 
 from conan import ConanFile
 from conan.api.output import ConanOutput
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.build import check_min_cppstd
-from conan.tools.sbom import cyclonedx_1_6
 from pathlib import Path
-
-
-def post_generate(conanfile, **kwargs):
-    sbom_cyclonedx_1_6 = cyclonedx_1_6(conanfile)
-
-    folder = Path(conanfile.build_folder) / "sbom"
-    file = folder / "sbom.cdx.json"
-
-    folder.mkdir(parents=True, exist_ok=True)
-
-    with file.open('w') as f:
-        json.dump(sbom_cyclonedx_1_6, f, indent=4)
-
-    ConanOutput().success(f"CYCLONEDX CREATED - {file}")
 
 project_regex_string = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
 
@@ -39,6 +22,7 @@ class AlephConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires('cmake/4.2.1')
+        self.tool_requires('doxygen/1.16.1')
         self.tool_requires('ninja/1.13.2')
 
         self.test_requires('gtest/1.17.0')
@@ -50,7 +34,6 @@ class AlephConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generator = 'Ninja'
         tc.generate()
-        post_generate(self)
 
     def layout(self):
         cmake_layout(self)

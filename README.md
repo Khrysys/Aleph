@@ -12,7 +12,7 @@ whose empirical data informed the decisions for the neural network architecture.
 
 ## Status
 
-Aleph is currently under extremely early development. The code within this repo is not a functional engine yet. More is written than is shown here, however, I am taking time to ensure a high standard before adding code from my local copy into `staging`, and then an even higher quality before adding it into the `main` branch. Often the `staging` branch is broken. However, `main` is always functional.
+Aleph is currently under extremely early development. The code within this repo is not a functional engine yet. More is written than is shown here, however, I am taking time to ensure a high standard before adding code from my local copy into `staging`, and then an even higher quality before adding it into the `main` branch. Often therefore the `staging` branch is broken. However, `main` is always functional.
 
 ## Requirements
 
@@ -38,7 +38,7 @@ See [./CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
 The initial inspiration for this project came from reading through Lc0's update about transformers [here](https://lczero.org/blog/2024/02/transformer-progress/).
 
-See [./docs/appendix/acknowledgements.md](./docs/appendix/acknowledgements.md).
+See [./docs/src/appendix/acknowledgements.md](./docs/appendix/acknowledgements.md).
 
 ## License
 
