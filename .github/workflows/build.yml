@@ -21,7 +21,7 @@ concurrency:
 jobs:
   dependencies:
     runs-on: ${{ matrix.os }}
-    name: Install Dependencies (${{ matrix.os }})
+    name: Install Dependencies (${{ matrix.os }}, ${{ matrix.build-type }})
     permissions:
       contents: read
     strategy:
@@ -29,6 +29,9 @@ jobs:
         os: 
           - windows-latest
           - macos-latest
+        build-type:
+          - Debug
+          - Release
       fail-fast: false
     
     steps:
@@ -45,7 +48,7 @@ jobs:
       - name: Setup Conan
         uses: ./.github/actions/setup-conan
         with: 
-          cache-key: default
+          cache-key: default-${{ matrix.build-type }}
 
       - name: Install Dependencies
         shell: bash
@@ -53,10 +56,11 @@ jobs:
           conan install \
             -b=missing \
             -s compiler.cppstd=20 \
-            -s:a build_type=Release \
+            -s:a build_type=${{ matrix.build-type }} \
             --lockfile-out=conan.lock
 
       - name: Upload Lockfile Artifact
+        if: matrix.build-type == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-default.conan.lock
@@ -64,11 +68,14 @@ jobs:
 
   dependencies-linux:
     runs-on: ubuntu-latest
-    name: Install Dependencies (ubuntu-latest, ${{ matrix.compiler }})
+    name: Install Dependencies (ubuntu-latest, ${{ matrix.compiler }}, ${{ matrix.build-type }})
     permissions:
       contents: read
     strategy:
       matrix:
+        build-type:
+          - Debug
+          - Release
         include:
           - compiler: gcc
             cc: gcc
@@ -78,6 +85,10 @@ jobs:
             cxx: clang++
       fail-fast: false
     
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
@@ -95,25 +106,20 @@ jobs:
 
       - name: Setup Conan
         uses: ./.github/actions/setup-conan
-        env:
-          CC: ${{ matrix.cc }}
-          CXX: ${{ matrix.cxx }}
         with: 
-          cache-key: ${{ matrix.compiler }}
+          cache-key: ${{ matrix.compiler }}-${{ matrix.build-type }}
 
       - name: Install Dependencies
         shell: bash
         run: |-
           conan install -b=missing \
             -s compiler.cppstd=20 \
-            -s:a build_type=Release \
+            -s:a build_type=${{ matrix.build-type }} \
             -c tools.cmake.cmaketoolchain:generator=Ninja \
             --lockfile-out=conan.lock 
-        env:
-          CC: ${{ matrix.cc }}
-          CXX: ${{ matrix.cxx }}
 
       - name: Upload Lockfile Artifact
+        if: matrix.build-type == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: ubuntu-latest-${{ matrix.compiler }}.conan.lock
@@ -190,13 +196,16 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
-    name: Build Aleph (${{ matrix.os }})
+    name: Build Aleph (${{ matrix.os }}, ${{ matrix.build-type }})
     needs:
       - dependencies
     permissions:
       contents: read
     strategy:
       matrix:
+        build-type:
+          - Debug
+          - Release
         os:
           - windows-latest
           - macos-latest
@@ -216,24 +225,27 @@ jobs:
       - name: Setup Conan
         uses: ./.github/actions/setup-conan
         with: 
-          cache-key: default
+          cache-key: default-${{ matrix.build-type }}
 
       - name: Build Aleph
         shell: bash
         run: |
           conan build . \
             -s compiler.cppstd=20 \
-            -s:a build_type=Release
+            -s:a build_type=${{ matrix.build-type }}
     
   build-linux:
     runs-on: ubuntu-latest
-    name: Build Aleph (ubuntu-latest, ${{ matrix.compiler }})
+    name: Build Aleph (ubuntu-latest, ${{ matrix.compiler }}. ${{ matrix.build-type }})
     needs:
       - dependencies-linux
     permissions:
       contents: read
     strategy:
       matrix:
+        build-type:
+          - Debug
+          - Release
         include:
           - compiler: gcc
             cc: gcc

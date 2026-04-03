@@ -25,7 +25,7 @@ namespace aleph::platform::allocation {
             void* ptr = VirtualAlloc(nullptr, size, MEM_RESERVE | MEM_COMMIT | MEM_LARGE_PAGES,
                                      PAGE_READWRITE);
             if (ptr != nullptr) {
-                return {ptr, size, PageSize::Large};
+                return {.ptr=ptr, .size=size, .page_size=PageSize::Large};
             }
             spdlog::warn(
                 "Large page allocation failed despite SeLockMemoryPrivilege. "

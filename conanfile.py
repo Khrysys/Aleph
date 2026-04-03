@@ -22,7 +22,6 @@ class AlephConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires('cmake/4.2.1')
-        self.tool_requires('doxygen/1.16.1')
         self.tool_requires('ninja/1.13.2')
 
         self.test_requires('gtest/1.17.0')
@@ -72,7 +71,7 @@ class AlephConan(ConanFile):
         self.requires('cpptrace/1.0.4', override=True)
         self.requires('libdwarf/2.1.0', override=True)
         self.requires('zlib/1.3.1', override=True)
-        self.requires(' zstd/1.5.7', override=True)
+        self.requires('zstd/1.5.7', override=True)
             
     def validate(self):
         check_min_cppstd(self, 20)

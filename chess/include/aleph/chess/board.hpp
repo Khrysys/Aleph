@@ -107,7 +107,7 @@ namespace aleph::chess {
              * `NONE` if the square is empty. Checks occupancy first to avoid scanning
              * all twelve bitboards on empty squares.
              */
-            [[nodiscard]] inline Piece get(Square sq) const;
+            [[nodiscard]] inline Piece get(Square square) const;
 
             /**
              * Returns a new board with the given move applied.
@@ -123,7 +123,7 @@ namespace aleph::chess {
              * The halfmove clock is reset on pawn moves and captures, incremented
              * otherwise. The cache is fully invalidated on the returned board.
              */
-            [[nodiscard]] inline Board push(Move m) const;
+            [[nodiscard]] inline Board push(Move move) const;
 
             // --- Move generation ---
 
@@ -164,7 +164,7 @@ namespace aleph::chess {
              * `getLegalMoves()` which amortizes the pseudo-legal generation cost
              * across all moves.
              */
-            [[nodiscard]] inline bool isLegal(Move m) const;
+            [[nodiscard]] inline bool isLegal(Move move) const;
 
             /**
              * Returns true if the given move is legal in this position.
@@ -182,7 +182,7 @@ namespace aleph::chess {
              * for the captured pawn's removal when evaluating king safety. The final king
              * safety check uses a post-move enemy bitboard with the captured piece removed.
              */
-            [[nodiscard]] inline bool isLegalFast(Move m) const;
+            [[nodiscard]] inline bool isLegalFast(Move move) const;
 
             // --- Metadata accessors ---
 
@@ -239,14 +239,14 @@ namespace aleph::chess {
             /**
              * Returns the current white bitboards.
              */
-            [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {
+            [[nodiscard]] std::array<uint64_t, 6> getWhiteBitboards() const {
                 return whiteBitboards;
             }
 
             /**
              * Returns the current black bitboards.
              */
-            [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {
+            [[nodiscard]] std::array<uint64_t, 6> getBlackBitboards() const {
                 return blackBitboards;
             }
 

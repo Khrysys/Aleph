@@ -14,12 +14,12 @@ using namespace aleph::platform;
 // ===== allocation_init tests =====
 TEST(AllocationInit, IsHugePagesAvailableReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
-    EXPECT_NO_FATAL_FAILURE(auto r = isHugePagesAvailable());
+    EXPECT_NO_FATAL_FAILURE(auto result = isHugePagesAvailable());
 }
 
 TEST(AllocationInit, RequestHugePagesReturnsBool) {
     // Should not crash and return a valid bool regardless of system support
-    EXPECT_NO_FATAL_FAILURE(auto r = requestHugePages());
+    EXPECT_NO_FATAL_FAILURE(auto result = requestHugePages());
 }
 
 TEST(AllocationInit, GetPageSizeNonZero) { EXPECT_GT(getPageSize(), std::size_t{0}); }
@@ -109,7 +109,7 @@ TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
     ASSERT_NE(result.ptr, nullptr);
 
     // Write and read back
-    auto mem = static_cast<uint8_t*>(result.ptr);
+    auto* mem = static_cast<uint8_t*>(result.ptr);
     for (std::size_t i = 0; i < page; ++i) {
         mem[i] = static_cast<std::uint8_t>(i & 0xFF);
     }
@@ -121,13 +121,13 @@ TEST(AllocationRuntime, AllocatedMemoryIsReadWrite) {
 }
 
 TEST(AllocationRuntime, DeallocateNullptrIsNoop) {
-    AllocationResult result = {nullptr, 0, PageSize::Standard};
+    AllocationResult result{.ptr=nullptr, .size=0, .page_size=PageSize::Standard};
     EXPECT_NO_FATAL_FAILURE(deallocate(result));
 }
 
 TEST(AllocationRuntime, AllocateRoundedSize) {
     std::size_t page        = getPageSize();
-    std::size_t raw         = page * 3 + 1;
+    std::size_t raw         = (page * 3) + 1;
     std::size_t size        = roundToPage(raw, page);
 
     AllocationResult result = allocate(size);

@@ -1,0 +1,6 @@
+Checks: >
+    readability-*,
+    -readability-magic-numbers,
+    misc-*
+    modernize-*
+HeaderFilterRegex: '.*\.(hpp|inl)$'
