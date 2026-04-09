@@ -59,10 +59,10 @@ namespace aleph::chess {
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */
-            [[nodiscard]] constexpr inline std::uint8_t rank() const noexcept { return data >> 3; }
+            [[nodiscard]] constexpr std::uint8_t rank() const noexcept { return data >> 3; }
 
             /** Returns the file of this square in [0, 7], where 0 is the a-file. */
-            [[nodiscard]] constexpr inline std::uint8_t file() const noexcept { return data & 7; }
+            [[nodiscard]] constexpr std::uint8_t file() const noexcept { return data & 7; }
 
             /**
              * Returns the algebraic notation for this square, e.g. "e4".
@@ -73,13 +73,13 @@ namespace aleph::chess {
 #ifdef ALEPH_CONSTEXPR_STRING
             constexpr
 #endif
-                inline std::string toString() const noexcept {
+                std::string toString() const noexcept {
                 return {detail::FILE_CHARS[file()], detail::RANK_CHARS[rank()]};
             }
 
             /** Implicit conversion to `uint8_t` for use as a bitboard shift amount or array index.
              */
-            constexpr inline operator std::uint8_t() const noexcept { return data; }
+            constexpr operator std::uint8_t() const noexcept { return data; }
 
         private:
             /**

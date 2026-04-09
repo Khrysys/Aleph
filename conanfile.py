@@ -64,7 +64,12 @@ class AlephConan(ConanFile):
         self.requires('fmt/12.1.0')
         self.requires('half/2.2.0')
         self.requires('libassert/2.2.1')
-        self.requires('spdlog/1.17.0')
+        self.requires('protobuf/6.33.5')
+        self.requires('quill/11.1.0')
+
+        # OS-specific dependencies for various reasons
+        if self.settings.os == 'Linux':
+            self.requires('libnuma/2.0.19')
 
         # Force specific versions for transitive dependencies
         self.requires('b2/5.4.2', override=True)

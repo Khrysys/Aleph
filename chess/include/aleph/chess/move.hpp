@@ -35,23 +35,23 @@ namespace aleph::chess {
     class Move {
         public:
             /** Constructs a non-promotion move. */
-            constexpr inline Move(Square from, Square to) : data(from | (to << 6)) {}
+            constexpr Move(Square from, Square to) : data(from | (to << 6)) {}
 
             /** Constructs a promotion move with the given promotion piece type. */
-            constexpr inline Move(Square from, Square to, PieceType promo)
+            constexpr Move(Square from, Square to, PieceType promo)
                 : data(from | (to << 6) | (promo << 12)) {
                 DEBUG_ASSERT(promo != PieceType::NONE);
                 DEBUG_ASSERT(promo != PieceType::KING);
             }
 
             /** Constructs a default move that is null (a1a1) and has no promotion. */
-            constexpr inline Move() : data(0) {}
+            constexpr Move() : data(0) {}
 
             /** Returns the origin square of this move. */
-            [[nodiscard]] constexpr inline Square from() const noexcept { return data & 0x003F; }
+            [[nodiscard]] constexpr Square from() const noexcept { return data & 0x003F; }
 
             /** Returns the destination square of this move. */
-            [[nodiscard]] constexpr inline Square to() const noexcept {
+            [[nodiscard]] constexpr Square to() const noexcept {
                 return (data >> 6) & 0x003F;
             }
 
@@ -59,7 +59,7 @@ namespace aleph::chess {
              * Returns the promotion piece type, or `PAWN` (0) if no promotion is encoded.
              * Use `hasPromo()` to distinguish a pawn promotion from a non-promotion move.
              */
-            [[nodiscard]] inline PieceType promo() const noexcept {
+            [[nodiscard]] PieceType promo() const noexcept {
                 return PieceType((data >> 12) & 0x000F);
             }
 
@@ -68,7 +68,7 @@ namespace aleph::chess {
              * A promotion is indicated by a non-zero promotion field, i.e. any piece
              * type other than `PAWN` (0).
              */
-            [[nodiscard]] constexpr inline bool hasPromo() const noexcept {
+            [[nodiscard]] constexpr bool hasPromo() const noexcept {
                 return (data >> 12) != 0;
             }
 
@@ -77,14 +77,14 @@ namespace aleph::chess {
 #ifdef ALEPH_CONSTEXPR_STRING
             constexpr
 #endif
-                inline std::string toString() const {
+                std::string toString() const {
                 std::string r = from().toString() + to().toString();
                 if (hasPromo()) r += detail::PIECE_TYPE_CHARS[promo() + 6];
                 return r;
             }
 
             /** Implicit conversion to `uint16_t` for use as a policy table index. */
-            constexpr inline operator std::uint16_t() const noexcept { return data; }
+            constexpr operator std::uint16_t() const noexcept { return data; }
 
         private:
             /**

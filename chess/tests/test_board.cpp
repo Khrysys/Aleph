@@ -301,7 +301,7 @@ TEST(BoardPushTest, WhitePromotionToKnight) {
 }
 
 TEST(BoardPushTest, BlackPromotionToQueen) {
-    Board b("4k3/8/8/8/8/8/4p3/4K3 b - - 0 1");
+    Board b("8/4k3/8/8/8/8/3Kp3/8 b - - 0 1");
     Board b2 = b.push(makePromoMove("e2", "e1", QUEEN));
     EXPECT_EQ(b2.get(Square(0, 4)).type(), QUEEN);
     EXPECT_EQ(b2.get(Square(1, 4)).type(), NONE);
@@ -372,14 +372,14 @@ TEST(BoardPushTest, WhiteQueensideRookMoveClearsQueensideRight) {
 }
 
 TEST(BoardPushTest, BlackRookCapturedOnH8ClearsKingsideRight) {
-    Board b("rnbqk2r/pppppppP/8/8/8/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1");
-    Board b2 = b.push(makePromoMove("h7", "h8", QUEEN));
+    Board b("rnbqk2r/ppppppp1/8/8/8/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1");
+    Board b2 = b.push(makeAlgebraicMove("h1", "h8"));
     EXPECT_FALSE(b2.canBlackKingsideCastle());
 }
 
 TEST(BoardPushTest, BlackRookCapturedOnA8ClearsQueensideRight) {
-    Board b("r3kbnr/Pppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1");
-    Board b2 = b.push(makePromoMove("a7", "a8", QUEEN));
+    Board b("r3kbnr/1ppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1");
+    Board b2 = b.push(makeAlgebraicMove("a1", "a8"));
     EXPECT_FALSE(b2.canBlackQueensideCastle());
 }
 

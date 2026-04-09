@@ -11,5 +11,5 @@
 #include "platform/compiler.hpp"
 #include "platform/hash.hpp"
 #include "platform/intrinsics.hpp"
-#include "platform/log_info.hpp"
+#include "platform/topology.hpp"
 // NOLINTEND

@@ -39,7 +39,9 @@ namespace aleph::platform {
          * @param mask Bitmask indicating which bits to extract.
          * @return Extracted bits packed into the low bits of the result.
          */
-        [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
+        [[nodiscard]] constexpr auto pext(
+            std::uint64_t src,            // NOLINT(bugprone-easily-swappable-parameters)
+            std::uint64_t mask) noexcept  // NOLINT(bugprone-easily-swappable-parameters)
             -> std::uint64_t {
             std::uint64_t result = 0;
             std::uint64_t bit    = 1;
@@ -52,6 +54,21 @@ namespace aleph::platform {
             }
             return result;
         }
+
+        constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) {
+            std::uint64_t lhs_hi = lhs >> 32;
+            std::uint64_t lhs_lo = lhs & 0xFFFFFFFF;
+            std::uint64_t rhs_hi = rhs >> 32;
+            std::uint64_t rhs_lo = rhs & 0xFFFFFFFF;
+
+            std::uint64_t p00    = lhs_lo * rhs_lo;
+            std::uint64_t p01    = lhs_lo * rhs_hi;
+            std::uint64_t p10    = lhs_hi * rhs_lo;
+            std::uint64_t p11    = lhs_hi * rhs_hi;
+
+            std::uint64_t middle = p10 + (p00 >> 32) + (p01 & 0xFFFFFFFF);
+            return p11 + (middle >> 32) + (p01 >> 32);
+        }
     }  // namespace detail
 
     /**
@@ -61,9 +78,7 @@ namespace aleph::platform {
      * @param val Value to count set bits in.
      * @return Number of set bits.
      */
-    [[nodiscard]] constexpr auto popcnt(std::uint64_t val) noexcept -> std::uint64_t {
-        return std::popcount(val);
-    }
+    [[nodiscard]] constexpr auto popcnt(std::uint64_t val) noexcept { return std::popcount(val); }
 
     /**
      * Returns the number of leading zero bits in `val`.
@@ -72,9 +87,7 @@ namespace aleph::platform {
      * @param val Value to count leading zeros in.
      * @return Number of leading zero bits. Returns 64 if `val` is zero.
      */
-    [[nodiscard]] constexpr auto lzcnt(std::uint64_t val) noexcept -> std::uint64_t {
-        return std::countl_zero(val);
-    }
+    [[nodiscard]] constexpr auto lzcnt(std::uint64_t val) noexcept { return std::countl_zero(val); }
 
     /**
      * Returns the number of trailing zero bits in `val`.
@@ -83,9 +96,7 @@ namespace aleph::platform {
      * @param val Value to count trailing zeros in.
      * @return Number of trailing zero bits. Returns 64 if `val` is zero.
      */
-    [[nodiscard]] constexpr auto tzcnt(std::uint64_t val) noexcept -> std::uint64_t {
-        return std::countr_zero(val);
-    }
+    [[nodiscard]] constexpr auto tzcnt(std::uint64_t val) noexcept { return std::countr_zero(val); }
 
     /**
      * Extracts bits from `src` at positions indicated by set bits in `mask`,
@@ -110,6 +121,26 @@ namespace aleph::platform {
         return _pext_u64(src, mask);
 #else
         return detail::pext(src, mask);
+#endif
+    }
+
+    /**
+     * Returns the high 64-bits of a 64x64->128-bit multiplication. The distribution of the returned
+     * value is uniform within the range `[0, min(lhs, rhs))` assuming uniform distributions for
+     * `lhs` and `rhs`.
+     */
+    [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t {
+        if (std::is_constant_evaluated()) {
+            return detail::hi_mul64(lhs, rhs);
+        }
+        std::uint64_t highResult;
+#if BOOST_OS_WINDOWS
+        // NOLINTNEXTLINE(readability-const-return-type)
+        _umul128(lhs, rhs, &highResult);
+#elif defined(__SIZEOF_INT128__)
+        return (static_cast<__uint128_t>(lhs) * static_cast<__uint128_t>(rhs)) >> 64;
+#else
+        return detail::hi_mul64(lhs, rhs);
 #endif
     }
 

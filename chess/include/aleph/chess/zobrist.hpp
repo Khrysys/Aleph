@@ -23,7 +23,7 @@ namespace aleph::chess {
 
         inline constexpr std::uint64_t ZOBRIST_STARTING_KEY = 0x123456790ABCDEFULL;
 
-        [[nodiscard]] inline consteval Zobrist createZobrist() {
+        [[nodiscard]] consteval Zobrist createZobrist() {
             std::uint64_t key = ZOBRIST_STARTING_KEY;
             Zobrist zobrist{};
 

@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE) # Can't believe this isn't a thing in raw CMake yet...
+endif()
+
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -77,13 +81,22 @@ find_package(Python REQUIRED COMPONENTS Interpreter)
 
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
+find_package(half REQUIRED)
+find_package(hwloc REQUIRED)
 find_package(libassert REQUIRED)
 find_package(spdlog REQUIRED)
 
 
+if(LINUX)
+    find_package(libnuma REQUIRED)
+endif()
+
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-add_subdirectory(chess)
-add_subdirectory(platform)
+#add_subdirectory(caching)
+#add_subdirectory(chess)
+#add_subdirectory(platform)
+add_executable(aleph test.cpp)
+target_link_libraries(aleph PUBLIC hwloc::hwloc)

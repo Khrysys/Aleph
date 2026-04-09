@@ -1,6 +1,8 @@
 Checks: >
+    bugprone-*,
+    misc-*,
+    modernize-*,
     readability-*,
     -readability-magic-numbers,
-    misc-*
-    modernize-*
+    -readability-identifier-length
 HeaderFilterRegex: '.*\.(hpp|inl)$'
