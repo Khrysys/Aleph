@@ -17,18 +17,23 @@ namespace aleph::platform::topology {
             PolicyCache* pPolicyCache;
     };
 
+    struct NodeLocalMemory {
+        std::size_t node;
+        std::size_t totalPhysical;
+        std::size_t availablePhyiscal;
+    };
+
     class LocalMemory {  // Owned by Topology
         public:
-            LocalMemory(std::size_t node);
+            LocalMemory();
 
             [[nodiscard]] auto getBytes() const { return bytes; }
 
         private:
             std::vector<MCTSTree> mctsTrees;
             PolicyCache policyCache;
-
-            std::size_t node;
-            std::size_t bytes;
+            
+            std::vector<NodeLocalMemory> 
     };
 
     class MCTSTree {  // Owned by LocalMemory
@@ -41,7 +46,7 @@ namespace aleph::platform::topology {
         private:
             LocalMemory* localMemory;
             std::vector<ThreadGroup*> pThreadGroups;
-            std::vector<Accelerator> pAccelerators;
+            std::vector<Accelerator*> pAccelerators;
     }
 
     class ThreadGroup {  // Owned by MCTSTree
@@ -53,5 +58,7 @@ namespace aleph::platform::topology {
     class Topology {
         private:
             std::vector<LocalMemory> localMemory;
+            std::vector<ThreadGroup> threadGroups;
+            std::vector<Accelerator> accelerators;
     };
 }  // namespace aleph::platform::topology

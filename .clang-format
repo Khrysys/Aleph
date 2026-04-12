@@ -20,7 +20,9 @@ IncludeCategories:
     Priority: 3
   - Regex: '<.+\/.+>'
     Priority: 2
-  - Regex: '^<.+>$'
+  - Regex: '<(.+).(h|hpp)>'
+    Priority: 2
+  - Regex: '<.+>'
     Priority: 1
 IndentAccessModifiers: true
 IndentCaseBlocks: true
