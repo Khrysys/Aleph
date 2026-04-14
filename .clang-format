@@ -20,7 +20,7 @@ IncludeCategories:
     Priority: 3
   - Regex: '<.+\/.+>'
     Priority: 2
-  - Regex: '<(.+).(h|hpp)>'
+  - Regex: '<(.+)(\.h|\.hpp)>'
     Priority: 2
   - Regex: '<.+>'
     Priority: 1

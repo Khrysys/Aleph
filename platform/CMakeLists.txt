@@ -1,20 +1,19 @@
 include("${CMAKE_SOURCE_DIR}/cmake/target_macros.cmake")
 
-set(_files
+aleph_add_library(Platform STATIC SOURCES 
+    "include/aleph/platform/allocation/base.hpp"
+    "include/aleph/platform/allocation/string.hpp"
     "include/aleph/platform/allocation.hpp"
+    "include/aleph/platform/compiler.hpp"
+    "include/aleph/platform/hash.hpp"
     "include/aleph/platform/intrinsics.hpp"
-    "include/aleph/platform/log_info.hpp"
+    "include/aleph/platform/threads.hpp"
     "include/aleph/platform.hpp"
-    "src/allocation.cpp"
-)
-
-aleph_add_library(NAME aleph_platform STATIC SOURCES 
-    "include/aleph/platform/allocation.hpp"
-    "include/aleph/platform/intrinsics.hpp"
-    "include/aleph/platform/log_info.hpp"
-    "include/aleph/platform.hpp"
-    "src/allocation.cpp"
-    ALIAS Aleph::Platform
+    "src/allocation/base.cpp"
+    "src/allocation/string.cpp"
+    "src/intrinsics.cpp"
+    "src/os_dependent.hpp"
+    "src/threads.cpp"
 )
 
 # Applies a compiler-specific architecture flag if the given option is enabled.
@@ -29,7 +28,7 @@ macro(aleph_arch_option enabled gccflag winflag)
     endif()
 endmacro()
 
-target_link_libraries(aleph_platform PUBLIC Boost::headers spdlog::spdlog)
+target_link_libraries(aleph_platform PUBLIC Boost::headers fmt::fmt libassert::assert)
 
 if(Aleph_BUILD_NATIVE_ARCH)
     # -march=native enables all supported extensions on the build machine,

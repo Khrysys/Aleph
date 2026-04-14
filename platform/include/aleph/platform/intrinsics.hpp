@@ -10,21 +10,6 @@
 #include <cstdint>
 #include <type_traits>
 
-// ===== Intrinsics Includes =====
-#if BOOST_OS_WINDOWS
-    #include <intrin.h>
-#else
-    #include <x86intrin.h>
-#endif
-
-/**
- * Defined when BMI2 is available on the target platform.
- * Enables hardware-accelerated `pext` via `_pext_u64`.
- */
-#ifdef __BMI2__
-    #define ALEPH_HAS_BMI2
-#endif
-
 namespace aleph::platform {
 
     namespace detail {
@@ -113,35 +98,13 @@ namespace aleph::platform {
      * @return Extracted bits packed into the low bits of the result.
      */
     [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
-        -> std::uint64_t {
-        if (std::is_constant_evaluated()) {
-            return detail::pext(src, mask);
-        }
-#if defined(ALEPH_HAS_BMI2) && (defined(ALEPH_HAS_X86INTRIN_H) || defined(ALEPH_HAS_INTRIN_H))
-        return _pext_u64(src, mask);
-#else
-        return detail::pext(src, mask);
-#endif
-    }
+        -> std::uint64_t;
 
     /**
      * Returns the high 64-bits of a 64x64->128-bit multiplication. The distribution of the returned
      * value is uniform within the range `[0, min(lhs, rhs))` assuming uniform distributions for
      * `lhs` and `rhs`.
      */
-    [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t {
-        if (std::is_constant_evaluated()) {
-            return detail::hi_mul64(lhs, rhs);
-        }
-        std::uint64_t highResult;
-#if BOOST_OS_WINDOWS
-        // NOLINTNEXTLINE(readability-const-return-type)
-        _umul128(lhs, rhs, &highResult);
-#elif defined(__SIZEOF_INT128__)
-        return (static_cast<__uint128_t>(lhs) * static_cast<__uint128_t>(rhs)) >> 64;
-#else
-        return detail::hi_mul64(lhs, rhs);
-#endif
-    }
+    [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t;
 
 }  // namespace aleph::platform

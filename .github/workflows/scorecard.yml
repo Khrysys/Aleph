@@ -1,4 +1,4 @@
-name: Push
+name: OSSF Scorecard
 
 on:
   push:

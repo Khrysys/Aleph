@@ -64,8 +64,7 @@ class AlephConan(ConanFile):
         self.requires('fmt/12.1.0')
         self.requires('half/2.2.0')
         self.requires('libassert/2.2.1')
-        self.requires('protobuf/6.33.5')
-        self.requires('quill/11.1.0')
+        self.requires('protobuf/6.33.5')   
 
         # OS-specific dependencies for various reasons
         if self.settings.os == 'Linux':

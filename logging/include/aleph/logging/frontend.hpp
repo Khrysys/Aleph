@@ -1,33 +1,45 @@
-#pragma once
+#include <atomic>
+#include <array>
 
-#include <cstdint>
-#include <limits>
+#include "log_entry.hpp"
 
-#include "backend.hpp"
+template <size_t Capacity>
+class Frontend {
+public:
+    Frontend() : write_(0), read_(0) {}
 
-#ifndef ALEPH_LOGGING_MINIMUM_IMPORTANCE
-    #define ALEPH_LOGGING_MINIMUM_IMPORTANCE 0
-#endif
+    void log(const char* msg, uint64_t ts, uint32_t tid) {
+        size_t w = write_.load(std::memory_order_relaxed);
+        size_t next = inc(w);
 
-namespace aleph::logging {
-    namespace detail {
-        using ImportanceType                      = std::int8_t;
-        constexpr ImportanceType IMPORTANCE_LEVEL = ALEPH_LOGGING_MINIMUM_IMPORTANCE;
-    }  // namespace detail
+        // overwrite oldest if full
+        if (next == read_.load(std::memory_order_acquire)) {
+            read_.store(inc(read_.load(std::memory_order_relaxed)),
+                        std::memory_order_release);
+        }
 
-    enum MessageImportance : detail::ImportanceType {
-        TRACE    = -1,
-        DEBUG    = 0,
-        INFO     = 1,
-        NOTICE   = 2,
-        WARNING  = 10,
-        ERROR    = 100,
-        CRITICAL = std::numeric_limits<detail::ImportanceType>::max() - 1
-    };
+        buffer_[w].set(msg, ts, tid);
 
-    class Frontend {
-        private:
-            Backend* backend;
-    };
+        write_.store(next, std::memory_order_release);
+    }
 
-}  // namespace aleph::logging
+    bool pop(LogEntry& out) {
+        size_t r = read_.load(std::memory_order_relaxed);
+
+        if (r == write_.load(std::memory_order_acquire))
+            return false;
+
+        out = buffer_[r];
+        read_.store(inc(r), std::memory_order_release);
+        return true;
+    }
+
+private:
+    static constexpr size_t inc(size_t i) {
+        return (i + 1) % Capacity;
+    }
+
+    alignas(64) std::array<LogEntry, Capacity> buffer_;
+    alignas(64) std::atomic<size_t> write_;
+    alignas(64) std::atomic<size_t> read_;
+};

@@ -82,9 +82,8 @@ find_package(Python REQUIRED COMPONENTS Interpreter)
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
 find_package(half REQUIRED)
-find_package(hwloc REQUIRED)
 find_package(libassert REQUIRED)
-find_package(spdlog REQUIRED)
+find_package(protobuf REQUIRED)
 
 
 if(LINUX)
@@ -97,6 +96,4 @@ endif()
 
 #add_subdirectory(caching)
 #add_subdirectory(chess)
-#add_subdirectory(platform)
-add_executable(aleph test.cpp)
-target_link_libraries(aleph PUBLIC hwloc::hwloc)
+add_subdirectory(platform)
