@@ -1,11 +1,9 @@
-#include <aleph/platform.hpp>
-
 #include <atomic>
 #include <cstdint>
-#include <thread>
-#include <vector>
-#include <unordered_set>
 #include <mutex>
+#include <unordered_set>
+
+#include <aleph/platform.hpp>
 
 using namespace aleph::platform::allocation;
 
@@ -14,45 +12,39 @@ static constexpr size_t MAX_OBJECTS = 1024;
 static constexpr size_t MAX_THREADS = 8;
 
 // ===== Operation Encoding =====
-enum class OpType : uint8_t {
-    Allocate = 0,
-    Copy     = 1,
-    Destroy  = 2,
-    Assign   = 3,
-    PushChar = 4
-};
+namespace {
+    enum class OpType : uint8_t { Allocate = 0, Copy = 1, Destroy = 2, Assign = 3, PushChar = 4 };
 
-struct Op {
-    OpType type;
-    uint16_t a;
-    uint16_t b;
-    char c;
-};
+    struct Op {
+            OpType type;
+            uint16_t a;
+            uint16_t b;
+            char c;
+    };
 
-// ===== Global Debug State =====
-struct DebugState {
-    std::mutex mtx;
-    std::unordered_set<const void*> activePtrs;
-    std::atomic<bool> failed{false};
+    // ===== Global Debug State =====
+    struct DebugState {
+        public:
+            std::mutex mtx;
+            std::unordered_set<const void*> activePtrs;
+            std::atomic<bool> failed{false};
 
-    void insert(const void* p) {
-        std::lock_guard<std::mutex> lock(mtx);
-        if (!activePtrs.insert(p).second) {
-            failed = true; // duplicate slot detected
-        }
-    }
+            void insert(const void* p) {
+                std::scoped_lock const lock(mtx);
+                if (!activePtrs.insert(p).second) {
+                    failed = true;  // duplicate slot detected
+                }
+            }
 
-    void erase(const void* p) {
-        std::lock_guard<std::mutex> lock(mtx);
-        activePtrs.erase(p);
-    }
-};
+            void erase(const void* p) {
+                std::scoped_lock const lock(mtx);
+                activePtrs.erase(p);
+            }
+    };
+}  // namespace
 
 // ===== Worker =====
-void run_worker(const std::vector<Op>& ops,
-                StringArena* arena,
-                DebugState* dbg)
-{
+void run_worker(const std::vector<Op>& ops, StringArena* arena, DebugState* dbg) {
     std::vector<NUMAString> objects;
     objects.reserve(MAX_OBJECTS);
 
@@ -61,49 +53,53 @@ void run_worker(const std::vector<Op>& ops,
 
         try {
             switch (op.type) {
+                case OpType::Allocate:
+                    {
+                        if (objects.size() >= MAX_OBJECTS) break;
 
-            case OpType::Allocate: {
-                if (objects.size() >= MAX_OBJECTS) break;
+                        auto s = arena->allocate();
+                        dbg->insert(s.c_str());
+                        objects.emplace_back(std::move(s));
+                        break;
+                    }
 
-                auto s = arena->allocate();
-                dbg->insert(s.c_str());
-                objects.emplace_back(std::move(s));
-                break;
-            }
+                case OpType::Copy:
+                    {
+                        if (objects.empty()) break;
+                        auto idx = op.a % objects.size();
+                        objects.emplace_back(objects[idx]);
+                        break;
+                    }
 
-            case OpType::Copy: {
-                if (objects.empty()) break;
-                auto idx = op.a % objects.size();
-                objects.emplace_back(objects[idx]);
-                break;
-            }
+                case OpType::Assign:
+                    {
+                        if (objects.size() < 2) break;
+                        auto a     = op.a % objects.size();
+                        auto b     = op.b % objects.size();
+                        objects[a] = objects[b];
+                        break;
+                    }
 
-            case OpType::Assign: {
-                if (objects.size() < 2) break;
-                auto a = op.a % objects.size();
-                auto b = op.b % objects.size();
-                objects[a] = objects[b];
-                break;
-            }
+                case OpType::Destroy:
+                    {
+                        if (objects.empty()) break;
+                        auto idx = op.a % objects.size();
 
-            case OpType::Destroy: {
-                if (objects.empty()) break;
-                auto idx = op.a % objects.size();
+                        dbg->erase(objects[idx].c_str());
+                        objects.erase(objects.begin() + idx);
+                        break;
+                    }
 
-                dbg->erase(objects[idx].c_str());
-                objects.erase(objects.begin() + idx);
-                break;
-            }
+                case OpType::PushChar:
+                    {
+                        if (objects.empty()) break;
+                        auto idx = op.a % objects.size();
+                        objects[idx].push_back(op.c);
+                        break;
+                    }
 
-            case OpType::PushChar: {
-                if (objects.empty()) break;
-                auto idx = op.a % objects.size();
-                objects[idx].push_back(op.c);
-                break;
-            }
-
-            default:
-                break;
+                default:
+                    break;
             }
         } catch (...) {
             // Allocation failure is allowed ONLY if arena exhausted
@@ -120,15 +116,14 @@ void run_worker(const std::vector<Op>& ops,
 }
 
 // ===== Input decoding =====
-std::vector<Op> decode_ops(const uint8_t* data, size_t size)
-{
+std::vector<Op> decode_ops(const uint8_t* data, size_t size) {
     std::vector<Op> ops;
 
     for (size_t i = 0; i + 4 < size; i += 5) {
         Op op;
         op.type = static_cast<OpType>(data[i] % 5);
-        op.a    = (data[i+1] << 8) | data[i+2];
-        op.b    = (data[i+3] << 8) | data[i+4];
+        op.a    = (data[i + 1] << 8) | data[i + 2];
+        op.b    = (data[i + 3] << 8) | data[i + 4];
         op.c    = static_cast<char>(data[i]);
 
         ops.push_back(op);
@@ -138,8 +133,7 @@ std::vector<Op> decode_ops(const uint8_t* data, size_t size)
 }
 
 // ===== Entry Point =====
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
-{
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     if (size < 16) return 0;
 
     auto ops = decode_ops(data, size);
@@ -163,7 +157,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     // ===== Final invariants =====
     if (dbg.failed.load()) {
-        __builtin_trap(); // crash = bug found
+        __builtin_trap();  // crash = bug found
     }
 
     return 0;

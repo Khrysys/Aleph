@@ -1,10 +1,17 @@
+/**
+ * @file include/aleph/platform/allocation/string.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <mutex>
-#include <stdexcept>
+
+#include <libassert/assert.hpp>
 
 #include "base.hpp"
 
@@ -13,7 +20,7 @@ namespace aleph::platform::allocation {
         constexpr std::size_t STRING_ARENA_SIZE      = 512;
         constexpr std::size_t STRING_BUFFER_SIZE     = 2048;
         constexpr std::size_t STRING_ALLOCATION_SIZE = STRING_ARENA_SIZE * STRING_BUFFER_SIZE;
-        constexpr std::size_t STRING_ARENA_TLS_SIZE  = 64;
+        constexpr std::size_t STRING_ARENA_TLS_SIZE  = 16;
     }  // namespace detail
 
     class StringArena;
@@ -23,14 +30,17 @@ namespace aleph::platform::allocation {
             NUMAString(StringArena* arena, char* ptr, std::size_t idx);
 
             NUMAString(const NUMAString& other);
-            NUMAString& operator=(const NUMAString& other);
+            auto operator=(const NUMAString& other) -> NUMAString&;
 
             ~NUMAString();
 
-            void push_back(char c) { ptr[filled++] = c; }
+            void push_back(char c) {
+                DEBUG_ASSERT(filled < detail::STRING_BUFFER_SIZE);
+                ptr[filled++] = c;
+            }
 
-            const char* c_str() const { return ptr; }
-            std::size_t size() const { return filled; }
+            [[nodiscard]] auto c_str() const -> const char* { return ptr; }
+            [[nodiscard]] auto size() const -> std::size_t { return filled; }
 
         private:
             StringArena* arena = nullptr;
@@ -43,16 +53,26 @@ namespace aleph::platform::allocation {
         public:
             StringArena(Allocation* alloc);
 
-            NUMAString allocate();
+            StringArena(const StringArena& other)                    = delete;
+            StringArena(StringArena&& other)                         = delete;
+
+            auto operator=(const StringArena& other) -> StringArena& = delete;
+            auto operator=(StringArena&& other) -> StringArena&      = delete;
+
+            auto allocate() -> NUMAString;
 
             void release(std::size_t idx);
 
         private:
+            struct alignas(64) PaddedAtomic {
+                std::atomic<std::size_t> value{0};
+            };
+
             SubAllocation<char> alloc;
 
-            std::array<std::atomic<std::size_t>, detail::STRING_ARENA_SIZE> refs{};
+            std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> refs{};
             std::array<std::size_t, detail::STRING_ARENA_SIZE> freeIndices{};
-            std::atomic<std::size_t> freeSize{0};
+            std::size_t freeSize{0};
 
             std::mutex freeMutex;
 

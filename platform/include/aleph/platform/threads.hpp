@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstddef>
 #include <thread>
 
 namespace aleph::platform {

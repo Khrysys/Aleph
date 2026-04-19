@@ -1,4 +1,8 @@
-#include <stdexcept>
+#include <thread>
+#include <type_traits>
+#include <tuple>
+#include <stop_token>
+#include <cstddef>
 
 #include <aleph/platform.hpp>
 
@@ -16,10 +20,9 @@ namespace aleph::platform {
         }
 
         // Step 2: Iterate bits in mask to find the requested coreID
-        KAFFINITY mask           = groupAffinity.Mask;
-
+        const auto mask           = groupAffinity.Mask;
         std::size_t currentIndex = 0;
-        DWORD targetProcessor    = DWORD(-1);
+        auto targetProcessor    = DWORD(-1);
 
         for (DWORD i = 0; i < sizeof(KAFFINITY) * 8; ++i) {
             if (mask & (KAFFINITY(1) << i)) {
@@ -39,7 +42,7 @@ namespace aleph::platform {
         // Step 3: Set group affinity to this processor only
         GROUP_AFFINITY targetAffinity = {};
         targetAffinity.Group          = groupAffinity.Group;
-        targetAffinity.Mask           = (KAFFINITY(1) << targetProcessor);
+        targetAffinity.Mask           = (static_cast<KAFFINITY>(1) << targetProcessor);
 
         if (!SetThreadGroupAffinity(thread, &targetAffinity, nullptr)) {
             return false;
@@ -50,11 +53,7 @@ namespace aleph::platform {
         procNum.Group            = groupAffinity.Group;
         procNum.Number           = static_cast<BYTE>(targetProcessor);
 
-        if (!SetThreadIdealProcessorEx(thread, &procNum, nullptr)) {
-            return false;
-        }
-
-        return true;
+        return SetThreadIdealProcessorEx(thread, &procNum, nullptr) != 0;
 #elif BOOST_OS_LINUX
         if (numa_available() == -1) {
             return false;  // NUMA not supported
@@ -105,7 +104,7 @@ namespace aleph::platform {
 
     // --- createThread ---
     template <typename Fn, typename... Args>
-    std::jthread createThread(std::size_t node, std::size_t core, Fn&& fn, Args&&... args) {
+    auto createThread(std::size_t node, std::size_t core, Fn&& fn, Args&&... args) -> std::jthread {
         // Decay/capture everything safely
         using FnT       = std::decay_t<Fn>;
         using ArgsTuple = std::tuple<std::decay_t<Args>...>;
@@ -114,11 +113,10 @@ namespace aleph::platform {
         ArgsTuple argsCopy(std::forward<Args>(args)...);
 
         return std::jthread([node, core, fn = std::move(fnCopy),
-                             args = std::move(argsCopy)](std::stop_token st) mutable {
+                             args = std::move(argsCopy)](std::stop_token st) mutable -> auto {
 // Bind first, before doing any real work. We ignore this on platforms other than Windows and Linux
 #if !(BOOST_OS_WINDOWS || BOOST_OS_LINUX)
             if (!bindThread(node, core)) {
-                // Fail fast — don’t silently run unpinned
                 std::terminate();
             }
 #endif
@@ -126,7 +124,7 @@ namespace aleph::platform {
             // Invoke user function
             if constexpr (std::is_invocable_v<FnT, std::stop_token, Args...>) {
                 std::apply(
-                    [&](auto&&... unpacked) {
+                    [&](auto&&... unpacked) -> auto {
                         fn(st, std::forward<decltype(unpacked)>(unpacked)...);
                     },
                     args);

@@ -1,7 +1,15 @@
+/**
+ * @file include/aleph/platform/allocation/base.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <atomic>
 #include <cstddef>
+#include <string>
+#include <stdexcept>
 
 #include <libassert/assert.hpp>
 
@@ -24,7 +32,7 @@ namespace aleph::platform::allocation {
                 return ptr[idx];
             }
 
-            auto getSize() const { return size / sizeof(T); }
+            auto getSize() const noexcept { return size / sizeof(T); }
 
         private:
             T* ptr;
@@ -82,7 +90,7 @@ namespace aleph::platform::allocation {
 
                     if (filled.compare_exchange_weak(old, next, std::memory_order_acq_rel,
                                                      std::memory_order_relaxed)) {
-                        return SubAllocation<T>(static_cast<T*>(ptr) + aligned, bytes);
+                        return SubAllocation<T>(reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
                     }
                 }
             }

@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <type_traits>
+
 #include <aleph/platform.hpp>
 
 #include "os_dependent.hpp"
@@ -29,7 +32,9 @@ namespace aleph::platform {
         std::uint64_t highResult;
 #if BOOST_OS_WINDOWS
         // NOLINTNEXTLINE(readability-const-return-type)
-        _umul128(lhs, rhs, &highResult);
+        std::uint64_t lowResult = _umul128(lhs, rhs, &highResult);
+        (void)lowResult;
+        return highResult;
 #elif defined(__SIZEOF_INT128__)
         return (static_cast<__uint128_t>(lhs) * static_cast<__uint128_t>(rhs)) >> 64;
 #else

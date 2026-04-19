@@ -1,7 +1,7 @@
 if(NOT TARGET aleph_definitions)
     add_library(aleph_definitions INTERFACE)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(aleph_definitions INTERFACE /Wall)
+        target_compile_options(aleph_definitions INTERFACE /W4)
         if(Aleph_REPRODUCIBLE_BUILDS)
             if(MSVC_TOOLSET_VERSION LESS 120)
                 message(WARNING "Reproducible builds were enabled, but the MSVC Toolset "

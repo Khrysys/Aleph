@@ -2,14 +2,6 @@
 
 #include <cstdint>
 
-#include <boost/predef.h>
-
-#if BOOST_OS_WINDOWS
-    #include <intrin.h>
-#else
-    #include <x86intrin.h>
-#endif
-
 namespace aleph::platform {
     [[nodiscard]] constexpr auto splitMix64(std::uint64_t& key) {
         std::uint64_t val = (key += 0x9e3779b97f4a7c15);

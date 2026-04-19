@@ -3,6 +3,7 @@ Checks: >
     misc-*,
     modernize-*,
     readability-*,
+    -readability-const-return-type,
     -readability-magic-numbers,
     -readability-identifier-length
 HeaderFilterRegex: '.*\.(hpp|inl)$'

@@ -30,6 +30,10 @@ endmacro()
 
 target_link_libraries(aleph_platform PUBLIC Boost::headers fmt::fmt libassert::assert)
 
+if(libnuma_FOUND)
+    target_link_libraries(aleph_platform PUBLIC libnuma::libnuma)
+endif()
+
 if(Aleph_BUILD_NATIVE_ARCH)
     # -march=native enables all supported extensions on the build machine,
     # including BMI2, AVX2, and POPCNT where available.
