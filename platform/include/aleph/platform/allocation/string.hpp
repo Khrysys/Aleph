@@ -71,8 +71,8 @@ namespace aleph::platform::allocation {
             SubAllocation<char> alloc;
 
             std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> refs{};
-            std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> freeIndices{};
-            std::atomic<std::size_t> freeSize{0};
+            std::array<std::size_t, detail::STRING_ARENA_SIZE> freeIndices{};
+            std::size_t freeSize{0};
 
             std::mutex freeMutex;
 
