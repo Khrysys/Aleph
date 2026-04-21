@@ -135,11 +135,6 @@ namespace {
             arena = new StringArena(alloc);
         }
 
-        // Ensure all threads see initialized arena
-        while (arena == nullptr) {
-            std::this_thread::yield();
-        }
-
         for (auto _ : state) {
             for (int i = 0; i < 16; ++i) {
                 auto s = arena->allocate();

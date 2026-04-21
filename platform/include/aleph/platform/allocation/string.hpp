@@ -64,15 +64,15 @@ namespace aleph::platform::allocation {
             void release(std::size_t idx);
 
         private:
-            struct alignas(64) PaddedAtomic {
+            struct PaddedAtomic {
                 std::atomic<std::size_t> value{0};
             };
 
             SubAllocation<char> alloc;
 
             std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> refs{};
-            std::array<std::size_t, detail::STRING_ARENA_SIZE> freeIndices{};
-            std::size_t freeSize{0};
+            std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> freeIndices{};
+            std::atomic<std::size_t> freeSize{0};
 
             std::mutex freeMutex;
 

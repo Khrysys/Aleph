@@ -83,18 +83,18 @@ namespace aleph::platform::allocation {
         if (ptr == nullptr) {
 #if BOOST_OS_WINDOWS
             DWORD flags = MEM_RESERVE | MEM_COMMIT;
-            if (areLargePagesAvailable()) {
+            if (areLargePagesAvailable()) [[likely]] {
                 flags |= MEM_LARGE_PAGES;
             }
 
             ptr = VirtualAlloc(nullptr, size, flags, PAGE_READWRITE);
 #elif BOOST_OS_LINUX
-            auto flags = PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS;
-            if (areLargePagesAvailable()) {
+            auto flags = MAP_PRIVATE | MAP_ANONYMOUS;
+            if (areLargePagesAvailable()) [[likely]] {
                 flags |= MAP_HUGETLB;
             }
 
-            ptr = mmap(nullptr, size, flags, -1, 0);
+            ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0);
 #endif
         }
 #if BOOST_OS_LINUX
@@ -162,7 +162,7 @@ namespace aleph::platform::allocation {
             GetSystemInfo(&info);
             return static_cast<std::size_t>(info.dwPageSize);
 #elif BOOST_OS_LINUX || BOOST_OS_MACOS
-            if (isHugePagesAvailable()) {
+            if (areLargePagesAvailable()) {
                 return static_cast<std::size_t>(2 * 1024 * 1024);
             }
             return static_cast<std::size_t>(sysconf(_SC_PAGESIZE));

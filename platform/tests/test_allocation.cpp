@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <atomic>
+#include <utility>
 #include <cstddef>
 #include <vector>
 #include <thread>
@@ -15,7 +17,7 @@ using namespace aleph::platform::allocation;
 // -----------------------------
 TEST(AllocationTest, BasicAllocationSizeAlignment)
 {
-    Allocation alloc(1000, 0);
+    const Allocation alloc(1000, 0);
 
     // page alignment is implementation-defined,
     // but size must be >= requested
@@ -59,9 +61,9 @@ TEST(AllocationTest, MoveAssignmentWorks)
 // -----------------------------
 TEST(AllocationTest, NumaNodeIsAccepted)
 {
-    Allocation a(1024, 0);
-    Allocation b(1024, 1);
-    Allocation c(1024, 999); // should not crash even if invalid node
+    const Allocation a(1024, 0);
+    const Allocation b(1024, 1);
+    const Allocation c(1024, 999); // should not crash even if invalid node
 
     SUCCEED();
 }
