@@ -83,7 +83,7 @@ jobs:
           - address
           - memory
           - undefined
-      fail-fast: true
+      fail-fast: false
 
     steps:
       - name: Harden Runner
