@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include <array>
-#include <cstddef>
 #include <atomic>
+#include <cstddef>
 #include <mutex>
 #include <stdexcept>
 
-#include <aleph/platform.hpp>
+#include <aleph/platform/allocation/string.hpp>
 
 namespace aleph::platform::allocation {
     thread_local std::array<std::size_t, detail::STRING_ARENA_TLS_SIZE> tlsCache{};
@@ -25,7 +25,9 @@ namespace aleph::platform::allocation {
     }
 
     auto NUMAString::operator=(const NUMAString& other) -> NUMAString& {
-        if (this == &other) {return *this;}
+        if (this == &other) {
+            return *this;
+        }
 
         if (arena != nullptr) {
             arena->release(idx);
@@ -49,11 +51,10 @@ namespace aleph::platform::allocation {
 
     StringArena::StringArena(Allocation* pAlloc)
         : alloc(pAlloc->getSubAllocation<char>(detail::STRING_ALLOCATION_SIZE)) {
-        for (std::size_t i = 0; i < detail::STRING_ARENA_SIZE; i++) {
-            freeIndices[i] = i;
+            for(auto i = 0; i < fl.maxSize(); i++) {
+                fl.push(i);
+            }
         }
-        freeSize = detail::STRING_ARENA_SIZE;
-    }
 
     auto StringArena::allocate() -> NUMAString {
         // 1. Fast path: TLS cache
@@ -64,14 +65,7 @@ namespace aleph::platform::allocation {
             return {this, &alloc[idx * detail::STRING_BUFFER_SIZE], idx};
         }
 
-        // 2. Global pool
-        const std::scoped_lock<std::mutex> lock(freeMutex);
-
-        if (freeSize == 0) {
-            throw std::runtime_error("StringArena exhausted");
-        }
-
-        std::size_t idx = freeIndices[--freeSize];
+        auto idx = fl.pop();
         refs[idx].value.fetch_add(1, std::memory_order_relaxed);
 
         return {this, &alloc[idx * detail::STRING_BUFFER_SIZE], idx};
@@ -92,8 +86,6 @@ namespace aleph::platform::allocation {
         }
 
         // fallback: global free list
-        const std::scoped_lock lock(freeMutex);
-        DEBUG_ASSERT(freeSize < detail::STRING_ARENA_SIZE);
-        freeIndices[freeSize++] = idx;
+        fl.push(idx);
     }
 }  // namespace aleph::platform::allocation

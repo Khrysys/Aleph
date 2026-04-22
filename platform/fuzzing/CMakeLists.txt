@@ -1,0 +1,8 @@
+include("${Aleph_SOURCE_DIR}/cmake/target_macros.cmake")
+
+aleph_add_fuzz_target(fuzz_allocation_fifo_queue Aleph::Platform)
+aleph_add_fuzz_target(fuzz_allocation_get_sub_allocation Aleph::Platform)
+aleph_add_fuzz_target(fuzz_allocation_sequential_sub_allocations Aleph::Platform)
+aleph_add_fuzz_target(fuzz_allocation_sub_allocation_alignment Aleph::Platform)
+aleph_add_fuzz_target(fuzz_allocation_sub_allocation_construction Aleph::Platform)
+aleph_add_fuzz_target(fuzz_allocation_sub_allocation_double Aleph::Platform)

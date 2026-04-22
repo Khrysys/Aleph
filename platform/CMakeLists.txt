@@ -50,5 +50,6 @@ else()
     aleph_arch_option(Aleph_ENABLE_BMI2   -mbmi2    "")
     aleph_arch_option(Aleph_ENABLE_POPCNT -mpopcnt  "")
 endif()
-
+add_subdirectory(benchmarks)
+add_subdirectory(fuzzing)
 add_subdirectory(tests)

@@ -9,11 +9,11 @@
 #include <array>
 #include <atomic>
 #include <cstddef>
-#include <mutex>
 
 #include <libassert/assert.hpp>
 
 #include "base.hpp"
+#include "fifo_queue.hpp"
 
 namespace aleph::platform::allocation {
     namespace detail {
@@ -71,10 +71,7 @@ namespace aleph::platform::allocation {
             SubAllocation<char> alloc;
 
             std::array<PaddedAtomic, detail::STRING_ARENA_SIZE> refs{};
-            std::array<std::size_t, detail::STRING_ARENA_SIZE> freeIndices{};
-            std::size_t freeSize{0};
-
-            std::mutex freeMutex;
+            FIFOQueue<std::size_t, detail::STRING_ARENA_SIZE> fl;
 
             friend class NUMAString;
     };

@@ -8,5 +8,6 @@
 #pragma once
 
 #include "allocation/base.hpp"
+#include "allocation/fifo_queue.hpp"
 #include "allocation/string.hpp"
 // NOLINTEND
