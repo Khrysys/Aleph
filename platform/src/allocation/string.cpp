@@ -51,7 +51,7 @@ namespace aleph::platform::allocation {
 
     StringArena::StringArena(Allocation* pAlloc)
         : alloc(pAlloc->getSubAllocation<char>(detail::STRING_ALLOCATION_SIZE)) {
-            for(auto i = 0; i < fl.maxSize(); i++) {
+            for(std::size_t i = 0; i < fl.maxSize(); i++) {
                 fl.push(i);
             }
         }

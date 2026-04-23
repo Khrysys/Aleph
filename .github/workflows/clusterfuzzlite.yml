@@ -38,7 +38,7 @@ jobs:
         include:
           - sanitizer: coverage
             mode: coverage
-      fail-fast: true
+      fail-fast: false
 
     steps:
       - name: Harden Runner

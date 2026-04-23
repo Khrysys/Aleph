@@ -49,7 +49,7 @@ namespace aleph::platform::allocation {
                     }
                     auto s = size.load();
                     if(s == 0) {
-                        throw std::exception("FIFOQueue out of data");
+                        throw std::runtime_error("FIFOQueue out of data");
                     }
                 } while(!tail.compare_exchange_weak(oldTail, newTail));
 
