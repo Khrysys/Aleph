@@ -152,7 +152,7 @@ namespace aleph::platform {
         return available;
     }
 
-    inline auto Allocation::getPageSize() -> std::size_t {
+    auto Allocation::getPageSize() -> std::size_t {
         static const auto page_size = []() noexcept -> std::size_t {
 #if BOOST_OS_WINDOWS
             if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
