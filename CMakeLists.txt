@@ -64,8 +64,6 @@ if(Aleph_BUILD_TESTS)
     enable_testing()
 endif()
 
-    
-
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -91,6 +89,18 @@ endif()
 add_subdirectory(caching)
 add_subdirectory(chess)
 add_subdirectory(platform)
+
+if(Aleph_INSTALL)
+    install(FILES
+        "CODE_OF_CONDUCT.md"
+        "CONTRIBUTING.md"
+        "GOVERNANCE.md"
+        "SECURITY.md"
+        "LICENSE"
+        "README.md"
+        DESTINATION .
+    )
+endif()
 
 if(Aleph_PACKAGE)
     include(cmake/package.cmake)
