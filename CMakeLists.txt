@@ -23,47 +23,38 @@ find_package(benchmark)
 
 if(TARGET GTest::gtest_main)
     option(Aleph_BUILD_TESTS 
-        "Build tests for the modules within the engine. Has no impact on the regular usage of the \
-        engine." 
+        "Build tests for the modules within the engine. Has no impact on the regular usage of the engine." 
         ON
     )
 else()
     message(STATUS
-        "GTest::gtest_main target was not found. Tests are unavailable without it."
+        "Aleph: GTest::gtest_main target was not found. Tests are unavailable without it."
     )
     set(Aleph_BUILD_TESTS OFF)
 endif()
 
 if(DEFINED ENV{LIB_FUZZING_ENGINE})
     option(Aleph_BUILD_FUZZING
-        "Build fuzz targets for the modules within the engine. This option adds fuzzing and \
-        may add sanitizers, which would impact performance. "
+        "Build fuzz targets for the modules within the engine. This option adds fuzzing and may add sanitizers, which would impact performance. "
     )
 else()
     message(STATUS 
-        "LIB_FUZZING_ENGINE environment variable not set. Fuzzing is unavailable without it."
+        "Aleph: LIB_FUZZING_ENGINE environment variable not set. Fuzzing is unavailable without it."
     )
     set(Aleph_BUILD_FUZZING OFF)
 endif()
 
 if(TARGET benchmark::benchmark)
-    option(Aleph_BUILD_BENCHMARKS "Build benchmarks for the modules within the engine. Has no \
-        impact on the regular usage of the engine." ON)
+    option(Aleph_BUILD_BENCHMARKS "Build benchmarks for the modules within the engine. Has no impact on the regular usage of the engine." ON)
 else()
     message(STATUS
-        "benchmark::benchmark target was not found. Benchmarks are unavailable without it."
+        "Aleph: benchmark::benchmark target was not found. Benchmarks are unavailable without it."
     )
     set(Aleph_BUILD_BENCHMARKS OFF)
 endif()
 
-# Platform architecture changes
-option(Aleph_BUILD_NATIVE_ARCH "Build with native architecture flags" ON)
-option(Aleph_ENABLE_AVX2  "Enable AVX2"  ON)
-option(Aleph_ENABLE_BMI2  "Enable BMI2"  ON)
-option(Aleph_ENABLE_POPCNT "Enable POPCNT" ON)
-# Build changes
-option(Aleph_REPRODUCIBLE_BUILDS "Enables compiler flags and disables some macros to make builds \
-    reproducible. Requires MSVC Toolset 120 or higher." ON)
+option(Aleph_INSTALL ON)
+option(Aleph_PACKAGE ON)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -72,6 +63,8 @@ option(Aleph_REPRODUCIBLE_BUILDS "Enables compiler flags and disables some macro
 if(Aleph_BUILD_TESTS)
     enable_testing()
 endif()
+
+    
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -84,6 +77,7 @@ find_package(fmt REQUIRED)
 find_package(half REQUIRED)
 find_package(libassert REQUIRED)
 find_package(protobuf REQUIRED)
+find_package(quill REQUIRED)
 
 
 if(LINUX)
@@ -94,6 +88,10 @@ endif()
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-#add_subdirectory(caching)
-#add_subdirectory(chess)
+add_subdirectory(caching)
+add_subdirectory(chess)
 add_subdirectory(platform)
+
+if(Aleph_PACKAGE)
+    include(cmake/package.cmake)
+endif()

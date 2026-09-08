@@ -10,7 +10,7 @@ add_custom_command(
     VERBATIM
 )
 
-add_library(aleph_chess INTERFACE 
+aleph_add_library(chess INTERFACE SOURCES
     ${_generated_header}
     "include/aleph/chess/attack_tables.hpp"
     "include/aleph/chess/board.hpp"
@@ -24,12 +24,10 @@ add_library(aleph_chess INTERFACE
 unset(_generated_header)
 
 target_include_directories(aleph_chess INTERFACE 
-    "include" 
     "${CMAKE_CURRENT_BINARY_DIR}/include"
 )
 
 target_link_libraries(aleph_chess INTERFACE 
-    spdlog::spdlog
     fmt::fmt
     libassert::assert
 

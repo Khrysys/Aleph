@@ -4,15 +4,22 @@
 import re
 
 from conan import ConanFile
-from conan.api.output import ConanOutput
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.build import check_min_cppstd
 from pathlib import Path
 
-project_regex_string = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
+PROJECT_REGEX_STRING = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n"""
 
 class AlephConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
+
+    options = {
+        'reproducible_build': [True, False]
+    }
+
+    default_options = {
+        'reproducible_build': False
+    }
 
     def build(self):
         cmake = CMake(self)
@@ -32,6 +39,7 @@ class AlephConan(ConanFile):
         deps.generate()
         tc = CMakeToolchain(self)
         tc.generator = 'Ninja'
+        tc.variables['Aleph_REPRODUCIBLE_BUILDS'] = self.options.reproducible_build
         tc.generate()
 
     def layout(self):
@@ -41,7 +49,7 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
+        m = re.search(PROJECT_REGEX_STRING, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract project name from CMakeLists.txt")
@@ -52,7 +60,7 @@ class AlephConan(ConanFile):
         cmake = Path(self.recipe_folder) / "CMakeLists.txt"
         content = cmake.read_text(encoding="utf-8")
 
-        m = re.search(project_regex_string, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
+        m = re.search(PROJECT_REGEX_STRING, content, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
         if not m:
             raise RuntimeError("Could not extract version from project() in CMakeLists.txt")
@@ -64,7 +72,8 @@ class AlephConan(ConanFile):
         self.requires('fmt/12.1.0')
         self.requires('half/2.2.0')
         self.requires('libassert/2.2.1')
-        self.requires('protobuf/6.33.5')   
+        self.requires('protobuf/6.33.5')
+        self.requires('quill/11.1.0')
 
         # OS-specific dependencies for various reasons
         if self.settings.os == 'Linux':

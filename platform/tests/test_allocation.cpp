@@ -12,14 +12,13 @@
 
 #include <gtest/gtest.h>
 
-#include <aleph/platform/allocation/base.hpp>
+#include <aleph/platform/allocation.hpp>
 
-using namespace aleph::platform::allocation;
+using namespace aleph::platform;
 
 namespace {
 
 // ===== SubAllocation =====
-
 TEST(SubAllocation, ConstructionValidSize) {
     alignas(int) std::byte buf[sizeof(int) * 4];
     EXPECT_NO_THROW((SubAllocation<int>(buf, sizeof(int) * 4)));

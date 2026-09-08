@@ -1,16 +1,13 @@
 include("${CMAKE_SOURCE_DIR}/cmake/target_macros.cmake")
 
 aleph_add_library(Platform STATIC SOURCES 
-    "include/aleph/platform/allocation/base.hpp"
-    "include/aleph/platform/allocation/string.hpp"
     "include/aleph/platform/allocation.hpp"
     "include/aleph/platform/compiler.hpp"
     "include/aleph/platform/hash.hpp"
     "include/aleph/platform/intrinsics.hpp"
     "include/aleph/platform/threads.hpp"
     "include/aleph/platform.hpp"
-    "src/allocation/base.cpp"
-    "src/allocation/string.cpp"
+    "src/allocation.cpp"
     "src/intrinsics.cpp"
     "src/os_dependent.hpp"
     "src/threads.cpp"

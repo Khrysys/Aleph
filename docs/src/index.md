@@ -23,4 +23,4 @@ This documentation is broken up into five main categories:
 - An API reference. This mirrors the comments in the code itself, as it is extracted from the code via Breathe to be added to the Sphinx documentation here. I have attempted to make all of the internal workings of the non-trivial functions laid out explicitly, but I only have so much time and so some may be questionably effective. 
 - An appendix, specifically with a glossary to assist with the earlier sections, and also for simply miscellaneous files that don't really belong to any other single section. 
 
-My hope with this is that the documentation laid out in these sections will allow for anyone who could happen across this engine to be able to use it and understand it at least at the surface level. 
+My hope with this is that the documentation laid out in these sections will allow for anyone who could happen across this engine to be able to use it and understand it, at least at the surface level. 

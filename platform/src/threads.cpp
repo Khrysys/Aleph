@@ -4,7 +4,7 @@
 #include <stop_token>
 #include <cstddef>
 
-#include <aleph/platform.hpp>
+#include <aleph/platform/threads.hpp>
 
 #include "os_dependent.hpp"
 

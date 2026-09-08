@@ -1,11 +1,11 @@
 #include <cstddef>
 #include <stdexcept>
 
-#include <aleph/platform.hpp>
+#include <aleph/platform/allocation.hpp>
 
-#include "../os_dependent.hpp"
+#include "os_dependent.hpp"
 
-namespace aleph::platform::allocation {
+namespace aleph::platform {
 
     Allocation::Allocation(std::size_t requestedSize, std::size_t numaNode)
         : ptr(nullptr), numaNode(numaNode) {
