@@ -45,17 +45,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: block
-          allowed-endpoints: |
-            api.github.com:443
-            archives.boost.io:443
-            center2.conan.io:443
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-            sourceware.org:443
-            zlib.net:443
-            ${{ matrix.os == 'ubuntu-latest' && '*.archive.ubuntu.com:80' || '' }}
+          egress-policy: audit
  
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -178,17 +168,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: block
-          allowed-endpoints: |
-            api.github.com:443
-            archives.boost.io:443
-            center2.conan.io:443
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-            sourceware.org:443
-            zlib.net:443
-            ${{ matrix.os == 'ubuntu-latest' && '*.archive.ubuntu.com:80' || '' }}
+          egress-policy: audit
  
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
