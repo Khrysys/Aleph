@@ -53,8 +53,8 @@ else()
     set(Aleph_BUILD_BENCHMARKS OFF)
 endif()
 
-option(Aleph_INSTALL ON)
-option(Aleph_PACKAGE ON)
+option(Aleph_INSTALL "Add Aleph to the CMake INSTALL target." ON)
+option(Aleph_PACKAGE "Build CPack packaging helpers for Aleph." ON)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -91,6 +91,7 @@ add_subdirectory(chess)
 add_subdirectory(platform)
 
 if(Aleph_INSTALL)
+    message(STATUS "Aleph: Generating instaLL target.")
     install(FILES
         "CODE_OF_CONDUCT.md"
         "CONTRIBUTING.md"
@@ -103,5 +104,6 @@ if(Aleph_INSTALL)
 endif()
 
 if(Aleph_PACKAGE)
+    message(STATUS "Aleph: Generating packaging target.")
     include(cmake/package.cmake)
 endif()

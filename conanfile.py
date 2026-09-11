@@ -13,13 +13,6 @@ PROJECT_REGEX_STRING = r"""project\s*\(\s*([a-z]+).*VERSION\s+([^\s]+)\s*\)\s*\n
 class AlephConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
-    options = {
-        'reproducible_build': [True, False]
-    }
-
-    default_options = {
-        'reproducible_build': False
-    }
 
     def build(self):
         cmake = CMake(self)
@@ -39,7 +32,6 @@ class AlephConan(ConanFile):
         deps.generate()
         tc = CMakeToolchain(self)
         tc.generator = 'Ninja'
-        tc.variables['Aleph_REPRODUCIBLE_BUILDS'] = self.options.reproducible_build
         tc.generate()
 
     def layout(self):

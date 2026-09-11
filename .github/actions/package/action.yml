@@ -8,7 +8,7 @@ runs:
       shell: bash
       working-directory: build/Release
       run: |
-        cpack -G 7Z
+        cpack
 
     - name: Attest Binary Package
       uses: actions/attest@v4
