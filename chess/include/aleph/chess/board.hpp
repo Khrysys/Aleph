@@ -28,7 +28,7 @@ namespace aleph::chess {
     }  // namespace detail
 
     /**
-     * Encodes the fields packed into the 32-bit `metadata` word of `Board`.
+     * Encodes the fields packed into the 64-bit `metadata` word of `Board`.
      *
      * Layout:
      *   [2:0]   EN_PASSANT_FILE_MASK   — file index (0-7) of the en passant target square.
@@ -40,27 +40,28 @@ namespace aleph::chess {
      *   [8]     BLACK_QUEENSIDE_CASTLE — set if black retains queenside castling rights.
      *   [15:9]  HALF_MOVE_CLOCK        — halfmove clock for the 50-move rule (0-100).
      *                                    Extract via `(metadata & HALF_MOVE_CLOCK) >> 9`.
-     *   [31:16] — unused, must be zero.
+     *   [62:16]                        — unused, must be zero.
+     *   [63]    CACHED_CHECKERS_VALID  — set if the _checkers bitboard is valid.
      */
-    enum BoardMetadataFlags : uint32_t {
-        EN_PASSANT_FILE_MASK   = 0x00000007,
-        EN_PASSANT_VALID       = 0x00000008,
-        BLACK_TO_MOVE          = 0x00000010,
-        WHITE_KINGSIDE_CASTLE  = 0x00000020,
-        WHITE_QUEENSIDE_CASTLE = 0x00000040,
-        BLACK_KINGSIDE_CASTLE  = 0x00000080,
-        BLACK_QUEENSIDE_CASTLE = 0x00000100,
-        HALF_MOVE_CLOCK        = 0x0000FE00,
-        CACHED_CHECKERS_VALID  = 0x80000000
+    enum BoardMetadataFlags : uint64_t {
+        EN_PASSANT_FILE_MASK   = 0x0000000000000007,
+        EN_PASSANT_VALID       = 0x0000000000000008,
+        BLACK_TO_MOVE          = 0x0000000000000010,
+        WHITE_KINGSIDE_CASTLE  = 0x0000000000000020,
+        WHITE_QUEENSIDE_CASTLE = 0x0000000000000040,
+        BLACK_KINGSIDE_CASTLE  = 0x0000000000000080,
+        BLACK_QUEENSIDE_CASTLE = 0x0000000000000100,
+        HALF_MOVE_CLOCK        = 0x000000000000FE00,
+        CACHED_CHECKERS_VALID  = 0x8000000000000000
     };
 
     /**
      * Represents a chess position as an immutable value type.
      *
      * The board state is encoded as twelve 64-bit bitboards (six per side, one per
-     * piece type), a 32-bit metadata word encoding side-to-move, castling rights,
-     * en passant state, and the halfmove clock. See `BoardMetadataFlags` for the
-     * exact bit layout.
+     * piece type), a 64-bit metadata word encoding side-to-move, castling rights,
+     * en passant state, and the halfmove clock, plus extra fields for caching. See
+     * `BoardMetadataFlags` for the exact bit layout.
      *
      * Positions are mutated exclusively via `push()`, which returns a new `Board`
      * with the move applied. The original board is never modified. Mutable fields
@@ -106,7 +107,7 @@ namespace aleph::chess {
              * `NONE` if the square is empty. Checks occupancy first to avoid scanning
              * all twelve bitboards on empty squares.
              */
-            [[nodiscard]] inline Piece get(Square sq) const;
+            [[nodiscard]] inline Piece get(Square square) const;
 
             /**
              * Returns a new board with the given move applied.
@@ -122,7 +123,7 @@ namespace aleph::chess {
              * The halfmove clock is reset on pawn moves and captures, incremented
              * otherwise. The cache is fully invalidated on the returned board.
              */
-            [[nodiscard]] inline Board push(Move m) const;
+            [[nodiscard]] inline Board push(Move move) const;
 
             // --- Move generation ---
 
@@ -163,7 +164,7 @@ namespace aleph::chess {
              * `getLegalMoves()` which amortizes the pseudo-legal generation cost
              * across all moves.
              */
-            [[nodiscard]] inline bool isLegal(Move m) const;
+            [[nodiscard]] inline bool isLegal(Move move) const;
 
             /**
              * Returns true if the given move is legal in this position.
@@ -181,7 +182,7 @@ namespace aleph::chess {
              * for the captured pawn's removal when evaluating king safety. The final king
              * safety check uses a post-move enemy bitboard with the captured piece removed.
              */
-            [[nodiscard]] inline bool isLegalFast(Move m) const;
+            [[nodiscard]] inline bool isLegalFast(Move move) const;
 
             // --- Metadata accessors ---
 
@@ -238,14 +239,14 @@ namespace aleph::chess {
             /**
              * Returns the current white bitboards.
              */
-            [[nodiscard]] inline std::array<uint64_t, 6> getWhiteBitboards() const {
+            [[nodiscard]] std::array<uint64_t, 6> getWhiteBitboards() const {
                 return whiteBitboards;
             }
 
             /**
              * Returns the current black bitboards.
              */
-            [[nodiscard]] inline std::array<uint64_t, 6> getBlackBitboards() const {
+            [[nodiscard]] std::array<uint64_t, 6> getBlackBitboards() const {
                 return blackBitboards;
             }
 
@@ -255,14 +256,19 @@ namespace aleph::chess {
              */
             [[nodiscard]] inline uint64_t getCheckers() const;
 
+            /**
+             * Returns the current zobrist hash of the position.
+             */
+            [[nodiscard]] inline uint64_t getHash() const;
+
         private:
             std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per `PieceType` for white,
                                                      ///< indexed by `PieceType` value.
             std::array<uint64_t, 6> blackBitboards;  ///< One bitboard per `PieceType` for black,
                                                      ///< indexed by `PieceType` value.
 
-            mutable uint64_t _zobristHash;  ///< Cached Zobrist hash of this position.
-            mutable uint64_t _checkers;     ///< Cached bitboard for the checkers of this position.
+            uint64_t _zobristHash;       ///< Cached Zobrist hash of this position.
+            mutable uint64_t _checkers;  ///< Cached bitboard for the checkers of this position.
 
             mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
             uint64_t __padding;         ///< Unused padding, DO NOT SET.

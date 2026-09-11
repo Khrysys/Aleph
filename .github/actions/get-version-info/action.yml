@@ -1,0 +1,17 @@
+name: Validate Tag Creation
+description: Manages Release Tag Creation
+
+inputs:
+  ref:
+    description: ''
+    required: false
+    default: ''
+  
+
+runs:
+  using: composite
+  steps:
+    - name: Echo
+      shell: bash
+      run: echo 1
+    

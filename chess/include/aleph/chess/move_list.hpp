@@ -33,9 +33,9 @@ namespace aleph::chess {
             /** The type of the underlying container used to store the moves on the stack. */
             using storage_type   = std::array<Move, Capacity>;
             /** Iterator type, used for range-for loop support. */
-            using iterator       = typename storage_type::iterator;
+            using iterator       = storage_type::iterator;
             /** Constant iterator type, used for range-for loop support. */
-            using const_iterator = typename storage_type::const_iterator;
+            using const_iterator = storage_type::const_iterator;
 
             /** Constructs an empty move list. */
             constexpr MoveList() noexcept : _size(0) {}
@@ -43,82 +43,79 @@ namespace aleph::chess {
             // --- Capacity / size ---
 
             /** Returns the number of moves currently in the list. */
-            [[nodiscard]] constexpr inline std::size_t size() const noexcept { return _size; }
+            [[nodiscard]] constexpr std::size_t size() const noexcept { return _size; }
 
             /** Returns true if the list contains no moves. */
-            [[nodiscard]] constexpr inline bool empty() const noexcept { return _size == 0; }
+            [[nodiscard]] constexpr bool empty() const noexcept { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static inline std::size_t capacity() noexcept {
-                return Capacity;
-            }
+            [[nodiscard]] constexpr static std::size_t capacity() noexcept { return Capacity; }
 
             // --- Element access ---
 
             /** Returns a reference to the move at index `i`. Asserts bounds in debug builds. */
-            [[nodiscard]] constexpr inline Move& operator[](std::size_t i) noexcept {
-                DEBUG_ASSERT(i < _size);
-                return _moves[i];
+            [[nodiscard]] constexpr Move& operator[](std::size_t index) noexcept {
+                DEBUG_ASSERT(index < _size);
+                return _moves[index];
             }
 
             /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds.
              */
-            [[nodiscard]] constexpr inline const Move& operator[](std::size_t i) const noexcept {
-                DEBUG_ASSERT(i < _size);
-                return _moves[i];
+            [[nodiscard]] constexpr const Move& operator[](std::size_t index) const noexcept {
+                DEBUG_ASSERT(index < _size);
+                return _moves[index];
             }
 
             /**
              * Returns true if the list contains the given move.
              * Comparison is performed via `uint16_t` conversion.
              */
-            [[nodiscard]] constexpr inline bool contains(const Move& m) const noexcept {
-                for (std::size_t i = 0; i < _size; ++i)
-                    if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(m)) return true;
+            [[nodiscard]] constexpr bool contains(const Move& move) const noexcept {
+                for (std::size_t i = 0; i < _size; ++i) {
+                    if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(move)) {
+                        return true;
+                    }
+                }
                 return false;
             }
 
             // --- Modifiers ---
 
             /** Clears the list without deallocating storage. */
-            constexpr inline void clear() noexcept { _size = 0; }
+            constexpr void clear() noexcept { _size = 0; }
 
             /**
              * Appends a move to the list.
              * Asserts that capacity is not exceeded in debug builds.
              */
-            constexpr inline void push_back(const Move& m) noexcept {
+            constexpr void push_back(const Move& move) noexcept {
                 DEBUG_ASSERT(_size < Capacity);
-                _moves[_size++] = m;
+                _moves[_size++] = move;
             }
 
             // --- Iteration ---
 
             /** Accessor method to MoveList._moves.begin(). */
-            [[nodiscard]] constexpr inline iterator begin() noexcept { return _moves.begin(); }
+            [[nodiscard]] constexpr iterator begin() noexcept { return _moves.begin(); }
 
             /** Accessor method to MoveList._moves.end(). */
-            [[nodiscard]] constexpr inline iterator end() noexcept {
-                return _moves.begin() + _size;
-            }
+            [[nodiscard]] constexpr iterator end() noexcept { return _moves.begin() + _size; }
 
             /** Accessor method to MoveList._moves.begin(). */
-            [[nodiscard]] constexpr inline const_iterator begin() const noexcept {
-                return _moves.begin();
-            }
+            [[nodiscard]] constexpr const_iterator begin() const noexcept { return _moves.begin(); }
 
             /** Accessor method to MoveList._moves.end(). */
-            [[nodiscard]] constexpr inline const_iterator end() const noexcept {
+            [[nodiscard]] constexpr const_iterator end() const noexcept {
                 return _moves.begin() + _size;
             }
 
             /** Accessor method to MoveList._moves.cbegin(). */
-            [[nodiscard]] constexpr inline const_iterator cbegin() const noexcept {
+            [[nodiscard]] constexpr const_iterator cbegin() const noexcept {
                 return _moves.begin();
             }
 
             /** Accessor method to MoveList._moves.cend(). */
-            [[nodiscard]] constexpr inline const_iterator cend() const noexcept {
+            [[nodiscard]] constexpr const_iterator cend() const noexcept {
                 return _moves.begin() + _size;
             }
 
@@ -128,8 +125,8 @@ namespace aleph::chess {
              * Appends a single move to this list.
              * Asserts that capacity is not exceeded in debug builds.
              */
-            constexpr inline MoveList<Capacity>& operator+=(const Move& m) noexcept {
-                push_back(m);
+            constexpr MoveList<Capacity>& operator+=(const Move& move) noexcept {
+                push_back(move);
                 return *this;
             }
 
@@ -138,19 +135,20 @@ namespace aleph::chess {
              * Asserts that the combined size does not exceed capacity in debug builds.
              */
             template <std::size_t OtherCap>
-            constexpr inline MoveList<Capacity>& operator+=(
-                const MoveList<OtherCap>& other) noexcept {
+            constexpr MoveList<Capacity>& operator+=(const MoveList<OtherCap>& other) noexcept {
                 DEBUG_ASSERT(_size + other.size() <= Capacity);
-                for (std::size_t i = 0; i < other.size(); ++i) _moves[_size++] = other[i];
+                for (std::size_t i = 0; i < other.size(); ++i) {
+                    _moves[_size++] = other[i];
+                }
                 return *this;
             }
 
             // --- Operator + ---
 
             /** Returns a new list with the given move appended. */
-            [[nodiscard]] constexpr MoveList<Capacity> operator+(const Move& m) const noexcept {
+            [[nodiscard]] constexpr MoveList<Capacity> operator+(const Move& move) const noexcept {
                 MoveList result  = *this;
-                result          += m;
+                result          += move;
                 return result;
             }
 
@@ -182,11 +180,14 @@ template <std::size_t Capacity>
 struct fmt::formatter<aleph::chess::MoveList<Capacity>> {
         constexpr auto parse(fmt::format_parse_context& ctx) const { return ctx.begin(); }
 
-        auto format(const aleph::chess::MoveList<Capacity>& ml, fmt::format_context& ctx) const {
+        auto format(const aleph::chess::MoveList<Capacity>& moveList,
+                    fmt::format_context& ctx) const {
             auto out = ctx.out();
-            for (std::size_t i = 0; i < ml.size(); ++i) {
-                if (i > 0) out = fmt::format_to(out, " ");
-                out = fmt::format_to(out, "{}", ml[i]);
+            for (std::size_t i = 0; i < moveList.size(); ++i) {
+                if (i > 0) {
+                    out = fmt::format_to(out, " ");
+                }
+                out = fmt::format_to(out, "{}", moveList[i]);
             }
             return out;
         }

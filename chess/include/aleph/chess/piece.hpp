@@ -57,7 +57,7 @@ namespace aleph::chess {
              * Asserts that `type` is not `NONE` in debug builds.
              */
             constexpr Piece(PieceType type, bool isBlack)
-                : data(static_cast<uint8_t>(type + (6 * isBlack))) {}
+                : data(static_cast<uint8_t>(type + (6 * (int)isBlack))) {}
 
             /**
              * Constructs a piece from its FEN character representation.
@@ -71,25 +71,25 @@ namespace aleph::chess {
             }
 
             /** Returns the type of this piece, independent of color. */
-            [[nodiscard]] constexpr inline PieceType type() const noexcept {
+            [[nodiscard]] constexpr PieceType type() const noexcept {
                 return data == NONE ? NONE : static_cast<PieceType>(data % 6);
             }
 
             /** Returns true if this piece belongs to the black side. */
-            [[nodiscard]] constexpr inline bool isBlack() const noexcept { return data >= 6; }
+            [[nodiscard]] constexpr bool isBlack() const noexcept { return data >= 6; }
             /** Returns true if this piece belongs to the white side. */
-            [[nodiscard]] constexpr inline bool isWhite() const noexcept { return !isBlack(); }
+            [[nodiscard]] constexpr bool isWhite() const noexcept { return !isBlack(); }
 
             /**
              * Returns the lowercase FEN character for this piece type, e.g. 'p', 'n', 'k'.
              * Use `isupper` / `toupper` at the display layer for white pieces.
              */
-            [[nodiscard]] constexpr inline char toChar() const noexcept {
+            [[nodiscard]] constexpr char toChar() const noexcept {
                 return detail::PIECE_TYPE_CHARS[data];
             }
 
             /** Implicit conversion to `uint8_t` for use as a bitboard or move table index. */
-            constexpr inline operator std::uint8_t() const noexcept { return data; }
+            constexpr operator std::uint8_t() const noexcept { return data; }
 
         private:
             /**

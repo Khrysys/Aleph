@@ -9,6 +9,17 @@
 #include "../board.hpp"
 
 namespace aleph::chess {
+    namespace detail {
+        inline uint8_t getCastleIndex(uint32_t meta) {
+            uint8_t idx = 0;
+            if (meta & WHITE_KINGSIDE_CASTLE) idx |= 1;
+            if (meta & WHITE_QUEENSIDE_CASTLE) idx |= 2;
+            if (meta & BLACK_KINGSIDE_CASTLE) idx |= 4;
+            if (meta & BLACK_QUEENSIDE_CASTLE) idx |= 8;
+            return idx;
+        }
+    }  // namespace detail
+
     Board Board::push(Move m) const {
         DEBUG_ASSERT(isLegal(m));
 
@@ -86,6 +97,8 @@ namespace aleph::chess {
                                                  : static_cast<uint8_t>(to.rank() - 1);
                 Square capturedSq(capturedRank, to.file());
                 enemyBitboards[PAWN] &= ~(1ULL << static_cast<uint8_t>(capturedSq));
+
+                next._zobristHash    ^= zobrist.pieces[Piece(PAWN, !blackTurn)][capturedSq];
             }
         }
 
@@ -119,9 +132,35 @@ namespace aleph::chess {
             next.metadata  = (next.metadata & ~HALF_MOVE_CLOCK) | ((clock << 9) & HALF_MOVE_CLOCK);
         }
 
-        next.metadata ^= BLACK_TO_MOVE;
+        if (m.hasPromo()) {
+            next._zobristHash ^= zobrist.pieces[Piece(m.promo(), blackTurn)][toIdx];
+        } else {
+            next._zobristHash ^= zobrist.pieces[Piece(movingPiece, blackTurn)][toIdx];
+        }
+
+        if (metadata & EN_PASSANT_VALID) {
+            uint8_t file       = metadata & EN_PASSANT_FILE_MASK;
+            next._zobristHash ^= zobrist.enPassant[file];
+        }
+
+        if (metadata & EN_PASSANT_VALID) {
+            uint8_t file       = metadata & EN_PASSANT_FILE_MASK;
+            next._zobristHash ^= zobrist.enPassant[file];
+        }
+
+        uint8_t oldCastle  = detail::getCastleIndex(metadata);
+        next._zobristHash ^= zobrist.castling[oldCastle];
+
+        uint8_t newCastle  = detail::getCastleIndex(next.metadata);
+        next._zobristHash ^= zobrist.castling[newCastle];
+
+        next.metadata     ^= BLACK_TO_MOVE;
         // Clear Cache
-        next.metadata &= ~CACHED_CHECKERS_VALID;
+        next.metadata     &= ~CACHED_CHECKERS_VALID;
+
+        // Zobrist Hash
+        next._zobristHash ^= zobrist.sideToMove;
+        next._zobristHash ^= zobrist.pieces[Piece(movingPiece, blackTurn)][fromIdx];
 
         return next;
     }

@@ -55,3 +55,5 @@ make html
 # Windows may want the following instead:
 # ./make html
 ```
+
+Additionally, the documentation is built automatically alongside Aleph itself in HTML format. 

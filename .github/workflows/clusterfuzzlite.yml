@@ -1,0 +1,103 @@
+name: ClusterFuzzLite
+
+on:
+  workflow_call:
+
+permissions:
+  contents: none
+
+jobs:
+  clusterfuzzlite:
+    name: ClusterFuzzLite (${{ matrix.mode }}, ${{ matrix.sanitizer }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: ClusterFuzzLite-${{ matrix.mode }}-${{ matrix.sanitizer }}-${{ github.ref }}
+      cancel-in-progress: false
+
+    strategy:
+      matrix:
+        sanitizer: 
+          - address
+          - memory
+          - undefined
+        mode:
+          - batch
+          - prune
+        include:
+          - sanitizer: coverage
+            mode: coverage
+      fail-fast: true
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+        
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Build ClusterFuzzLite
+        id: build
+        uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ github.token }}
+          language: c++
+          sanitizer: ${{ matrix.sanitizer }}
+
+      - name: Run ClusterFuzzLite
+        uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ github.token }}
+          fuzz-seconds: 600
+          mode: ${{ matrix.mode }}
+          sanitizer: ${{ matrix.sanitizer }}
+
+  clusterfuzzlite-code-change:
+    name: ClusterFuzzLite (code-change, ${{ matrix.sanitizer }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: ClusterFuzzLite-code-change-${{ matrix.sanitizer }}-${{ github.ref }}
+      cancel-in-progress: false
+
+    strategy:
+      matrix:
+        sanitizer:
+          - address
+          - memory
+          - undefined
+      fail-fast: true
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+        
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Build ClusterFuzzLite
+        id: build
+        uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ github.token }}
+          language: c++
+          sanitizer: ${{ matrix.sanitizer }}
+
+      - name: Run ClusterFuzzLite
+        id: run
+        uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ github.token }}
+          fuzz-seconds: 150
+          mode: code-change
+          sanitizer: ${{ matrix.sanitizer }}

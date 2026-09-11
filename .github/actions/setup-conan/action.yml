@@ -2,10 +2,14 @@ name: Setup Conan
 description: Install Conan and restore cache
 
 inputs:
-  cache-key:
+  compiler:
     description: Additional cache key component
-    required: false
-    default: ''
+    required: true
+    
+outputs:
+  conan-home:
+    description: Conan cache directory
+    value: ${{ steps.get-conan-home.outputs.conan-home }}
 
 runs:
   using: composite
@@ -14,20 +18,24 @@ runs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: '3.12'
+        cache: 'pip'
 
     - name: Install Conan
       shell: bash
       run: pip install -r .github/requirements/conan.txt --require-hashes
 
+    - name: Get Conan Home
+      shell: bash
+      id: get-conan-home
+      run: echo "conan-home=$(conan config home)" >> $GITHUB_OUTPUT
+
     - name: Cache Conan packages
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
-        path: ~/.conan2/p
-        key: conan-${{runner.os}}-${{ inputs.cache-key }}-${{ hashFiles('conanfile.py') }}
+        path: ${{ steps.get-conan-home.outputs.conan-home }}/p
+        key: conan-${{ runner.os }}-${{ inputs.compiler }}-${{ hashFiles('conanfile.py') }}
         restore-keys: |
-          conan-${{ inputs.cache-key }}-
+          conan-${{ runner.os }}-${{ inputs.compiler }}-
+          conan-${{ runner.os }}-
           conan--
-
-    - name: Detect Conan profile
-      shell: bash
-      run: conan profile detect --force
+          
