@@ -1,17 +1,121 @@
 name: Validate Tag Creation
-description: Manages Release Tag Creation
+description: Validates version info and PR title for release tag creation
 
 inputs:
-  ref:
-    description: ''
+  pr-title:
+    description: PR title to validate against release format
     required: false
     default: ''
-  
+
+outputs:
+  valid:
+    description: Whether all validations passed
+    value: ${{ steps.result.outputs.valid }}
+  version:
+    description: Version string extracted from CMakeLists.txt (e.g. 1.0.0.0)
+    value: ${{ steps.version.outputs.version }}
+  tag:
+    description: Tag string (e.g. v1.0.0.0)
+    value: ${{ steps.version.outputs.tag }}
+  prerelease:
+    description: Whether this is a prerelease version
+    value: ${{ steps.version.outputs.prerelease }}
+  release-name:
+    description: Human readable release name (e.g. Aleph v1.0.0.0)
+    value: ${{ steps.version.outputs.release-name }}
 
 runs:
   using: composite
   steps:
-    - name: Echo
+    - name: Validate PR Title Format
+      if: inputs.pr-title != ''
+      id: title
       shell: bash
-      run: echo 1
-    
+      run: |
+        title="${{ inputs.pr-title }}"
+        if ! echo "$title" | grep -qP '^release[!]?: v\d+\.\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$'; then
+          echo "::error::PR title '${title}' does not match required format: release[!]: v<major>.<minor>.<patch>.<tweak>[-prerelease]"
+          exit 1
+        fi
+        title_version=$(echo "$title" | grep -oP 'v\K[\d]+\.[\d]+\.[\d]+\.[\d]+(-[a-zA-Z0-9]+)?')
+        echo "title_version=${title_version}" >> $GITHUB_OUTPUT
+
+    - name: Extract Version from CMakeLists.txt
+      id: version
+      shell: bash
+      run: |
+        version=$(grep -oP 'project\s*\(\s*\w+.*VERSION\s+\K[^\s)]+' CMakeLists.txt)
+        if [ -z "$version" ]; then
+          echo "::error::Could not extract version from CMakeLists.txt"
+          exit 1
+        fi
+        echo "version=${version}" >> $GITHUB_OUTPUT
+        echo "tag=v${version}" >> $GITHUB_OUTPUT
+        echo "release-name=Aleph v${version}" >> $GITHUB_OUTPUT
+
+        if echo "$version" | grep -qP '\-[a-zA-Z0-9]+$'; then
+          echo "prerelease=true" >> $GITHUB_OUTPUT
+        else
+          echo "prerelease=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Validate Title Version Matches CMakeLists.txt
+      if: inputs.pr-title != ''
+      shell: bash
+      run: |
+        if [ "${{ steps.title.outputs.title_version }}" != "${{ steps.version.outputs.version }}" ]; then
+          echo "::error::PR title version '${{ steps.title.outputs.title_version }}' \
+            does not match CMakeLists.txt version '${{ steps.version.outputs.version }}'"
+          exit 1
+        fi
+
+    - name: Validate Tag Does Not Already Exist
+      shell: bash
+      run: |
+        if git tag --list | grep -q "^${{ steps.version.outputs.tag }}$"; then
+          echo "::error::Tag ${{ steps.version.outputs.tag }} already exists."
+          exit 1
+        fi
+
+    - name: Validate Version Continuity
+      id: continuity
+      shell: bash
+      run: |
+        version="${{ steps.version.outputs.version }}"
+        major=$(echo "$version" | grep -oP '^\d+')
+        minor=$(echo "$version" | grep -oP '(?<=\.)\d+' | sed -n '1p')
+        patch=$(echo "$version" | grep -oP '(?<=\.)\d+' | sed -n '2p')
+        tweak=$(echo "$version" | grep -oP '(?<=\.)\d+' | sed -n '3p')
+        prerelease=$(echo "$version" | grep -oP '(?<=-)[a-zA-Z0-9]+$' || true)
+
+        echo "Validating: major=$major minor=$minor patch=$patch tweak=$tweak prerelease=${prerelease:-none}"
+
+        if [ "$tweak" -gt 0 ]; then
+          required="v${major}.${minor}.${patch}.$((tweak - 1))"
+          if ! git tag --list | grep -q "^${required}$"; then
+            echo "::error::Version $version requires ${required} to exist first."
+            exit 1
+          fi
+        elif [ "$patch" -gt 0 ]; then
+          required="v${major}.${minor}.$((patch - 1)).0"
+          if ! git tag --list | grep -q "^${required}$"; then
+            echo "::error::Version $version requires ${required} to exist first."
+            exit 1
+          fi
+        elif [ "$minor" -gt 0 ]; then
+          required="v${major}.$((minor - 1)).0.0"
+          if ! git tag --list | grep -q "^${required}$"; then
+            echo "::error::Version $version requires ${required} to exist first."
+            exit 1
+          fi
+        elif [ "$major" -gt 0 ]; then
+          required="v$((major - 1)).0.0.0"
+          if ! git tag --list | grep -q "^${required}$"; then
+            echo "::error::Version $version requires ${required} to exist first."
+            exit 1
+          fi
+        fi
+
+        if [ -n "$prerelease" ]; then
+          echo "Prerelease version — will not count as release version for continuity purposes."
+        fi

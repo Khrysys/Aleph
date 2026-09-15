@@ -1,0 +1,60 @@
+name: Aleph Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - staging
+
+permissions: 
+  contents: none
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzzing:
+    name: ClusterFuzzLite (${{ matrix.sanitizer }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sanitizer:
+        - address
+        # - undefined
+        # - memory
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Build ClusterFuzzLite
+        id: build
+        uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ secrets.KHRYSYS_CFL_STORAGE_TOKEN }}
+          language: c++
+          sanitizer: ${{ matrix.sanitizer }}
+
+      - name: Run ClusterFuzzLite
+        uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ secrets.KHRYSYS_CFL_STORAGE_TOKEN }}
+          fuzz-seconds: 600
+          mode: code-change
+          sanitizer: ${{ matrix.sanitizer }}
+          output-sarif: true
+          storage-repo: https://${{ secrets.KHRYSYS_CFL_STORAGE_TOKEN }}@github.com/Khrysys/AlephCorpusStorage.git
+          storage-repo-branch: main   # Optional. Defaults to "main"
+          storage-repo-branch-coverage: gh-pages  # Optional. Defaults to "gh-pages".
+    

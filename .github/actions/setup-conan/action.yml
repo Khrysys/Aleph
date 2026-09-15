@@ -36,6 +36,4 @@ runs:
         key: conan-${{ runner.os }}-${{ inputs.compiler }}-${{ hashFiles('conanfile.py') }}
         restore-keys: |
           conan-${{ runner.os }}-${{ inputs.compiler }}-
-          conan-${{ runner.os }}-
-          conan--
           

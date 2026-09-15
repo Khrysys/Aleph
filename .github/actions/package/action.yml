@@ -1,14 +1,27 @@
 name: Package
 description: Package Aleph
 
+inputs:
+  source:
+    description: Whether to package sources or to package binaries.
+    required: true
+
 runs:
   using: composite
   steps:
-    - name: Package
+    - name: Package Binaries
+      if: inputs.source
       shell: bash
       working-directory: build/Release
       run: |
         cpack
+
+    - name: Package Source
+      if: inputs.source
+      shell: bash
+      working-directory: build/Release
+      run: |
+        cpack --config build/CPackSourceConfig.cmake
 
     - name: Attest Binary Package
       uses: actions/attest@v4
