@@ -1,4 +1,4 @@
-name: Aleph Build
+name: Aleph PR Review
 
 on:
   push:
