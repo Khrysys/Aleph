@@ -9,18 +9,21 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "../board.hpp"
+#include "../piece.hpp"
+#include "../square.hpp"
 #include "../zobrist.hpp"
 
 namespace aleph::chess {
     namespace detail {
-        constexpr std::size_t FEN_MAX_FIELDS = 6;
-
-        inline auto splitFENFields(std::string_view fen) {
+        inline auto splitFENFields(std::string_view fen) -> std::array<std::string_view, 6> {
             // Initialize all fields with ''
-            std::array<std::string_view, FEN_MAX_FIELDS> fields{
+            std::array<std::string_view, 6> fields{
                 {"", "", "", "", "", ""}
             };
 
@@ -48,13 +51,14 @@ namespace aleph::chess {
             return fields;
         }
 
-        inline auto placePieces(std::string_view pieceField) {
+        inline auto placePieces(std::string_view pieceField)
+            -> std::pair<std::array<std::uint64_t, 6ULL>, std::array<std::uint64_t, 6ULL>> {
             std::pair<std::array<std::uint64_t, 6>, std::array<std::uint64_t, 6>> bitboards{};
 
             std::size_t rankIdx = 7;
             std::size_t fileIdx = 0;
 
-            for (char c : pieceField) {
+            for (const char c : pieceField) {
                 if (c == '/') {
                     if (fileIdx != 8 || rankIdx == 0) {
                         throw std::invalid_argument("FEN board would not be 8x8");
@@ -75,9 +79,9 @@ namespace aleph::chess {
                         throw std::invalid_argument("FEN rank exceeds 8 squares");
                     }
 
-                    Piece piece(c);
-                    Square square(static_cast<std::uint8_t>(rankIdx),
-                                  static_cast<std::uint8_t>(fileIdx));
+                    const Piece piece(c);
+                    const Square square(static_cast<std::uint8_t>(rankIdx),
+                                        static_cast<std::uint8_t>(fileIdx));
                     std::uint64_t bit = 1ULL << static_cast<std::uint8_t>(square);
 
                     if (piece.isBlack()) {
@@ -140,7 +144,8 @@ namespace aleph::chess {
             throw std::invalid_argument("FEN has too many black pieces");
         }
 
-        uint64_t allWhite = 0, allBlack = 0;
+        std::uint64_t allWhite = 0;
+        std::uint64_t allBlack = 0;
         for (int i = 0; i < 6; i++) {
             if ((whiteBitboards[i] & allWhite) != 0) {
                 throw std::invalid_argument("FEN has overlapping white pieces");
@@ -164,55 +169,57 @@ namespace aleph::chess {
 
         // --- Field 3: Castling rights ---
         {
-            constexpr uint64_t WHITE_KING_START = 1ULL << static_cast<uint8_t>(Square(0, 4));
-            constexpr uint64_t WHITE_KS_ROOK    = 1ULL << static_cast<uint8_t>(Square(0, 7));
-            constexpr uint64_t WHITE_QS_ROOK    = 1ULL << static_cast<uint8_t>(Square(0, 0));
-            constexpr uint64_t BLACK_KING_START = 1ULL << static_cast<uint8_t>(Square(7, 4));
-            constexpr uint64_t BLACK_KS_ROOK    = 1ULL << static_cast<uint8_t>(Square(7, 7));
-            constexpr uint64_t BLACK_QS_ROOK    = 1ULL << static_cast<uint8_t>(Square(7, 0));
+            constexpr std::uint64_t WHITE_KING_START = 1ULL
+                                                       << static_cast<std::uint8_t>(Square(0, 4));
+            constexpr std::uint64_t WHITE_KS_ROOK = 1ULL << static_cast<std::uint8_t>(Square(0, 7));
+            constexpr std::uint64_t WHITE_QS_ROOK = 1ULL << static_cast<std::uint8_t>(Square(0, 0));
+            constexpr std::uint64_t BLACK_KING_START = 1ULL
+                                                       << static_cast<std::uint8_t>(Square(7, 4));
+            constexpr std::uint64_t BLACK_KS_ROOK = 1ULL << static_cast<std::uint8_t>(Square(7, 7));
+            constexpr std::uint64_t BLACK_QS_ROOK = 1ULL << static_cast<std::uint8_t>(Square(7, 0));
 
             if (fields[2] != "-") {
-                for (char c : fields[2]) {
+                for (const char c : fields[2]) {
                     switch (c) {
                         case 'K':
-                            if (!(whiteBitboards[KING] & WHITE_KING_START)) {
+                            if ((whiteBitboards[KING] & WHITE_KING_START) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims white kingside castling but king not on e1");
                             }
-                            if (!(whiteBitboards[ROOK] & WHITE_KS_ROOK)) {
+                            if ((whiteBitboards[ROOK] & WHITE_KS_ROOK) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims white kingside castling but rook not on h1");
                             }
                             metadata |= WHITE_KINGSIDE_CASTLE;
                             break;
                         case 'Q':
-                            if (!(whiteBitboards[KING] & WHITE_KING_START)) {
+                            if ((whiteBitboards[KING] & WHITE_KING_START) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims white queenside castling but king not on e1");
                             }
-                            if (!(whiteBitboards[ROOK] & WHITE_QS_ROOK)) {
+                            if ((whiteBitboards[ROOK] & WHITE_QS_ROOK) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims white queenside castling but rook not on a1");
                             }
                             metadata |= WHITE_QUEENSIDE_CASTLE;
                             break;
                         case 'k':
-                            if (!(blackBitboards[KING] & BLACK_KING_START)) {
+                            if ((blackBitboards[KING] & BLACK_KING_START) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims black kingside castling but king not on e8");
                             }
-                            if (!(blackBitboards[ROOK] & BLACK_KS_ROOK)) {
+                            if ((blackBitboards[ROOK] & BLACK_KS_ROOK) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims black kingside castling but rook not on h8");
                             }
                             metadata |= BLACK_KINGSIDE_CASTLE;
                             break;
                         case 'q':
-                            if (!(blackBitboards[KING] & BLACK_KING_START)) {
+                            if ((blackBitboards[KING] & BLACK_KING_START) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims black queenside castling but king not on e8");
                             }
-                            if (!(blackBitboards[ROOK] & BLACK_QS_ROOK)) {
+                            if ((blackBitboards[ROOK] & BLACK_QS_ROOK) == 0) {
                                 throw std::invalid_argument(
                                     "FEN claims black queenside castling but rook not on a8");
                             }
@@ -233,8 +240,8 @@ namespace aleph::chess {
                     throw std::invalid_argument("FEN en passant field must be a square or '-'");
                 }
 
-                uint8_t file = static_cast<uint8_t>(fields[3][0] - 'a');
-                uint8_t rank = static_cast<uint8_t>(fields[3][1] - '1');
+                auto file = static_cast<std::uint8_t>(fields[3][0] - 'a');
+                auto rank = static_cast<std::uint8_t>(fields[3][1] - '1');
 
                 if (file > 7) {
                     throw std::invalid_argument("FEN en passant file is invalid");
@@ -255,14 +262,15 @@ namespace aleph::chess {
                 }
 
                 // There must be a pawn on the rank it landed on after the double push.
-                uint64_t pawnBit = isBlackTurn() ? 1ULL << static_cast<uint8_t>(Square(3, file))
-                                                 : 1ULL << static_cast<uint8_t>(Square(4, file));
+                std::uint64_t pawnBit = isBlackTurn()
+                                            ? 1ULL << static_cast<std::uint8_t>(Square(3, file))
+                                            : 1ULL << static_cast<std::uint8_t>(Square(4, file));
 
-                if (isBlackTurn() && !(whiteBitboards[PAWN] & pawnBit)) {
+                if (isBlackTurn() && (whiteBitboards[PAWN] & pawnBit) == 0) {
                     throw std::invalid_argument(
                         "FEN en passant square is invalid: no white pawn on expected square");
                 }
-                if (isWhiteTurn() && !(blackBitboards[PAWN] & pawnBit)) {
+                if (isWhiteTurn() && (blackBitboards[PAWN] & pawnBit) == 0) {
                     throw std::invalid_argument(
                         "FEN en passant square is invalid: no black pawn on expected square");
                 }
@@ -273,12 +281,13 @@ namespace aleph::chess {
         }
 
         // --- Field 5: Halfmove clock (optional) ---
-        if (fields[4] != "") {
-            uint32_t halfmove = 0;
-            for (char c : fields[4]) {
-                if (c < '0' || c > '9')
+        if (!fields[4].empty()) {
+            std::uint32_t halfmove = 0;
+            for (const char c : fields[4]) {
+                if (c < '0' || c > '9') {
                     throw std::invalid_argument("FEN halfmove clock is not a valid integer");
-                halfmove = (halfmove * 10) + static_cast<uint32_t>(c - '0');
+                }
+                halfmove = (halfmove * 10) + static_cast<std::uint32_t>(c - '0');
             }
             if (halfmove > 100) {
                 throw std::invalid_argument("FEN halfmove clock exceeds 100");
@@ -287,8 +296,8 @@ namespace aleph::chess {
         }
 
         // --- Field 6: Fullmove number (parsed for validation only, not stored) ---
-        if (fields[5] != "") {
-            for (char c : fields[5]) {
+        if (!fields[5].empty()) {
+            for (const char c : fields[5]) {
                 if (c < '0' || c > '9') {
                     throw std::invalid_argument("FEN fullmove number is not a valid integer");
                 }
@@ -302,17 +311,17 @@ namespace aleph::chess {
             // Pieces
             for (int piece = 0; piece < 6; piece++) {
                 uint64_t bb = whiteBitboards[piece];
-                while (bb) {
-                    uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(bb));
-                    bb         &= bb - 1;
-                    hash       ^= zobrist.pieces[piece][sq];
+                while (bb != 0) {
+                    auto sq  = static_cast<uint8_t>(platform::tzcnt(bb));
+                    bb      &= bb - 1;
+                    hash    ^= zobrist.pieces[piece][sq];
                 }
 
                 bb = blackBitboards[piece];
-                while (bb) {
-                    uint8_t sq  = static_cast<uint8_t>(platform::tzcnt(bb));
-                    bb         &= bb - 1;
-                    hash       ^= zobrist.pieces[piece + 6][sq];
+                while (bb != 0) {
+                    auto sq  = static_cast<uint8_t>(platform::tzcnt(bb));
+                    bb      &= bb - 1;
+                    hash    ^= zobrist.pieces[piece + 6][sq];
                 }
             }
 
@@ -323,17 +332,25 @@ namespace aleph::chess {
 
             // Castling rights (encode as 4-bit index)
             uint8_t castleIndex = 0;
-            if (metadata & WHITE_KINGSIDE_CASTLE) castleIndex |= 1;
-            if (metadata & WHITE_QUEENSIDE_CASTLE) castleIndex |= 2;
-            if (metadata & BLACK_KINGSIDE_CASTLE) castleIndex |= 4;
-            if (metadata & BLACK_QUEENSIDE_CASTLE) castleIndex |= 8;
+            if ((metadata & WHITE_KINGSIDE_CASTLE) != 0) {
+                castleIndex |= 1;
+            }
+            if ((metadata & WHITE_QUEENSIDE_CASTLE) != 0) {
+                castleIndex |= 2;
+            }
+            if ((metadata & BLACK_KINGSIDE_CASTLE) != 0) {
+                castleIndex |= 4;
+            }
+            if ((metadata & BLACK_QUEENSIDE_CASTLE) != 0) {
+                castleIndex |= 8;
+            }
 
             hash ^= zobrist.castling[castleIndex];
 
             // En passant
-            if (metadata & EN_PASSANT_VALID) {
-                uint8_t file  = metadata & EN_PASSANT_FILE_MASK;
-                hash         ^= zobrist.enPassant[file];
+            if ((metadata & EN_PASSANT_VALID) != 0) {
+                std::uint8_t file  = metadata & EN_PASSANT_FILE_MASK;
+                hash              ^= zobrist.enPassant[file];
             }
 
             _zobristHash = hash;
@@ -343,8 +360,9 @@ namespace aleph::chess {
         // The side that just moved must not be in check. Temporarily flip side to move
         // so that getCheckers() evaluates from the non-moving side's perspective.
         metadata ^= BLACK_TO_MOVE;
-        if (platform::popcnt(getCheckers() != 0))
+        if (platform::popcnt(getCheckers()) != 0) {
             throw std::invalid_argument("FEN has the non-moving side in check");
+        }
         metadata ^= BLACK_TO_MOVE;
     }
 

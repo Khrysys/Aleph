@@ -8,12 +8,7 @@
 
 #include <array>
 #include <cstdint>
-#include <string>
 #include <string_view>
-
-#include <libassert/assert.hpp>
-
-#include <aleph/platform.hpp>
 
 #include "move.hpp"
 #include "move_list.hpp"
@@ -107,7 +102,7 @@ namespace aleph::chess {
              * `NONE` if the square is empty. Checks occupancy first to avoid scanning
              * all twelve bitboards on empty squares.
              */
-            [[nodiscard]] inline Piece get(Square square) const;
+            [[nodiscard]] inline auto get(Square square) const -> Piece;
 
             /**
              * Returns a new board with the given move applied.
@@ -123,9 +118,7 @@ namespace aleph::chess {
              * The halfmove clock is reset on pawn moves and captures, incremented
              * otherwise. The cache is fully invalidated on the returned board.
              */
-            [[nodiscard]] inline Board push(Move move) const;
-
-            // --- Move generation ---
+            [[nodiscard]] inline auto push(Move move) const -> Board;
 
             /**
              * Returns the list of fully legal moves from this position.
@@ -138,7 +131,7 @@ namespace aleph::chess {
              * legality conditions. An empty list indicates checkmate or stalemate;
              * callers must distinguish between the two by checking `getCheckers()`.
              */
-            [[nodiscard]] inline MoveList<256> getLegalMoves() const;
+            [[nodiscard]] inline auto getLegalMoves() const -> MoveList<256>;
 
             /**
              * Returns a superset of legal moves from this position.
@@ -153,7 +146,7 @@ namespace aleph::chess {
              * path between king and rook is clear; check and pass-through square
              * validation is deferred to `isLegalFast()`.
              */
-            [[nodiscard]] inline MoveList<512> getPseudoLegalMoves() const;
+            [[nodiscard]] inline auto getPseudoLegalMoves() const -> MoveList<512>;
 
             /**
              * Returns true if the given move is legal in this position.
@@ -164,7 +157,7 @@ namespace aleph::chess {
              * `getLegalMoves()` which amortizes the pseudo-legal generation cost
              * across all moves.
              */
-            [[nodiscard]] inline bool isLegal(Move move) const;
+            [[nodiscard]] inline auto isLegal(Move move) const -> bool;
 
             /**
              * Returns true if the given move is legal in this position.
@@ -182,71 +175,67 @@ namespace aleph::chess {
              * for the captured pawn's removal when evaluating king safety. The final king
              * safety check uses a post-move enemy bitboard with the captured piece removed.
              */
-            [[nodiscard]] inline bool isLegalFast(Move move) const;
-
-            // --- Metadata accessors ---
+            [[nodiscard]] inline auto isLegalFast(Move move) const -> bool;
 
             /** Returns true if it is black's turn to move. */
-            [[nodiscard]] inline bool isBlackTurn() const;
+            [[nodiscard]] inline auto isBlackTurn() const -> bool;
 
             /** Returns true if it is white's turn to move. */
-            [[nodiscard]] inline bool isWhiteTurn() const;
+            [[nodiscard]] inline auto isWhiteTurn() const -> bool;
 
             /** Returns true if white retains kingside castling rights. */
-            [[nodiscard]] inline bool canWhiteKingsideCastle() const;
+            [[nodiscard]] inline auto canWhiteKingsideCastle() const -> bool;
 
             /** Returns true if white retains queenside castling rights. */
-            [[nodiscard]] inline bool canWhiteQueensideCastle() const;
+            [[nodiscard]] inline auto canWhiteQueensideCastle() const -> bool;
 
             /** Returns true if black retains kingside castling rights. */
-            [[nodiscard]] inline bool canBlackKingsideCastle() const;
+            [[nodiscard]] inline auto canBlackKingsideCastle() const -> bool;
 
             /** Returns true if black retains queenside castling rights. */
-            [[nodiscard]] inline bool canBlackQueensideCastle() const;
+            [[nodiscard]] inline auto canBlackQueensideCastle() const -> bool;
 
             /** Returns true if an en passant capture is available on this turn. */
-            [[nodiscard]] inline bool isEnPassantValid() const;
+            [[nodiscard]] inline auto isEnPassantValid() const -> bool;
 
             /**
              * Returns the file index (0-7) of the en passant target square.
              * Only meaningful when `isEnPassantValid()` returns true.
              */
-            [[nodiscard]] inline std::uint8_t getEnPassantFile() const;
+            [[nodiscard]] inline auto getEnPassantFile() const -> std::uint8_t;
 
             /** Returns the current halfmove clock value in [0, 100]. */
-            [[nodiscard]] inline std::uint8_t getHalfMoveClock() const;
-
-            // --- Cached derived values ---
+            [[nodiscard]] inline auto getHalfMoveClock() const -> std::uint8_t;
 
             /**
              * Returns the combined occupancy of all pieces on the board.
              * Result is cached after the first call and invalidated by `push()`.
              */
-            [[nodiscard]] inline uint64_t getOccupancy() const;
+            [[nodiscard]] inline auto getOccupancy() const noexcept -> std::uint64_t;
 
             /**
              * Returns the occupancy of all white pieces.
              * Result is cached after the first call and invalidated by `push()`.
              */
-            [[nodiscard]] inline uint64_t getWhiteOccupancy() const;
+            [[nodiscard]] inline auto getWhiteOccupancy() const noexcept -> std::uint64_t;
 
             /**
              * Returns the occupancy of all black pieces.
              * Result is cached after the first call and invalidated by `push()`.
              */
-            [[nodiscard]] inline uint64_t getBlackOccupancy() const;
+            [[nodiscard]] inline auto getBlackOccupancy() const noexcept -> std::uint64_t;
 
             /**
              * Returns the current white bitboards.
              */
-            [[nodiscard]] std::array<uint64_t, 6> getWhiteBitboards() const {
+            [[nodiscard]] auto getWhiteBitboards() const noexcept -> std::array<std::uint64_t, 6> {
                 return whiteBitboards;
             }
 
             /**
              * Returns the current black bitboards.
              */
-            [[nodiscard]] std::array<uint64_t, 6> getBlackBitboards() const {
+            [[nodiscard]] auto getBlackBitboards() const noexcept -> std::array<uint64_t, 6> {
                 return blackBitboards;
             }
 
@@ -254,12 +243,12 @@ namespace aleph::chess {
              * Returns a bitboard of where the current pieces of the opponent's are that are
              * checking the side to move's king.
              */
-            [[nodiscard]] inline uint64_t getCheckers() const;
+            [[nodiscard]] inline auto getCheckers() const -> std::uint64_t;
 
             /**
              * Returns the current zobrist hash of the position.
              */
-            [[nodiscard]] inline uint64_t getHash() const;
+            [[nodiscard]] inline auto getHash() const -> std::uint64_t;
 
         private:
             std::array<uint64_t, 6> whiteBitboards;  ///< One bitboard per `PieceType` for white,
@@ -271,11 +260,12 @@ namespace aleph::chess {
             mutable uint64_t _checkers;  ///< Cached bitboard for the checkers of this position.
 
             mutable uint64_t metadata;  ///< Packed position metadata; see `BoardMetadataFlags`.
-            uint64_t __padding;         ///< Unused padding, DO NOT SET.
+            uint64_t _padding;          ///< Unused padding, DO NOT SET.
     };
 
     static_assert(sizeof(Board) == 128);
 
 }  // namespace aleph::chess
 
+// NOLINTNEXTLINE
 #include "board.inl"

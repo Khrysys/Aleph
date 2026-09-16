@@ -57,6 +57,17 @@ namespace aleph::platform {
             }
 
             /**
+             * @brief Returns a const reference to the element at `idx`.
+             *
+             * @param idx Zero-based index into the allocation. Asserted to be
+             *            within bounds in debug builds.
+             */
+            auto operator[](std::size_t idx) const -> T const& {
+                DEBUG_ASSERT(idx < getSize());
+                return ptr[idx];
+            }
+
+            /**
              * @brief Returns the number of `T` elements in this `SubAllocation`.
              */
             auto getSize() const noexcept { return size / sizeof(T); }

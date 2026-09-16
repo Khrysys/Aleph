@@ -6,12 +6,16 @@
  */
 #pragma once
 
+#include <cstdint>
+
 #include "../board.hpp"
+#include "../move.hpp"
+#include "../square.hpp"
 
 namespace aleph::chess {
     namespace detail {
-        inline uint8_t getCastleIndex(uint32_t meta) {
-            uint8_t idx = 0;
+        [[nodiscard]] inline auto getCastleIndex(std::uint32_t meta) -> std::uint8_t {
+            std::uint8_t idx = 0;
             if (meta & WHITE_KINGSIDE_CASTLE) idx |= 1;
             if (meta & WHITE_QUEENSIDE_CASTLE) idx |= 2;
             if (meta & BLACK_KINGSIDE_CASTLE) idx |= 4;
@@ -20,18 +24,18 @@ namespace aleph::chess {
         }
     }  // namespace detail
 
-    Board Board::push(Move m) const {
+    auto Board::push(Move m) const -> Board {
         DEBUG_ASSERT(isLegal(m));
 
         Board next            = *this;
 
-        Square from           = m.from();
+        Square const from     = m.from();
         Square to             = m.to();
 
-        uint8_t fromIdx       = static_cast<uint8_t>(from);
-        uint8_t toIdx         = static_cast<uint8_t>(to);
-        uint64_t fromBit      = 1ULL << fromIdx;
-        uint64_t toBit        = 1ULL << toIdx;
+        auto fromIdx          = static_cast<std::uint8_t>(from);
+        auto toIdx            = static_cast<std::uint8_t>(to);
+        std::uint64_t fromBit = 1ULL << fromIdx;
+        std::uint64_t toBit   = 1ULL << toIdx;
 
         bool blackTurn        = isBlackTurn();
 
@@ -46,16 +50,18 @@ namespace aleph::chess {
         next.metadata &= ~(EN_PASSANT_FILE_MASK | EN_PASSANT_VALID);
 
         // Remove any enemy piece on the destination square.
-        for (int i = 0; i < 6; i++) enemyBitboards[i] &= ~toBit;
+        for (int i = 0; i < 6; i++) {
+            enemyBitboards[i] &= ~toBit;
+        }
 
         // Vacate the origin square and place the piece on the destination.
         ownBitboards[movingPiece] &= ~fromBit;
-        if (m.hasPromo())
+        if (m.hasPromo()) {
             // Replace the pawn with the promoted piece type.
             ownBitboards[m.promo()] |= toBit;
-        else
+        } else {
             ownBitboards[movingPiece] |= toBit;
-
+        }
         // --- Castling ---
         // Detected contextually: a king moving exactly two files triggers rook relocation.
         // Castling rights in metadata are trusted as authoritative.
@@ -83,7 +89,7 @@ namespace aleph::chess {
         // Detected contextually: a pawn moving to a different file onto the en passant
         // square triggers removal of the captured pawn from the rank behind the target.
         if (movingPiece == PAWN) {
-            int8_t rankDelta = static_cast<int8_t>(to.rank()) - static_cast<int8_t>(from.rank());
+            auto rankDelta = static_cast<int8_t>(to.rank()) - static_cast<int8_t>(from.rank());
             if (rankDelta == 2 || rankDelta == -2) {
                 // Double push — record the en passant file for the opponent.
                 next.metadata |= EN_PASSANT_VALID;
@@ -93,9 +99,9 @@ namespace aleph::chess {
             if (isEP) {
                 // En passant capture — remove the captured pawn from the rank it sits on,
                 // which is one rank behind the destination from the moving side's perspective.
-                uint8_t capturedRank = blackTurn ? static_cast<uint8_t>(to.rank() + 1)
+                uint8_t const capturedRank = blackTurn ? static_cast<uint8_t>(to.rank() + 1)
                                                  : static_cast<uint8_t>(to.rank() - 1);
-                Square capturedSq(capturedRank, to.file());
+                Square const capturedSq(capturedRank, to.file());
                 enemyBitboards[PAWN] &= ~(1ULL << static_cast<uint8_t>(capturedSq));
 
                 next._zobristHash    ^= zobrist.pieces[Piece(PAWN, !blackTurn)][capturedSq];
@@ -112,12 +118,24 @@ namespace aleph::chess {
         constexpr uint8_t A8 = static_cast<uint8_t>(Square(7, 0));
         constexpr uint8_t H8 = static_cast<uint8_t>(Square(7, 7));
 
-        if (fromIdx == E1) next.metadata &= ~(WHITE_KINGSIDE_CASTLE | WHITE_QUEENSIDE_CASTLE);
-        if (fromIdx == E8) next.metadata &= ~(BLACK_KINGSIDE_CASTLE | BLACK_QUEENSIDE_CASTLE);
-        if (fromIdx == H1 || toIdx == H1) next.metadata &= ~WHITE_KINGSIDE_CASTLE;
-        if (fromIdx == A1 || toIdx == A1) next.metadata &= ~WHITE_QUEENSIDE_CASTLE;
-        if (fromIdx == H8 || toIdx == H8) next.metadata &= ~BLACK_KINGSIDE_CASTLE;
-        if (fromIdx == A8 || toIdx == A8) next.metadata &= ~BLACK_QUEENSIDE_CASTLE;
+        if (fromIdx == E1) {
+            next.metadata &= ~(WHITE_KINGSIDE_CASTLE | WHITE_QUEENSIDE_CASTLE);
+        }
+        if (fromIdx == E8) {
+            next.metadata &= ~(BLACK_KINGSIDE_CASTLE | BLACK_QUEENSIDE_CASTLE);
+        }
+        if (fromIdx == H1 || toIdx == H1) {
+            next.metadata &= ~WHITE_KINGSIDE_CASTLE;
+        }
+        if (fromIdx == A1 || toIdx == A1) {
+            next.metadata &= ~WHITE_QUEENSIDE_CASTLE;
+        }
+        if (fromIdx == H8 || toIdx == H8) {
+            next.metadata &= ~BLACK_KINGSIDE_CASTLE;
+        }
+        if (fromIdx == A8 || toIdx == A8) {
+            next.metadata &= ~BLACK_QUEENSIDE_CASTLE;
+        }
 
         // --- Halfmove clock ---
         // Capture detection reads from the original board's occupancy before any pieces
@@ -128,8 +146,8 @@ namespace aleph::chess {
         if (movingPiece == PAWN || isCapture) {
             next.metadata &= ~HALF_MOVE_CLOCK;
         } else {
-            uint32_t clock = getHalfMoveClock() + 1;
-            next.metadata  = (next.metadata & ~HALF_MOVE_CLOCK) | ((clock << 9) & HALF_MOVE_CLOCK);
+            uint32_t const clock = getHalfMoveClock() + 1;
+            next.metadata = (next.metadata & ~HALF_MOVE_CLOCK) | ((clock << 9) & HALF_MOVE_CLOCK);
         }
 
         if (m.hasPromo()) {
@@ -138,29 +156,29 @@ namespace aleph::chess {
             next._zobristHash ^= zobrist.pieces[Piece(movingPiece, blackTurn)][toIdx];
         }
 
-        if (metadata & EN_PASSANT_VALID) {
-            uint8_t file       = metadata & EN_PASSANT_FILE_MASK;
-            next._zobristHash ^= zobrist.enPassant[file];
+        if ((metadata & EN_PASSANT_VALID) != 0) {
+            uint8_t const file  = metadata & EN_PASSANT_FILE_MASK;
+            next._zobristHash  ^= zobrist.enPassant[file];
         }
 
-        if (metadata & EN_PASSANT_VALID) {
-            uint8_t file       = metadata & EN_PASSANT_FILE_MASK;
-            next._zobristHash ^= zobrist.enPassant[file];
+        if ((metadata & EN_PASSANT_VALID) != 0) {
+            uint8_t const file  = metadata & EN_PASSANT_FILE_MASK;
+            next._zobristHash  ^= zobrist.enPassant[file];
         }
 
-        uint8_t oldCastle  = detail::getCastleIndex(metadata);
-        next._zobristHash ^= zobrist.castling[oldCastle];
+        uint8_t const oldCastle  = detail::getCastleIndex(metadata);
+        next._zobristHash       ^= zobrist.castling[oldCastle];
 
-        uint8_t newCastle  = detail::getCastleIndex(next.metadata);
-        next._zobristHash ^= zobrist.castling[newCastle];
+        uint8_t const newCastle  = detail::getCastleIndex(next.metadata);
+        next._zobristHash       ^= zobrist.castling[newCastle];
 
-        next.metadata     ^= BLACK_TO_MOVE;
+        next.metadata           ^= BLACK_TO_MOVE;
         // Clear Cache
-        next.metadata     &= ~CACHED_CHECKERS_VALID;
+        next.metadata           &= ~CACHED_CHECKERS_VALID;
 
         // Zobrist Hash
-        next._zobristHash ^= zobrist.sideToMove;
-        next._zobristHash ^= zobrist.pieces[Piece(movingPiece, blackTurn)][fromIdx];
+        next._zobristHash       ^= zobrist.sideToMove;
+        next._zobristHash       ^= zobrist.pieces[Piece(movingPiece, blackTurn)][fromIdx];
 
         return next;
     }

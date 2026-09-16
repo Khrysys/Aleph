@@ -2,8 +2,6 @@
 
 cd $SRC/aleph
 
-CONAN_HOME=/etc/.conan2
-
 pip3 install -r .github/requirements/conan.txt --require-hashes
 conan profile detect
 

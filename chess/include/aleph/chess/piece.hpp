@@ -7,7 +7,6 @@
 #pragma once
 
 #include <cstdint>
-#include <locale>
 #include <string_view>
 
 #include <fmt/format.h>
@@ -57,7 +56,7 @@ namespace aleph::chess {
              * Asserts that `type` is not `NONE` in debug builds.
              */
             constexpr Piece(PieceType type, bool isBlack)
-                : data(static_cast<uint8_t>(type + (6 * (int)isBlack))) {}
+                : data(static_cast<uint8_t>(type + (6 * static_cast<int>(isBlack)))) {}
 
             /**
              * Constructs a piece from its FEN character representation.
@@ -71,20 +70,20 @@ namespace aleph::chess {
             }
 
             /** Returns the type of this piece, independent of color. */
-            [[nodiscard]] constexpr PieceType type() const noexcept {
+            [[nodiscard]] constexpr auto type() const noexcept -> PieceType {
                 return data == NONE ? NONE : static_cast<PieceType>(data % 6);
             }
 
             /** Returns true if this piece belongs to the black side. */
-            [[nodiscard]] constexpr bool isBlack() const noexcept { return data >= 6; }
+            [[nodiscard]] constexpr auto isBlack() const noexcept -> bool { return data >= 6; }
             /** Returns true if this piece belongs to the white side. */
-            [[nodiscard]] constexpr bool isWhite() const noexcept { return !isBlack(); }
+            [[nodiscard]] constexpr auto isWhite() const noexcept -> bool { return !isBlack(); }
 
             /**
              * Returns the lowercase FEN character for this piece type, e.g. 'p', 'n', 'k'.
              * Use `isupper` / `toupper` at the display layer for white pieces.
              */
-            [[nodiscard]] constexpr char toChar() const noexcept {
+            [[nodiscard]] constexpr auto toChar() const noexcept -> char {
                 return detail::PIECE_TYPE_CHARS[data];
             }
 

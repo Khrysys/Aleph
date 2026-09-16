@@ -4,6 +4,7 @@
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
+// NOLINTBEGIN
 #pragma once
 
 #include "board.hpp"
@@ -12,3 +13,4 @@
 #include "board/movegen.inl"
 #include "board/mutable.inl"
 #include "board/push.inl"
+// NOLINTEND

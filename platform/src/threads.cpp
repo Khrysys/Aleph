@@ -1,3 +1,10 @@
+/**
+ * @file src/threads.cpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include <thread>
 #include <type_traits>
 #include <tuple>

@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
@@ -38,30 +39,30 @@ namespace aleph::chess {
             using const_iterator = storage_type::const_iterator;
 
             /** Constructs an empty move list. */
-            constexpr MoveList() noexcept : _size(0) {}
+            constexpr MoveList() noexcept = default;
 
             // --- Capacity / size ---
 
             /** Returns the number of moves currently in the list. */
-            [[nodiscard]] constexpr std::size_t size() const noexcept { return _size; }
+            [[nodiscard]] constexpr auto size() const noexcept -> std::size_t { return _size; }
 
             /** Returns true if the list contains no moves. */
-            [[nodiscard]] constexpr bool empty() const noexcept { return _size == 0; }
+            [[nodiscard]] constexpr auto empty() const noexcept -> bool { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static std::size_t capacity() noexcept { return Capacity; }
+            [[nodiscard]] constexpr static auto capacity() noexcept -> std::size_t { return Capacity; }
 
             // --- Element access ---
 
             /** Returns a reference to the move at index `i`. Asserts bounds in debug builds. */
-            [[nodiscard]] constexpr Move& operator[](std::size_t index) noexcept {
+            [[nodiscard]] constexpr auto operator[](std::size_t index) noexcept -> Move& {
                 DEBUG_ASSERT(index < _size);
                 return _moves[index];
             }
 
             /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds.
              */
-            [[nodiscard]] constexpr const Move& operator[](std::size_t index) const noexcept {
+            [[nodiscard]] constexpr auto operator[](std::size_t index) const noexcept -> const Move& {
                 DEBUG_ASSERT(index < _size);
                 return _moves[index];
             }
@@ -70,7 +71,7 @@ namespace aleph::chess {
              * Returns true if the list contains the given move.
              * Comparison is performed via `uint16_t` conversion.
              */
-            [[nodiscard]] constexpr bool contains(const Move& move) const noexcept {
+            [[nodiscard]] constexpr auto contains(const Move& move) const noexcept -> bool {
                 for (std::size_t i = 0; i < _size; ++i) {
                     if (static_cast<uint16_t>(_moves[i]) == static_cast<uint16_t>(move)) {
                         return true;
@@ -96,26 +97,26 @@ namespace aleph::chess {
             // --- Iteration ---
 
             /** Accessor method to MoveList._moves.begin(). */
-            [[nodiscard]] constexpr iterator begin() noexcept { return _moves.begin(); }
+            [[nodiscard]] constexpr auto begin() noexcept -> iterator { return _moves.begin(); }
 
             /** Accessor method to MoveList._moves.end(). */
-            [[nodiscard]] constexpr iterator end() noexcept { return _moves.begin() + _size; }
+            [[nodiscard]] constexpr auto end() noexcept -> iterator { return _moves.begin() + _size; }
 
             /** Accessor method to MoveList._moves.begin(). */
-            [[nodiscard]] constexpr const_iterator begin() const noexcept { return _moves.begin(); }
+            [[nodiscard]] constexpr auto begin() const noexcept -> const_iterator { return _moves.begin(); }
 
             /** Accessor method to MoveList._moves.end(). */
-            [[nodiscard]] constexpr const_iterator end() const noexcept {
+            [[nodiscard]] constexpr auto end() const noexcept -> const_iterator {
                 return _moves.begin() + _size;
             }
 
             /** Accessor method to MoveList._moves.cbegin(). */
-            [[nodiscard]] constexpr const_iterator cbegin() const noexcept {
+            [[nodiscard]] constexpr auto cbegin() const noexcept -> const_iterator {
                 return _moves.begin();
             }
 
             /** Accessor method to MoveList._moves.cend(). */
-            [[nodiscard]] constexpr const_iterator cend() const noexcept {
+            [[nodiscard]] constexpr auto cend() const noexcept -> const_iterator {
                 return _moves.begin() + _size;
             }
 
@@ -125,7 +126,7 @@ namespace aleph::chess {
              * Appends a single move to this list.
              * Asserts that capacity is not exceeded in debug builds.
              */
-            constexpr MoveList<Capacity>& operator+=(const Move& move) noexcept {
+            constexpr auto operator+=(const Move& move) noexcept -> MoveList<Capacity>& {
                 push_back(move);
                 return *this;
             }
@@ -135,7 +136,7 @@ namespace aleph::chess {
              * Asserts that the combined size does not exceed capacity in debug builds.
              */
             template <std::size_t OtherCap>
-            constexpr MoveList<Capacity>& operator+=(const MoveList<OtherCap>& other) noexcept {
+            constexpr auto operator+=(const MoveList<OtherCap>& other) noexcept -> MoveList<Capacity>& {
                 DEBUG_ASSERT(_size + other.size() <= Capacity);
                 for (std::size_t i = 0; i < other.size(); ++i) {
                     _moves[_size++] = other[i];
@@ -146,7 +147,7 @@ namespace aleph::chess {
             // --- Operator + ---
 
             /** Returns a new list with the given move appended. */
-            [[nodiscard]] constexpr MoveList<Capacity> operator+(const Move& move) const noexcept {
+            [[nodiscard]] constexpr auto operator+(const Move& move) const noexcept -> MoveList<Capacity> {
                 MoveList result  = *this;
                 result          += move;
                 return result;
@@ -154,8 +155,8 @@ namespace aleph::chess {
 
             /** Returns a new list with all moves from `other` appended. */
             template <std::size_t OtherCap>
-            [[nodiscard]] constexpr MoveList operator+(
-                const MoveList<OtherCap>& other) const noexcept {
+            [[nodiscard]] constexpr auto operator+(
+                const MoveList<OtherCap>& other) const noexcept -> MoveList<Capacity> {
                 MoveList result  = *this;
                 result          += other;
                 return result;
@@ -165,7 +166,7 @@ namespace aleph::chess {
             /** Storage container for the moves in the move list. */
             storage_type _moves;
             /** Number of slots filled in the move list. */
-            std::size_t _size;
+            std::size_t _size = 0;
     };
 
 }  // namespace aleph::chess

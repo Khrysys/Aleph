@@ -4,6 +4,8 @@
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
+#include <string_view>
+
 #include <gtest/gtest.h>
 
 #include <aleph/chess/board.hpp>
@@ -11,19 +13,19 @@
 using namespace aleph::chess;
 
 static Move makeAlgebraicMove(std::string_view from, std::string_view to) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile));
+    std::uint8_t fromFile = from[0] - 'a';
+    std::uint8_t fromRank = from[1] - '1';
+    std::uint8_t toFile   = to[0] - 'a';
+    std::uint8_t toRank   = to[1] - '1';
+    return {{fromRank, fromFile}, {toRank, toFile}};
 }
 
 static Move makePromoMove(std::string_view from, std::string_view to, PieceType promo) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile), promo);
+    std::uint8_t fromFile = from[0] - 'a';
+    std::uint8_t fromRank = from[1] - '1';
+    std::uint8_t toFile   = to[0] - 'a';
+    std::uint8_t toRank   = to[1] - '1';
+    return {{fromRank, fromFile}, {toRank, toFile}, promo};
 }
 
 static bool isLegal(const Board& b, std::string_view from, std::string_view to) {
@@ -402,16 +404,16 @@ TEST(BoardPushTest, HalfmoveClockResetsOnCapture) {
 TEST(BoardPushTest, OccupancyUpdatesAfterMove) {
     Board b;
     Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
-    EXPECT_TRUE(b2.getOccupancy() & (1ULL << static_cast<uint8_t>(Square(3, 4))));
-    EXPECT_FALSE(b2.getOccupancy() & (1ULL << static_cast<uint8_t>(Square(1, 4))));
+    EXPECT_TRUE(b2.getOccupancy() & (1ULL << static_cast<std::uint8_t>(Square(3, 4))));
+    EXPECT_FALSE(b2.getOccupancy() & (1ULL << static_cast<std::uint8_t>(Square(1, 4))));
 }
 
 TEST(BoardPushTest, OccupancyUpdatesAfterCapture) {
     Board b("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
     Board b2     = b.push(makeAlgebraicMove("e4", "d5"));
     uint64_t occ = b2.getOccupancy();
-    EXPECT_TRUE(occ & (1ULL << static_cast<uint8_t>(Square(4, 3))));
-    EXPECT_FALSE(occ & (1ULL << static_cast<uint8_t>(Square(3, 4))));
+    EXPECT_TRUE(occ & (1ULL << static_cast<std::uint8_t>(Square(4, 3))));
+    EXPECT_FALSE(occ & (1ULL << static_cast<std::uint8_t>(Square(3, 4))));
 }
 
 TEST(BoardPushTest, OriginalBoardUnchangedAfterPush) {

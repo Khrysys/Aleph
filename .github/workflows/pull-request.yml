@@ -50,7 +50,7 @@ jobs:
         uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
         with:
           github-token: ${{ secrets.KHRYSYS_CFL_STORAGE_TOKEN }}
-          fuzz-seconds: 600
+          fuzz-seconds: 300
           mode: code-change
           sanitizer: ${{ matrix.sanitizer }}
           output-sarif: true

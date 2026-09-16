@@ -1,3 +1,9 @@
+/**
+ * @file src/os_dependent.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 // NOLINTBEGIN
 #pragma once
 

@@ -1,5 +1,5 @@
 /**
- * @file tests/fuzz_get_sub_allocation.cpp
+ * @file fuzzing/fuzz_get_sub_allocation.cpp
  *
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only

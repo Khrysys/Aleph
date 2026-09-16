@@ -17,11 +17,11 @@ runs:
         cpack
 
     - name: Package Source
-      if: inputs.source
+      if: '!inputs.source'
       shell: bash
       working-directory: build/Release
       run: |
-        cpack --config build/CPackSourceConfig.cmake
+        cpack --config CPackSourceConfig.cmake
 
     - name: Attest Binary Package
       uses: actions/attest@v4

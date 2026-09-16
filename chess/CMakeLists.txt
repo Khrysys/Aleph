@@ -36,4 +36,6 @@ target_link_libraries(aleph_chess INTERFACE
 
 add_library(Aleph::Chess ALIAS aleph_chess)
 
+add_subdirectory(benchmarks)
+add_subdirectory(fuzzing)
 add_subdirectory(tests)

@@ -12,8 +12,6 @@
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
 
-#include <aleph/platform.hpp>
-
 #include "piece.hpp"
 #include "square.hpp"
 
@@ -48,10 +46,10 @@ namespace aleph::chess {
             constexpr Move() : data(0) {}
 
             /** Returns the origin square of this move. */
-            [[nodiscard]] constexpr Square from() const noexcept { return data & 0x003F; }
+            [[nodiscard]] constexpr auto from() const noexcept -> Square { return data & 0x003F; }
 
             /** Returns the destination square of this move. */
-            [[nodiscard]] constexpr Square to() const noexcept {
+            [[nodiscard]] constexpr auto to() const noexcept -> Square {
                 return (data >> 6) & 0x003F;
             }
 
@@ -59,7 +57,7 @@ namespace aleph::chess {
              * Returns the promotion piece type, or `PAWN` (0) if no promotion is encoded.
              * Use `hasPromo()` to distinguish a pawn promotion from a non-promotion move.
              */
-            [[nodiscard]] PieceType promo() const noexcept {
+            [[nodiscard]] auto promo() const noexcept -> PieceType {
                 return PieceType((data >> 12) & 0x000F);
             }
 
@@ -68,7 +66,7 @@ namespace aleph::chess {
              * A promotion is indicated by a non-zero promotion field, i.e. any piece
              * type other than `PAWN` (0).
              */
-            [[nodiscard]] constexpr bool hasPromo() const noexcept {
+            [[nodiscard]] constexpr auto hasPromo() const noexcept -> bool {
                 return (data >> 12) != 0;
             }
 
@@ -77,9 +75,11 @@ namespace aleph::chess {
 #ifdef ALEPH_CONSTEXPR_STRING
             constexpr
 #endif
-                std::string toString() const {
+            auto toString() const -> std::string {
                 std::string r = from().toString() + to().toString();
-                if (hasPromo()) r += detail::PIECE_TYPE_CHARS[promo() + 6];
+                if (hasPromo()) {
+                    r += detail::PIECE_TYPE_CHARS[promo() + 6];
+                }
                 return r;
             }
 
@@ -88,22 +88,23 @@ namespace aleph::chess {
 
         private:
             /**
-             * Internal type representation. Should always be in the range [0, 2**]
+             * Internal type representation. Should always be in the range [0, 2**16-1].
              */
             std::uint16_t data;
     };
 
 }  // namespace aleph::chess
 
-/// @cond INTERNAL
 /**
+ * @cond INTERNAL
+ *
  * Formats a `Move` in UCI notation, e.g. "e2e4" or "e7e8q".
  * Promotion piece is appended as a lowercase character when present.
  * Registered outside `aleph::chess` per fmtlib specialization requirements.
  */
 template <>
 struct fmt::formatter<aleph::chess::Move> {
-        constexpr auto parse(fmt::format_parse_context& ctx) const { return ctx.begin(); }
+        constexpr auto parse(fmt::format_parse_context& ctx) const noexcept { return ctx.begin(); }
 
         auto format(const aleph::chess::Move& m, fmt::format_context& ctx) const {
             return fmt::format_to(ctx.out(), "{}", m.toString());
