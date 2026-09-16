@@ -4,7 +4,7 @@
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#include <string_view>
 
 #include <gtest/gtest.h>
 
@@ -13,19 +13,19 @@
 using namespace aleph::chess;
 
 static Move makeAlgebraicMove(std::string_view from, std::string_view to) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile));
+    std::uint8_t fromFile = from[0] - 'a';
+    std::uint8_t fromRank = from[1] - '1';
+    std::uint8_t toFile   = to[0] - 'a';
+    std::uint8_t toRank   = to[1] - '1';
+    return {{fromRank, fromFile}, {toRank, toFile}};
 }
 
 static Move makePromoMove(std::string_view from, std::string_view to, PieceType promo) {
-    uint8_t fromFile = from[0] - 'a';
-    uint8_t fromRank = from[1] - '1';
-    uint8_t toFile   = to[0] - 'a';
-    uint8_t toRank   = to[1] - '1';
-    return Move(Square(fromRank, fromFile), Square(toRank, toFile), promo);
+    std::uint8_t fromFile = from[0] - 'a';
+    std::uint8_t fromRank = from[1] - '1';
+    std::uint8_t toFile   = to[0] - 'a';
+    std::uint8_t toRank   = to[1] - '1';
+    return {{fromRank, fromFile}, {toRank, toFile}, promo};
 }
 
 static bool isLegal(const Board& b, std::string_view from, std::string_view to) {
@@ -301,7 +301,7 @@ TEST(BoardPushTest, WhitePromotionToKnight) {
 }
 
 TEST(BoardPushTest, BlackPromotionToQueen) {
-    Board b("4k3/8/8/8/8/8/4p3/4K3 b - - 0 1");
+    Board b("8/4k3/8/8/8/8/3Kp3/8 b - - 0 1");
     Board b2 = b.push(makePromoMove("e2", "e1", QUEEN));
     EXPECT_EQ(b2.get(Square(0, 4)).type(), QUEEN);
     EXPECT_EQ(b2.get(Square(1, 4)).type(), NONE);
@@ -372,14 +372,14 @@ TEST(BoardPushTest, WhiteQueensideRookMoveClearsQueensideRight) {
 }
 
 TEST(BoardPushTest, BlackRookCapturedOnH8ClearsKingsideRight) {
-    Board b("rnbqk2r/pppppppP/8/8/8/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1");
-    Board b2 = b.push(makePromoMove("h7", "h8", QUEEN));
+    Board b("rnbqk2r/ppppppp1/8/8/8/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1");
+    Board b2 = b.push(makeAlgebraicMove("h1", "h8"));
     EXPECT_FALSE(b2.canBlackKingsideCastle());
 }
 
 TEST(BoardPushTest, BlackRookCapturedOnA8ClearsQueensideRight) {
-    Board b("r3kbnr/Pppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1");
-    Board b2 = b.push(makePromoMove("a7", "a8", QUEEN));
+    Board b("r3kbnr/1ppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w KQkq - 0 1");
+    Board b2 = b.push(makeAlgebraicMove("a1", "a8"));
     EXPECT_FALSE(b2.canBlackQueensideCastle());
 }
 
@@ -404,16 +404,16 @@ TEST(BoardPushTest, HalfmoveClockResetsOnCapture) {
 TEST(BoardPushTest, OccupancyUpdatesAfterMove) {
     Board b;
     Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
-    EXPECT_TRUE(b2.getOccupancy() & (1ULL << static_cast<uint8_t>(Square(3, 4))));
-    EXPECT_FALSE(b2.getOccupancy() & (1ULL << static_cast<uint8_t>(Square(1, 4))));
+    EXPECT_TRUE(b2.getOccupancy() & (1ULL << static_cast<std::uint8_t>(Square(3, 4))));
+    EXPECT_FALSE(b2.getOccupancy() & (1ULL << static_cast<std::uint8_t>(Square(1, 4))));
 }
 
 TEST(BoardPushTest, OccupancyUpdatesAfterCapture) {
     Board b("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
     Board b2     = b.push(makeAlgebraicMove("e4", "d5"));
     uint64_t occ = b2.getOccupancy();
-    EXPECT_TRUE(occ & (1ULL << static_cast<uint8_t>(Square(4, 3))));
-    EXPECT_FALSE(occ & (1ULL << static_cast<uint8_t>(Square(3, 4))));
+    EXPECT_TRUE(occ & (1ULL << static_cast<std::uint8_t>(Square(4, 3))));
+    EXPECT_FALSE(occ & (1ULL << static_cast<std::uint8_t>(Square(3, 4))));
 }
 
 TEST(BoardPushTest, OriginalBoardUnchangedAfterPush) {

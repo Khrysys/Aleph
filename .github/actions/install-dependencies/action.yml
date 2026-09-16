@@ -1,0 +1,24 @@
+name: Install Dependencies
+description: Installs all dependencies for Aleph
+
+inputs:
+  compiler: 
+    description: 
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install Ninja
+      if: matrix.os == 'ubuntu-latest'
+      shell: bash
+      run: sudo apt-get install -y ninja-build  
+      
+    - name: Install Dependencies
+      shell: bash
+      run: |-
+        conan install \
+          -b=missing \
+          -pr:h="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-host.toml" \
+          -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml" \
+          --lockfile-out=conan.lock

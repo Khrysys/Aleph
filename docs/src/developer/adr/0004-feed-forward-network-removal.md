@@ -16,7 +16,7 @@ If a 1x FFN provides the same benefit as a 4x FFN, the natural question is wheth
 
 All attention layers in Aleph — board self-attention, cross-attention, and move self-attention — use the following pattern in place of a standard attention block with FFN:
 
-1. A **pre-projection** maps the input to the projection dimension P=128 and applies SiLU. This replaces the role of the FFN's first linear layer.
+1. A **pre-projection** maps the input to the projection dimension P=128 and applies SiLU. This replaces the role of the FFN's first linear layer and also makes the board and move matrices have the same final dimension.
 2. QKV projections operate in projection space rather than in the full embedding dimension.
 3. Scaled dot-product attention is computed over the projected QKV representations.
 4. A **post-projection** maps the attention output back from the concatenated head dimension and applies SiLU. This replaces the role of the FFN's second linear layer.

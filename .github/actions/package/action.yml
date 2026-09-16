@@ -1,0 +1,35 @@
+name: Package
+description: Package Aleph
+
+inputs:
+  source:
+    description: Whether to package sources or to package binaries.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Package Binaries
+      if: inputs.source
+      shell: bash
+      working-directory: build/Release
+      run: |
+        cpack
+
+    - name: Package Source
+      if: '!inputs.source'
+      shell: bash
+      working-directory: build/Release
+      run: |
+        cpack --config CPackSourceConfig.cmake
+
+    - name: Attest Binary Package
+      uses: actions/attest@v4
+      with:
+        subject-path: '${{ github.workspace }}/build/Release/aleph-*.7z'
+
+    - name: Upload Binary Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ github.workspace }}/build/Release/aleph-*.7z
+        archive: false

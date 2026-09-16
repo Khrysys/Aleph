@@ -31,7 +31,7 @@ All smolgen linear layers have no bias, consistent with the rest of Aleph's inte
 
 ### Cross-attention smolgen
 
-Cross-attention requires a bias of shape [B, H, M, 64] — one row per legal move attending to each of the 64 squares. This makes the standard smolgen formulation inapplicable: smolgen compresses the board to a fixed-size vector and expands back to [H, 64, 64], but the move dimension M is variable and cannot be recovered from a board-only compression.
+Cross-attention requires a bias of shape `[B, H, M, 64]` — one row per legal move attending to each of the 64 squares. This makes the standard smolgen formulation inapplicable: smolgen compresses the board to a fixed-size vector and expands back to [H, 64, 64], but the move dimension M is variable and cannot be recovered from a board-only compression.
 
 The naive extension — compressing the board to a fixed vector and using an einsum to introduce M — produces a bias whose cost is functionally equivalent to an additional cross-attention head while providing less expressivity than one. This was rejected.
 

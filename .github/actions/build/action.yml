@@ -1,32 +1,17 @@
-name: Build Aleph
-description: Build ALeph using Conan
+name: Build
+description: Build Aleph
 
 inputs:
-  install-conan:
-    description: When true, installs Conan.
-    required: false
-    default: true
-  graph-skip-tests:
-    description: Skip tests in the dependency graph. 
-    required: false
-    default: false
-  build-skip-tests:
-    description: Skip running tests during the `conan build` command.
-    required: false
-    default: false
+  compiler: 
+    description: 
+    required: true
 
 runs:
   using: composite
   steps:
-    - name: Install Conan
-      if: inputs.install-conan
-      uses: ./.github/actions/setup-conan
-
-    - name: Build Aleph
+    - name: Build
       shell: bash
       run: |
-        conan build . \
-          -b=missing \
-          -s compiler.cppstd=20 \
-          -c tools.graph:skip_test=${{ inputs.graph-skip-tests }} \
-          -c tools.build:skip_test=${{ inputs.build-skip-tests }}
+        conan build \
+          -pr:h="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-host.toml" \
+          -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml"

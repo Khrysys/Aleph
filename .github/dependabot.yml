@@ -2,19 +2,23 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule:
-      interval: weekly
-    commit-message:
-      prefix: chore
-  - package-ecosystem: pip
-    directory: /.github/requirements
+    target-branch: "staging"
     schedule:
       interval: weekly
     commit-message:
       prefix: chore
 
   - package-ecosystem: pip
+    directory: /.github/requirements
+    target-branch: "staging"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      
+  - package-ecosystem: pip
     directory: /docs
+    target-branch: "staging"
     schedule:
       interval: daily
     commit-message:
