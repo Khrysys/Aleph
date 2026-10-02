@@ -41,16 +41,6 @@ jobs:
             compiler: clang
           - os: ubuntu-latest
             compiler: default
-        include:
-          - os: macos-latest
-          - conan-home: /Users/runner/.conan2
-          - os: ubuntu-latest
-          - conan-home: /home/runner/.conan2
-          - os: windows-latest
-            conan-home: D:/.conan2
-
-    env:
-      CONAN_HOME: ${{ matrix.conan-home }}
     
     steps:
       - name: Harden Runner
@@ -186,13 +176,6 @@ jobs:
             compiler: clang
           - os: ubuntu-latest
             compiler: default
-        include:
-          - os: macos-latest
-          - conan-home: ~/.conan2
-          - os: ubuntu-latest
-          - conan-home: /home/runner/.conan2
-          - os: windows-latest
-            conan-home: D:/.conan2
 
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
@@ -366,13 +349,6 @@ jobs:
             compiler: clang
           - os: ubuntu-latest
             compiler: default
-        include:
-          - os: macos-latest
-          - conan-home: ~/.conan2
-          - os: ubuntu-latest
-          - conan-home: /home/runner/.conan2
-          - os: windows-latest
-            conan-home: D:/.conan2
 
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
