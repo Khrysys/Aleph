@@ -14,6 +14,7 @@ add_custom_target(aleph_coverage
         --capture
         --directory ${CMAKE_BINARY_DIR}
         --output-file ${CMAKE_BINARY_DIR}/coverage.info 
+        --ignore-errors mismatch
     COMMAND ${LCOV_EXECUTABLE}
         --remove ${CMAKE_BINARY_DIR}/coverage.info
             '/usr/*'
