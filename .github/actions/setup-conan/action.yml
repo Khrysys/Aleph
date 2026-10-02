@@ -42,7 +42,7 @@ runs:
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         path: ${{ steps.get-conan-home.outputs.conan-home }}/p
-        key: conan-${{ runner.os }}-${{ inputs.compiler }}-${{matrix.build-type}}-${{ hashFiles('conanfile.py') }}
+        key: conan-${{ runner.os }}-${{ inputs.compiler }}-${{ inputs.build-type }}-${{ hashFiles('conanfile.py') }}
         restore-keys: |
-          conan-${{ runner.os }}-${{ inputs.compiler }}-${{matrix.build-type}}-
+          conan-${{ runner.os }}-${{ inputs.compiler }}-${{ inputs.build-type }}-
           

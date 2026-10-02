@@ -5,18 +5,15 @@ inputs:
   compiler: 
     description: Changes the conan profile to match the 
     required: true
-  build-mode:
-    description: Change build mode for Aleph
-    required: true
 
 runs:
   using: composite
   steps:
     - name: Generate reports
-      working-directory: build
+      working-directory: build/Debug
       shell: bash
       run: |
-        cmake --build --target aleph_coverage
+        cmake --build . --target aleph_coverage
 
     - name: Upload to Dashboard
       uses: coverallsapp/github-action@v2
