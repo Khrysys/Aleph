@@ -31,13 +31,13 @@ jobs:
         compiler: [default, gcc, clang]
         build-type: [Debug, Release]
         exclude:
-          - windows-latest: 
+          - os: windows-latest
             compiler: gcc
-          - windows-latest:
+          - os: windows-latest
             compiler: clang
-          - macos-latest:
+          - os: macos-latest
             compiler: gcc
-          - macos-latest:
+          - os: macos-latest
             compiler: clang
         include:
           - conan-home: /home/runner/.conan2
