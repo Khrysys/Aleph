@@ -8,6 +8,9 @@
 
 #include <cstdint>
 
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 #include <aleph/platform.hpp>
@@ -28,7 +31,7 @@ namespace aleph::chess::detail {
      */
     [[nodiscard]] constexpr auto rayAttackForward(uint64_t occ, Direction d, Square sq)
         -> std::uint64_t {
-        DEBUG_ASSERT(d == N || d == E || d == NE || d == NW);
+        LIBASSERT_DEBUG_ASSERT(d == N || d == E || d == NE || d == NW);
         std::uint64_t ray      = attackTables.rays[d][sq];
         std::uint64_t blockers = ray & occ;
 
@@ -45,7 +48,7 @@ namespace aleph::chess::detail {
      */
     [[nodiscard]] constexpr auto rayAttackBackward(uint64_t occ, Direction d, Square sq)
         -> std::uint64_t {
-        DEBUG_ASSERT(d == S || d == W || d == SE || d == SW);
+        LIBASSERT_DEBUG_ASSERT(d == S || d == W || d == SE || d == SW);
         std::uint64_t ray      = attackTables.rays[d][sq];
         std::uint64_t blockers = ray & occ;
 

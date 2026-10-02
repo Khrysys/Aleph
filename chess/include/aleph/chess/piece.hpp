@@ -10,7 +10,6 @@
 #include <string_view>
 
 #include <fmt/format.h>
-#include <libassert/assert.hpp>
 
 namespace aleph::chess {
 
@@ -65,7 +64,7 @@ namespace aleph::chess {
              */
             constexpr explicit Piece(char c) : data(0) {
                 auto pos = detail::PIECE_TYPE_CHARS.find(c);
-                DEBUG_ASSERT(pos != std::string_view::npos);
+                LIBASSERT_DEBUG_ASSERT(pos != std::string_view::npos);
                 data = static_cast<uint8_t>(pos);
             }
 

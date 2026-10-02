@@ -11,6 +11,9 @@
 #include <string_view>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 namespace aleph::chess {
@@ -46,15 +49,15 @@ namespace aleph::chess {
              * Constructs a square from a raw index in [0, 63].
              * Asserts that `d` is a valid square index in debug builds.
              */
-            constexpr Square(std::uint8_t d) : data(d) { DEBUG_ASSERT(d < 64); }
+            constexpr Square(std::uint8_t d) : data(d) { LIBASSERT_DEBUG_ASSERT(d < 64); }
 
             /**
              * Constructs a square from a rank and file, both in [0, 7].
              * Asserts that both `r` and `f` are in range in debug builds.
              */
             constexpr Square(std::uint8_t r, std::uint8_t f) : data((r * 8U) + f) {
-                DEBUG_ASSERT(r < 8U);
-                DEBUG_ASSERT(f < 8U);
+                LIBASSERT_DEBUG_ASSERT(r < 8U);
+                LIBASSERT_DEBUG_ASSERT(f < 8U);
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */

@@ -10,6 +10,9 @@
 #include <string>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 #include "piece.hpp"
@@ -38,8 +41,8 @@ namespace aleph::chess {
             /** Constructs a promotion move with the given promotion piece type. */
             constexpr Move(const Square from, const Square to, const PieceType promo)
                 : data(from | (to << 6) | (promo << 12)) {
-                DEBUG_ASSERT(promo != PieceType::NONE);
-                DEBUG_ASSERT(promo != PieceType::KING);
+                LIBASSERT_DEBUG_ASSERT(promo != PieceType::NONE);
+                LIBASSERT_DEBUG_ASSERT(promo != PieceType::KING);
             }
 
             /** Constructs a default move that is null (a1a1) and has no promotion. */

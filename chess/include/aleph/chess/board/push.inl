@@ -25,7 +25,7 @@ namespace aleph::chess {
     }  // namespace detail
 
     auto Board::push(Move m) const -> Board {
-        DEBUG_ASSERT(isLegal(m));
+        LIBASSERT_DEBUG_ASSERT(isLegal(m));
 
         Board next            = *this;
 

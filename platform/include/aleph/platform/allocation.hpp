@@ -11,6 +11,9 @@
 #include <string>
 #include <stdexcept>
 
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 namespace aleph::platform {
@@ -52,7 +55,7 @@ namespace aleph::platform {
              *            within bounds in debug builds.
              */
             auto operator[](std::size_t idx) -> T& {
-                DEBUG_ASSERT(idx < getSize());
+                LIBASSERT_DEBUG_ASSERT(idx < getSize());
                 return ptr[idx];
             }
 
@@ -63,7 +66,7 @@ namespace aleph::platform {
              *            within bounds in debug builds.
              */
             auto operator[](std::size_t idx) const -> T const& {
-                DEBUG_ASSERT(idx < getSize());
+                LIBASSERT_DEBUG_ASSERT(idx < getSize());
                 return ptr[idx];
             }
 

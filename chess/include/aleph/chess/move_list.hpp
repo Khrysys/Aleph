@@ -11,6 +11,9 @@
 #include <cstdint>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 #include "move.hpp"
@@ -58,7 +61,7 @@ namespace aleph::chess {
 
             /** Returns a reference to the move at index `i`. Asserts bounds in debug builds. */
             [[nodiscard]] constexpr auto operator[](std::size_t index) noexcept -> Move& {
-                DEBUG_ASSERT(index < _size);
+                LIBASSERT_DEBUG_ASSERT(index < _size);
                 return _moves[index];
             }
 
@@ -66,7 +69,7 @@ namespace aleph::chess {
              */
             [[nodiscard]] constexpr auto operator[](std::size_t index) const noexcept
                 -> const Move& {
-                DEBUG_ASSERT(index < _size);
+                LIBASSERT_DEBUG_ASSERT(index < _size);
                 return _moves[index];
             }
 
@@ -93,7 +96,7 @@ namespace aleph::chess {
              * Asserts that capacity is not exceeded in debug builds.
              */
             constexpr void push_back(const Move& move) noexcept {
-                DEBUG_ASSERT(_size < Capacity);
+                LIBASSERT_DEBUG_ASSERT(_size < Capacity);
                 _moves[_size++] = move;
             }
 
@@ -145,7 +148,7 @@ namespace aleph::chess {
             template <std::size_t OtherCap>
             constexpr auto operator+=(const MoveList<OtherCap>& other) noexcept
                 -> MoveList<Capacity>& {
-                DEBUG_ASSERT(_size + other.size() <= Capacity);
+                LIBASSERT_DEBUG_ASSERT(_size + other.size() <= Capacity);
                 for (std::size_t i = 0; i < other.size(); ++i) {
                     _moves[_size++] = other[i];
                 }
