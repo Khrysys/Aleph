@@ -28,21 +28,22 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
         build-type: [Debug, Release]
-        include:
-          - os: windows-latest
-            compiler: default
-            conan-home: D:/.conan2
-          - os: macos-latest
-            compiler: default
-            conan-home: /home/runner/.conan2
-          - os: ubuntu-latest
+        exclude:
+          - windows-latest: 
             compiler: gcc
-            conan-home: /home/runner/.conan2
-          - os: ubuntu-latest
+          - windows-latest:
             compiler: clang
-            conan-home: /home/runner/.conan2
-            
+          - macos-latest:
+            compiler: gcc
+          - macos-latest:
+            compiler: clang
+        include:
+          - conan-home: /home/runner/.conan2
+          - os: windows-latest
+            conan-home: D:/.conan2
+
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
     
