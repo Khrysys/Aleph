@@ -43,7 +43,7 @@ jobs:
             compiler: default
         include:
           - os: macos-latest
-          - conan-home: ~/.conan2
+          - conan-home: /Users/runner/.conan2
           - os: ubuntu-latest
           - conan-home: /home/runner/.conan2
           - os: windows-latest
