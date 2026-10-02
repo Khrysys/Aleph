@@ -114,7 +114,7 @@ jobs:
           conan lock merge 
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-gcc.conan.lock/conan.lock
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-clang.conan.lock/conan.lock
-          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/macos-latest-defaullt.conan.lock/conan.lock
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/macos-latest-default.conan.lock/conan.lock
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/windows-latest-default.conan.lock/conan.lock
           --lockfile-out conan.lock
 
