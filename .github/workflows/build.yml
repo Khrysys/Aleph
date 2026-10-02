@@ -25,25 +25,24 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
         build-type: [Debug, Release]
         include:
           - os: windows-latest
             compiler: default
             conan-home: D:/.conan2
-
           - os: macos-latest
             compiler: default
             conan-home: /home/runner/.conan2
-
           - os: ubuntu-latest
             compiler: gcc
             conan-home: /home/runner/.conan2
           - os: ubuntu-latest
             compiler: clang
             conan-home: /home/runner/.conan2
-
-      fail-fast: false
+            
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
     
