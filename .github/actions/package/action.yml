@@ -5,6 +5,9 @@ inputs:
   source:
     description: Whether to package sources or to package binaries.
     required: true
+  build-type: 
+    description: 
+    required: true
 
 runs:
   using: composite
@@ -12,24 +15,26 @@ runs:
     - name: Package Binaries
       if: inputs.source
       shell: bash
-      working-directory: build/Release
+      working-directory: build
       run: |
         cpack
+
+    - name: Attest Binary Package
+      if: inputs.source
+      uses: actions/attest@v4
+      with:
+        subject-path: '${{ github.workspace }}/aleph-*.7z'
+
+    - name: Upload Binary Artifact
+      if: inputs.source
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ github.workspace }}/aleph-*.7z
+        archive: false
 
     - name: Package Source
       if: '!inputs.source'
       shell: bash
-      working-directory: build/Release
+      working-directory: build/${{ inputs.build-type }}
       run: |
         cpack --config CPackSourceConfig.cmake
-
-    - name: Attest Binary Package
-      uses: actions/attest@v4
-      with:
-        subject-path: '${{ github.workspace }}/build/Release/aleph-*.7z'
-
-    - name: Upload Binary Artifact
-      uses: actions/upload-artifact@v7
-      with:
-        path: ${{ github.workspace }}/build/Release/aleph-*.7z
-        archive: false
