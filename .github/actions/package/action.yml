@@ -15,7 +15,7 @@ runs:
     - name: Package Binaries
       if: inputs.source
       shell: bash
-      working-directory: build
+      working-directory: build/${{ inputs.build-type }}
       run: |
         cpack
 
@@ -23,13 +23,13 @@ runs:
       if: inputs.source
       uses: actions/attest@v4
       with:
-        subject-path: '${{ github.workspace }}/aleph-*.7z'
+        subject-path: '${{ github.workspace }}/build/${{ inputs.build-type }}/aleph-*.7z'
 
     - name: Upload Binary Artifact
       if: inputs.source
       uses: actions/upload-artifact@v7
       with:
-        path: ${{ github.workspace }}/aleph-*.7z
+        path: ${{ github.workspace }}/build/${{ inputs.build-type }}/aleph-*.7z
         archive: false
 
     - name: Package Source

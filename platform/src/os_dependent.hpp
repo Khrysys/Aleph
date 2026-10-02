@@ -27,10 +27,14 @@
     #include <numaif.h>
     #include <pthread.h>
     #include <sched.h>
-    #include <sys/mman.h>
     #include <unistd.h>
     #include <x86intrin.h>
+
+    #include <sys/mman.h>
 #elif defined(ALEPH_OS_MACOS)
     #include <fstream>
+    #include <unistd.h>
+    
+    #include <sys/mman.h>
 #endif
 // NOLINTEND
