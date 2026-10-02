@@ -106,7 +106,7 @@ namespace aleph::platform {
 #elif defined(ALEPH_OS_MACOS)
             auto flags = MAP_ANON | MAP_PRIVATE;
 
-            ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0)
+            ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0);
 #endif
         }
 #if defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
