@@ -43,7 +43,7 @@ namespace aleph::chess {
         auto& enemyBitboards  = blackTurn ? next.whiteBitboards : next.blackBitboards;
 
         PieceType movingPiece = get(from).type();
-        DEBUG_ASSERT(movingPiece != NONE);
+        LIBASSERT_DEBUG_ASSERT(movingPiece != NONE);
 
         // Clear en passant state unconditionally — a new en passant square will be set
         // below if this move is a double pawn push.

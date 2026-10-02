@@ -10,6 +10,10 @@
 #include <string_view>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
+#include <libassert/assert.hpp>
 
 namespace aleph::chess {
 
