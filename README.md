@@ -1,6 +1,6 @@
 # Aleph
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Khrysys/Aleph/badge)](https://scorecard.dev/viewer/?uri=github.com/Khrysys/Aleph) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12194/badge)](https://www.bestpractices.dev/projects/12194) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Khrysys/Aleph/badge)](https://scorecard.dev/viewer/?uri=github.com/Khrysys/Aleph) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12194/badge)](https://www.bestpractices.dev/projects/12194) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Coverage Status](https://coveralls.io/repos/github/Khrysys/Aleph/badge.svg?branch=main)](https://coveralls.io/github/Khrysys/Aleph?branch=main)
 
 Aleph is a chess engine combining a cross-attention transformer evaluator with a
 search-contempt MCTS algorithm. It is designed to be strong and efficient, built
@@ -12,7 +12,16 @@ whose empirical data informed the decisions for the neural network architecture.
 
 ## Status
 
-Aleph is currently under extremely early development. The code within this repo is not a functional engine yet. More is written than is shown here, however, I am taking time to ensure a high standard before adding code from my local copy into `staging`, and then an even higher quality before adding it into the `main` branch. Often therefore the `staging` branch is broken. However, `main` is always functional.
+Aleph is currently under extremely early development. The code within this repo is not a functional engine yet. More is written than is shown here, however, I am taking time to ensure a high standard before adding code from my local copy into `staging`, and then an even higher quality before adding it into the `main` branch. Often therefore the `staging` branch is broken. However, `main` is almost always functional.
+
+|  Module  | Architecture Known | Written | Tested | Fuzzed | Benchmarked | Roadblock |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Platform | &#10003; | &#10003; | &#10003; | N/A | N/A | Future NUMA Integration |
+| Chess | &#10003; |  &#10003; |  &#10003; |  &#10003; |  &#10003; | Optimizations for Speed |
+| Caching |  &#10003; | IN PROGRESS | &#10006; | &#10006; | &#10006; | Actively Written Module |
+| MCTS | &#10003; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
+| Executor | &#10003; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
+| Main | &#10006; | &#10006; | &#10006; | &#10006; | &#10006; | Executor Module, MCTS Module |
 
 ## Requirements
 

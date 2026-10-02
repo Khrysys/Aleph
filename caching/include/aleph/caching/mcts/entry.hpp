@@ -1,3 +1,9 @@
+/**
+ * @file include/aleph/caching/mcts/entry.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
 #include <array>
@@ -5,14 +11,14 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "../common/types.hpp"
+#include "../policy.hpp"
 
 namespace aleph::caching::mcts {
     struct alignas(64) Entry {
         public:
-            std::array<std::uint32_t, common::MAX_POLICY_SIZE> visits;
-            std::array<std::uint32_t, common::MAX_POLICY_SIZE> edges;
-            std::array<float, common::MAX_POLICY_SIZE> values;
+            std::array<std::uint32_t, policy::MAX_POLICY_SIZE> visits;
+            std::array<std::uint32_t, policy::MAX_POLICY_SIZE> edges;
+            std::array<float, policy::MAX_POLICY_SIZE> values;
             std::uint32_t totalVisits;
             float overallValue;
     };

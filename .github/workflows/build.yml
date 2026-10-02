@@ -21,24 +21,28 @@ concurrency:
 jobs:
   dependencies:
     runs-on: ${{ matrix.os }}
-    name: Install Dependencies (${{ matrix.title }})
+    name: Install Dependencies (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
     permissions:
       contents: read
     strategy:
       matrix:
-        include: 
+        build-type: [Debug, Release]
+        include:
           - os: windows-latest
             compiler: default
-            title: windows-latest
             conan-home: D:/.conan2
+
+          - os: macos-latest
+            compiler: default
+            conan-home: /home/runner/.conan2
+
           - os: ubuntu-latest
             compiler: gcc
-            title: ubuntu-latest, gcc
             conan-home: /home/runner/.conan2
           - os: ubuntu-latest
             compiler: clang
-            title: ubuntu-latest, clang
             conan-home: /home/runner/.conan2
+
       fail-fast: false
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
@@ -58,13 +62,16 @@ jobs:
         uses: ./.github/actions/setup-conan
         with: 
           compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
 
       - name: Install Dependencies
         uses: ./.github/actions/install-dependencies
         with: 
           compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
 
       - name: Upload Lockfile Artifact
+        if: matrix.build-type == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.compiler }}.conan.lock
@@ -93,6 +100,9 @@ jobs:
 
       - name: Setup Conan
         uses: ./.github/actions/setup-conan
+        with:
+          compiler: ''
+          build-type: Release
 
       - name: Download Lockfiles
         id: lockfile-download
@@ -109,6 +119,7 @@ jobs:
           conan lock merge 
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-gcc.conan.lock/conan.lock
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-clang.conan.lock/conan.lock
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/macos-latest-defaullt.conan.lock/conan.lock
           --lockfile ${{ steps.lockfile-download.outputs.download-path }}/windows-latest-default.conan.lock/conan.lock
           --lockfile-out conan.lock
 
@@ -145,7 +156,7 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
-    name: Build Aleph (${{ matrix.title }})
+    name: Build Aleph (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
     needs:
       - dependencies
     permissions:
@@ -155,26 +166,23 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        include: 
+        build-type: [Debug, Release]
+        include:
           - os: windows-latest
             compiler: default
-            title: windows-latest
             conan-home: D:/.conan2
-            package-source: false
+
+          - os: macos-latest
+            compiler: default
+            conan-home: /home/runner/.conan2
+
           - os: ubuntu-latest
             compiler: gcc
-            title: ubuntu-latest, gcc
             conan-home: /home/runner/.conan2
-            package-source: false
           - os: ubuntu-latest
             compiler: clang
-            title: ubuntu-latest, clang
             conan-home: /home/runner/.conan2
-            package-source: false
-          - os: ubuntu-latest
-            compiler: gcc
-            title: ubuntu-latest, source packaging
-            package-source: true
+
       fail-fast: false
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
@@ -195,17 +203,23 @@ jobs:
         uses: ./.github/actions/setup-conan
         with: 
           compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
           
       - name: Build Aleph
         uses: ./.github/actions/build
         with:
           compiler: ${{ matrix.compiler }}
-          conan-home: ${{ steps.conan.outputs.conan-home }}
+          build-type: ${{ matrix.build-type }}
 
       - name: Package Aleph
+        if: matrix.build-type == 'Release' || (matrix.os == 'ubuntu-latest' && matrix.compiler == 'gcc')
         uses: ./.github/actions/package
         with:
-          source: ${{ matrix.package-source }}
+          source: ${{ matrix.build-type == 'Debug'}} # Equivalent to second half exclusive check
+
+      - name: Code Coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Debug' && matrix.compiler == 'gcc'
+        uses: ./.github/actions/coverage
     
   cpp-linter:
     name: C++ Linter
@@ -228,11 +242,13 @@ jobs:
         uses: ./.github/actions/setup-conan
         with: 
           compiler: gcc
+          build-type: Release
 
       - name: Build Aleph
         uses: ./.github/actions/build
         with:
           compiler: gcc
+          build-type: Release
 
       - name: Run cpp-linter
         uses: cpp-linter/cpp-linter-action@24467985494bed9bfc398489b6ec12469beaf4da # v2.17.0
@@ -293,6 +309,7 @@ jobs:
         uses: ./.github/actions/setup-conan
         with:
           compiler: gcc
+          build-type: Release
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
@@ -305,6 +322,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           compiler: gcc
+          build-type: Release
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
@@ -312,7 +330,7 @@ jobs:
           category: "/language:${{matrix.language}}"
 
   cache-cleanup:
-    name: Clean Conan Cache (${{ matrix.title }})
+    name: Clean Conan Cache (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
     runs-on: ${{ matrix.os }}
     needs:
         - build
@@ -323,19 +341,23 @@ jobs:
       contents: read
     strategy:
       matrix:
-        include: 
+        build-type: [Debug, Release]
+        include:
           - os: windows-latest
             compiler: default
-            title: windows-latest
             conan-home: D:/.conan2
+
+          - os: macos-latest
+            compiler: default
+            conan-home: /home/runner/.conan2
+
           - os: ubuntu-latest
             compiler: gcc
-            title: ubuntu-latest, gcc
             conan-home: /home/runner/.conan2
           - os: ubuntu-latest
             compiler: clang
-            title: ubuntu-latest, clang
             conan-home: /home/runner/.conan2
+
       fail-fast: false
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
@@ -354,6 +376,7 @@ jobs:
         uses: ./.github/actions/setup-conan
         with:
           compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
 
       - name: Clean Cache
         shell: bash
@@ -406,4 +429,3 @@ jobs:
           draft: false
           fail_on_unmatched_files: true
           files: ./packages/*.7z
-

@@ -29,7 +29,7 @@ TEST(SquareTest, IndexRoundtrip) {
 TEST(SquareTest, RankFileConstructorMatchesIndex) {
     for (uint8_t i = 0; i < 64; i++) {
         Square byIndex(i);
-        Square byRankFile(i / 8, i % 8);
+        Square byRankFile(i / 8U, i % 8U);
         EXPECT_EQ(static_cast<uint8_t>(byIndex), static_cast<uint8_t>(byRankFile));
     }
 }

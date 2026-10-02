@@ -1,0 +1,26 @@
+name: Coverage
+description: Code coverage with gcov and upload to Coveralls
+
+inputs:
+  compiler: 
+    description: Changes the conan profile to match the 
+    required: true
+  build-mode:
+    description: Change build mode for Aleph
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Generate reports
+      working-directory: build
+      shell: bash
+      run: |
+        cmake --build --target aleph_coverage
+
+    - name: Upload to Dashboard
+      uses: coverallsapp/github-action@v2
+      with:
+        flag-name: Unit
+        compare-ref: main
+        debug: true

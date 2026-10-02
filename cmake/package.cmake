@@ -11,6 +11,7 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/.vscode/"
     "/build/"
     "/CMakeUserPresets.json"
+    "/venv/"
 )
 
 set(CPACK_GENERATOR "7Z")

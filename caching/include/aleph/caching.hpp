@@ -1,5 +1,12 @@
+/**
+ * @file include/aleph/caching.hpp
+ *
+ * Copyright (c) Aleph Engine Project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
 #pragma once
 
-#include "caching/common.hpp"
+// NOLINTBEGIN
 #include "caching/mcts.hpp"
 #include "caching/policy.hpp"
+// NOLINTEND

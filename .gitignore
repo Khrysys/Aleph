@@ -8,5 +8,4 @@ CMakeUserPresets.json
 # Local Development files
 .vscode/*
 .vs/*
-
-profile.toml
+venv/

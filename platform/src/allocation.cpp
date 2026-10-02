@@ -18,7 +18,7 @@ namespace aleph::platform {
         : ptr(nullptr), numaNode(numaNode) {
         auto pageSize = getPageSize();
         size          = (requestedSize + pageSize - 1) & ~(pageSize - 1);
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
         // ----------------------------
         // NUMA + Large Pages path
         // ----------------------------
@@ -43,7 +43,7 @@ namespace aleph::platform {
             ptr = VirtualAllocExNuma(GetCurrentProcess(), nullptr, size, MEM_RESERVE | MEM_COMMIT,
                                      PAGE_READWRITE, static_cast<DWORD>(numaNode));
         }
-#elif BOOST_OS_LINUX
+#elif defined(ALEPH_OS_LINUX)
 
         bool numaAvailable = (numa_available() != -1);
 
@@ -88,14 +88,14 @@ namespace aleph::platform {
 #endif
 
         if (ptr == nullptr) {
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
             DWORD flags = MEM_RESERVE | MEM_COMMIT;
             if (areLargePagesAvailable()) [[likely]] {
                 flags |= MEM_LARGE_PAGES;
             }
 
             ptr = VirtualAlloc(nullptr, size, flags, PAGE_READWRITE);
-#elif BOOST_OS_LINUX
+#elif defined(ALEPH_OS_LINUX)
             auto flags = MAP_PRIVATE | MAP_ANONYMOUS;
             if (areLargePagesAvailable()) [[likely]] {
                 flags |= MAP_HUGETLB;
@@ -104,7 +104,7 @@ namespace aleph::platform {
             ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0);
 #endif
         }
-#if BOOST_OS_LINUX
+#if defined(ALEPH_OS_LINUX)
         if (ptr == nullptr || ptr == MAP_FAILED)
 #else
         if (ptr == nullptr)
@@ -116,7 +116,7 @@ namespace aleph::platform {
 
     auto Allocation::areLargePagesAvailable() -> bool {
         static const auto available = []() noexcept -> bool {
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
             auto largePageMinimum = GetLargePageMinimum();
             if (largePageMinimum == 0) {
                 return false;
@@ -144,7 +144,7 @@ namespace aleph::platform {
                 return false;
             }
             return true;
-#elif BOOST_OS_LINUX || BOOST_OS_MACOS
+#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) {
                 return false;
@@ -161,14 +161,14 @@ namespace aleph::platform {
 
     auto Allocation::getPageSize() -> std::size_t {
         static const auto page_size = []() noexcept -> std::size_t {
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
             if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
                 return largeSize;
             }
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             return static_cast<std::size_t>(info.dwPageSize);
-#elif BOOST_OS_LINUX || BOOST_OS_MACOS
+#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             if (areLargePagesAvailable()) {
                 return static_cast<std::size_t>(2 * 1024 * 1024);
             }
@@ -182,12 +182,11 @@ namespace aleph::platform {
 
     Allocation::~Allocation() {
         if (ptr != nullptr) {
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
             VirtualFree(ptr, 0, MEM_RELEASE);
-#elif BOOST_OS_LINUX || BOOST_OS_MACOS
+#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             munmap(ptr, size);
 #endif
         }
     }
-
-}  // namespace aleph::platform::allocation
+}  // namespace aleph::platform

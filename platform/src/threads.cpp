@@ -17,7 +17,7 @@
 
 namespace aleph::platform {
     auto bindThread(std::size_t numaNode, std::size_t coreID) noexcept -> bool {
-#if BOOST_OS_WINDOWS  // Get current thread handle
+#if defined(ALEPH_OS_WINDOWS)  // Get current thread handle
         HANDLE thread                = GetCurrentThread();
 
         // Step 1: Get processor mask for the NUMA node
@@ -61,7 +61,7 @@ namespace aleph::platform {
         procNum.Number           = static_cast<BYTE>(targetProcessor);
 
         return SetThreadIdealProcessorEx(thread, &procNum, nullptr) != 0;
-#elif BOOST_OS_LINUX
+#elif defined(ALEPH_OS_LINUX)
         if (numa_available() == -1) {
             return false;  // NUMA not supported
         }
@@ -122,7 +122,7 @@ namespace aleph::platform {
         return std::jthread([node, core, fn = std::move(fnCopy),
                              args = std::move(argsCopy)](std::stop_token st) mutable -> auto {
 // Bind first, before doing any real work. We ignore this on platforms other than Windows and Linux
-#if !(BOOST_OS_WINDOWS || BOOST_OS_LINUX)
+#if !(defined(ALEPH_OS_WINDOWS) || defined(ALEPH_OS_LINUX))
             if (!bindThread(node, core)) {
                 std::terminate();
             }

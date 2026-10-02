@@ -53,6 +53,16 @@ else()
     set(Aleph_BUILD_BENCHMARKS OFF)
 endif()
 
+if(Aleph_BUILD_TESTS AND LINUX AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    option(Aleph_TEST_COVERAGE "Use gcov to output coverage data for the GTest test suite." ON)
+else()
+    message(STATUS
+        "Aleph: For test coverage to be enabled, the compiler must be GCC on Linux, the build type must be Debug, and the Aleph test suite must be built."
+    )
+    set(Aleph_TEST_COVERAGE OFF)
+endif()
+
+option(Aleph_REPRODUCIBLE_BUILD "Attempt to build Aleph bit-reproducibly." ON)
 option(Aleph_INSTALL "Add Aleph to the CMake INSTALL target." ON)
 option(Aleph_PACKAGE "Build CPack packaging helpers for Aleph." ON)
 
@@ -68,18 +78,17 @@ endif()
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-find_package(Python REQUIRED COMPONENTS Interpreter)
+find_package(Python REQUIRED QUIET COMPONENTS Interpreter)
 
-find_package(Boost REQUIRED)
-find_package(fmt REQUIRED)
-find_package(half REQUIRED)
-find_package(libassert REQUIRED)
-find_package(protobuf REQUIRED)
-find_package(quill REQUIRED)
+find_package(fmt REQUIRED QUIET)
+find_package(half REQUIRED QUIET)
+find_package(libassert REQUIRED QUIET)
+find_package(protobuf REQUIRED QUIET)
+find_package(quill REQUIRED QUIET)
 
 
 if(LINUX)
-    find_package(libnuma REQUIRED)
+    find_package(libnuma REQUIRED QUIET)
 endif()
 
 # -----------------------------------------------------------------------------
@@ -91,7 +100,7 @@ add_subdirectory(chess)
 add_subdirectory(platform)
 
 if(Aleph_INSTALL)
-    message(STATUS "Aleph: Generating instaLL target.")
+    message(STATUS "Aleph: Generating install target.")
     install(FILES
         "CODE_OF_CONDUCT.md"
         "CONTRIBUTING.md"
@@ -106,4 +115,8 @@ endif()
 if(Aleph_PACKAGE)
     message(STATUS "Aleph: Generating packaging target.")
     include(cmake/package.cmake)
+endif()
+if(Aleph_TEST_COVERAGE)
+    message(STATUS "Aleph: Generating test coverage info.")
+    include(cmake/coverage.cmake)
 endif()

@@ -52,16 +52,16 @@ namespace aleph::chess {
              * Constructs a square from a rank and file, both in [0, 7].
              * Asserts that both `r` and `f` are in range in debug builds.
              */
-            constexpr Square(std::uint8_t r, std::uint8_t f) : data((r * 8) + f) {
-                DEBUG_ASSERT(r < 8);
-                DEBUG_ASSERT(f < 8);
+            constexpr Square(std::uint8_t r, std::uint8_t f) : data((r * 8U) + f) {
+                DEBUG_ASSERT(r < 8U);
+                DEBUG_ASSERT(f < 8U);
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */
-            [[nodiscard]] constexpr auto rank() const noexcept -> std::uint8_t { return data >> 3; }
+            [[nodiscard]] constexpr auto rank() const noexcept -> std::uint8_t { return data >> 3U; }
 
             /** Returns the file of this square in [0, 7], where 0 is the a-file. */
-            [[nodiscard]] constexpr auto file() const noexcept -> std::uint8_t { return data & 7; }
+            [[nodiscard]] constexpr auto file() const noexcept -> std::uint8_t { return data & 7U; }
 
             /**
              * Returns the algebraic notation for this square, e.g. "e4".

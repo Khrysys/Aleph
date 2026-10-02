@@ -3,7 +3,10 @@ description: Build Aleph
 
 inputs:
   compiler: 
-    description: 
+    description: Changes the conan profile to match the 
+    required: true
+  build-mode:
+    description: Change build mode for Aleph
     required: true
 
 runs:
@@ -14,4 +17,5 @@ runs:
       run: |
         conan build \
           -pr:h="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-host.toml" \
-          -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml"
+          -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml" \
+          -s:a build_type=${{ inputs.build-mode }}

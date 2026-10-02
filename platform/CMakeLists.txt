@@ -25,7 +25,7 @@ macro(aleph_arch_option enabled gccflag winflag)
     endif()
 endmacro()
 
-target_link_libraries(aleph_platform PUBLIC Boost::headers fmt::fmt libassert::assert)
+target_link_libraries(aleph_platform PUBLIC fmt::fmt libassert::assert)
 
 if(libnuma_FOUND)
     target_link_libraries(aleph_platform PUBLIC libnuma::libnuma)

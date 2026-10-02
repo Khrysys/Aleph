@@ -5,27 +5,41 @@ if(NOT TARGET aleph_definitions)
     # | Always-on compiler options
     # ---------------------------------
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(aleph_definitions INTERFACE /Wall /wd4514)
+        target_compile_options(aleph_definitions INTERFACE /Wall /wd4514 /wd4710 /wd4711)
     else()
         target_compile_options(aleph_definitions INTERFACE -Wall -Wextra -Wpedantic)
     endif()
 
-    message(STATUS "Aleph: Attempting to make a reproducible build...")
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_TOOLSET_VERSION LESS 120)
-        message(WARNING "Reproducible builds were enabled, but the MSVC Toolset "
-        "version is less than 120. This version does not have support for `/Brepro`. "
-        "Upgrade or set `Aleph_REPRODUCIBLE_BUILDS=OFF`.")
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(aleph_definitions INTERFACE /Brepro)
-        target_link_options(aleph_definitions INTERFACE /Brepro)
-        message(STATUS "Aleph: Reproducible build enabled.")
-    else()
-        target_compile_options(aleph_definitions INTERFACE
-            "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
-            "-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=."
-        )
+    if(Aleph_REPRODUCIBLE_BUILD)
+        message(STATUS "Aleph: Attempting to make a reproducible build...")
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_TOOLSET_VERSION LESS 120)
+            message(WARNING "Reproducible builds were enabled, but the MSVC Toolset "
+            "version is less than 120. This version does not have support for `/Brepro`. "
+            "Upgrade or set `Aleph_REPRODUCIBLE_BUILDS=OFF`.")
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+            target_compile_options(aleph_definitions INTERFACE /Brepro)
+            target_link_options(aleph_definitions INTERFACE /Brepro)
+            message(STATUS "Aleph: Reproducible build enabled.")
+        else()
+            target_compile_options(aleph_definitions INTERFACE
+                "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
+                "-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=."
+            )
+            message(STATUS "Aleph: Reproducible build enabled.")
+        endif()
     endif()
 
+    if(Aleph_TEST_COVERAGE)
+        message(STATUS "Aleph: Attempting to enable test suite coverage...")
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            target_compile_options(aleph_definitions INTERFACE --coverage  -fprofile-arcs -ftest-coverage)
+            target_link_options(aleph_definitions INTERFACE --coverage)
+            message(STATUS  "Aleph: Test suite coverage enabled.")
+        else()
+            message(WARNING "Test coverage enabled, but the compiler is not compatible"
+            "with test coverage. Switch compilers or set Aleph_TEST_COVERAGE=OFF.")
+        endif()
+    endif()
 endif()
 
 function(aleph_add_library library_name)
@@ -81,8 +95,16 @@ if(Aleph_BUILD_TESTS)
 
     macro(aleph_add_test test_name package)
         add_executable(${test_name} ${test_name}.cpp)
-        target_link_libraries(${test_name} PRIVATE ${package} GTest::gtest_main)
+        target_link_libraries(${test_name} PRIVATE
+            ${package}
+            GTest::gtest_main
+            aleph_definitions
+        )
         gtest_discover_tests(${test_name})
+
+        if(Aleph_TEST_COVERAGE)
+            set_property(GLOBAL APPEND PROPERTY ALEPH_TEST_TARGETS ${test_name})
+        endif()
     endmacro()
 else()
     macro(aleph_add_test test_name package)
@@ -92,10 +114,9 @@ endif()
 if(Aleph_BUILD_FUZZING)
     macro(aleph_add_fuzz_target fuzz_name package)
         add_executable(${fuzz_name} ${fuzz_name}.cpp)
-        target_link_libraries(${fuzz_name}
-            PRIVATE
-                ${package}
-                $ENV{LIB_FUZZING_ENGINE}
+        target_link_libraries(${fuzz_name} PRIVATE
+            ${package}
+            $ENV{LIB_FUZZING_ENGINE}
         )
     endmacro()
 else()
@@ -106,10 +127,10 @@ endif()
 if(Aleph_BUILD_BENCHMARKS)
     macro(aleph_add_benchmark benchmark_name package)
         add_executable(${benchmark_name} ${benchmark_name}.cpp)
-        target_link_libraries(${benchmark_name}
-            PRIVATE
-                ${package}
-                benchmark::benchmark_main
+        target_link_libraries(${benchmark_name} PRIVATE
+            ${package}
+            benchmark::benchmark_main
+            aleph_definitions
         )
         if(Aleph_INSTALL)
             install(TARGETS ${benchmark_name})

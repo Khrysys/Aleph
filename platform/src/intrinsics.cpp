@@ -36,7 +36,7 @@ namespace aleph::platform {
         if (std::is_constant_evaluated()) {
             return detail::hi_mul64(lhs, rhs);
         }
-#if BOOST_OS_WINDOWS
+#if defined(ALEPH_OS_WINDOWS)
         std::uint64_t highResult;
         // NOLINTNEXTLINE(readability-const-return-type)
         std::uint64_t lowResult = _umul128(lhs, rhs, &highResult);
