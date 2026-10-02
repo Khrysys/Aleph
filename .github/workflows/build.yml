@@ -39,7 +39,12 @@ jobs:
             compiler: gcc
           - os: macos-latest
             compiler: clang
+          - os: ubuntu-latest
+            compiler: default
         include:
+          - os: macos-latest
+          - conan-home: ~/.conan2
+          - os: ubuntu-latest
           - conan-home: /home/runner/.conan2
           - os: windows-latest
             conan-home: D:/.conan2
@@ -165,25 +170,30 @@ jobs:
       contents: read
       id-token: write
     strategy:
+      fail-fast: false
       matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
         build-type: [Debug, Release]
-        include:
+        exclude:
           - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: clang
+          - os: ubuntu-latest
             compiler: default
+        include:
+          - os: macos-latest
+          - conan-home: ~/.conan2
+          - os: ubuntu-latest
+          - conan-home: /home/runner/.conan2
+          - os: windows-latest
             conan-home: D:/.conan2
 
-          - os: macos-latest
-            compiler: default
-            conan-home: /home/runner/.conan2
-
-          - os: ubuntu-latest
-            compiler: gcc
-            conan-home: /home/runner/.conan2
-          - os: ubuntu-latest
-            compiler: clang
-            conan-home: /home/runner/.conan2
-
-      fail-fast: false
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
 
@@ -340,25 +350,30 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
         build-type: [Debug, Release]
-        include:
+        exclude:
           - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: clang
+          - os: ubuntu-latest
             compiler: default
+        include:
+          - os: macos-latest
+          - conan-home: ~/.conan2
+          - os: ubuntu-latest
+          - conan-home: /home/runner/.conan2
+          - os: windows-latest
             conan-home: D:/.conan2
 
-          - os: macos-latest
-            compiler: default
-            conan-home: /home/runner/.conan2
-
-          - os: ubuntu-latest
-            compiler: gcc
-            conan-home: /home/runner/.conan2
-          - os: ubuntu-latest
-            compiler: clang
-            conan-home: /home/runner/.conan2
-
-      fail-fast: false
     env:
       CONAN_HOME: ${{ matrix.conan-home }}
     steps:
