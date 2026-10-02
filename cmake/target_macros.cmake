@@ -68,7 +68,9 @@ function(aleph_add_library library_name)
 
     if(args_INTERFACE)
         add_library(${target_name} INTERFACE ${args_SOURCES})
-        target_include_directories(${target_name} INTERFACE "include")
+        target_include_directories(${target_name} INTERFACE 
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        )
         message(STATUS "Aleph: Interface module library declared '${target_name}'")
     else()
         if(args_STATIC)
@@ -78,8 +80,12 @@ function(aleph_add_library library_name)
             add_library(${target_name} SHARED ${args_SOURCES})
             message(STATUS "Aleph: Shared module library declared '${target_name}'")
         endif()
-        target_link_libraries(${target_name} PRIVATE aleph_definitions)
-        target_include_directories(${target_name} PUBLIC "include")
+        target_link_libraries(${target_name} PRIVATE 
+            aleph_definitions
+        )
+        target_include_directories(${target_name} PUBLIC 
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        )
         if(Aleph_INSTALL)
             install(TARGETS ${target_name})
         endif()
