@@ -10,12 +10,5 @@ os=Linux
 [replace_tool_requires]
 cmake/*:cmake/4.2.1
 
-[options]
-boost/*:without_cobalt=True
-boost/*:without_cobalt_io=True
-boost/*:without_locale=True
-boost/*:without_stacktrace=True
-
 [conf]
 tools.cmake.cmaketoolchain:extra_variables={'CMAKE_EXPORT_COMPILE_COMMANDS':True}
-tools.cmake.cmaketoolchain:generator=Ninja

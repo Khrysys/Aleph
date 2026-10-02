@@ -102,7 +102,7 @@ namespace aleph::chess {
     }  // namespace detail
 
     Board::Board(std::string_view fen)
-        : whiteBitboards{}, blackBitboards{}, metadata(0), _zobristHash(0), _checkers(0) {
+        : whiteBitboards{}, blackBitboards{}, _zobristHash(0), _checkers(0), metadata(0) {
         auto fields    = detail::splitFENFields(fen);
         auto bitboards = detail::placePieces(fields[0]);
         whiteBitboards = bitboards.first;

@@ -33,10 +33,10 @@ namespace aleph::chess {
     class Move {
         public:
             /** Constructs a non-promotion move. */
-            constexpr Move(Square from, Square to) : data(from | (to << 6)) {}
+            constexpr Move(const Square from, const Square to) : data(from | (to << 6U)) {}
 
             /** Constructs a promotion move with the given promotion piece type. */
-            constexpr Move(Square from, Square to, PieceType promo)
+            constexpr Move(const Square from, const Square to, const PieceType promo)
                 : data(from | (to << 6) | (promo << 12)) {
                 DEBUG_ASSERT(promo != PieceType::NONE);
                 DEBUG_ASSERT(promo != PieceType::KING);

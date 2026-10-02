@@ -188,6 +188,10 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install Coverage Tools
+        if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Debug' && matrix.compiler == 'gcc'
+        uses: sudo apt update && sudo apt install -y lcov
+
       - name: Setup Conan
         id: conan
         uses: ./.github/actions/setup-conan

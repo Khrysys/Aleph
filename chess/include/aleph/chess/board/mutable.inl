@@ -37,7 +37,7 @@ namespace aleph::chess {
             const auto& ownBitboards   = blackTurn ? blackBitboards : whiteBitboards;
             const auto& enemyBitboards = blackTurn ? whiteBitboards : blackBitboards;
 
-            auto kingSq     = static_cast<std::int8_t>(platform::tzcnt(ownBitboards[KING]));
+            auto kingSq             = static_cast<std::int8_t>(platform::tzcnt(ownBitboards[KING]));
             std::uint64_t kingSqBit = 1ULL << kingSq;
             std::uint64_t occ       = getOccupancy();
 
@@ -49,7 +49,8 @@ namespace aleph::chess {
             _checkers |=
                 (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
             // Knights
-            _checkers |= (attackTables.movement[Piece(KNIGHT, blackTurn)][kingSq] & enemyBitboards[KNIGHT]);
+            _checkers |=
+                (attackTables.movement[Piece(KNIGHT, blackTurn)][kingSq] & enemyBitboards[KNIGHT]);
 
             // Diagonal sliders — bishops and queens
             std::uint64_t sliders = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];

@@ -38,8 +38,6 @@ namespace aleph::chess {
         [[nodiscard]] inline auto isAttackedBy(std::uint8_t sqIdx, std::uint64_t occ,
                                                const std::array<std::uint64_t, 6>& attackers,
                                                bool attackersAreBlack) -> bool {
-            std::uint64_t sqBit = 1ULL << sqIdx;
-
             // Pawn attack tables are asymmetric — index 0..5 are white, 6..11 are black.
             // Piece(PAWN, !attackersAreBlack) exploits the Piece index encoding to select
             // the correct table: white pawns at index 0, black at index 6.
@@ -87,9 +85,9 @@ namespace aleph::chess {
             return result;
         }
 
-        for (const auto& m : pseudoLegal){
+        for (const auto& m : pseudoLegal) {
             if (isLegalFast(m)) result += m;
-}
+        }
         return result;
     }
 
@@ -136,8 +134,8 @@ namespace aleph::chess {
         // Simulate the post-move board state without constructing a full Board object.
         // The moving piece is removed from its origin and placed on the destination.
         // Any enemy piece on the destination is removed from enemy occupancy.
-        std::uint64_t newOwnOcc          = (ownOcc & ~fromBit) | toBit;
-        std::uint64_t newEnemyOcc        = enemyOcc & ~toBit;
+        std::uint64_t newOwnOcc     = (ownOcc & ~fromBit) | toBit;
+        std::uint64_t newEnemyOcc   = enemyOcc & ~toBit;
 
         // En passant additionally removes the captured pawn from the rank it sits on,
         // which is one rank behind the destination from the moving side's perspective.
@@ -199,7 +197,6 @@ namespace aleph::chess {
         auto blackTurn             = isBlackTurn();
 
         const auto& ownBitboards   = blackTurn ? blackBitboards : whiteBitboards;
-        const auto& enemyBitboards = blackTurn ? whiteBitboards : blackBitboards;
 
         std::uint64_t ownOcc       = blackTurn ? getBlackOccupancy() : getWhiteOccupancy();
         std::uint64_t enemyOcc     = blackTurn ? getWhiteOccupancy() : getBlackOccupancy();
@@ -210,7 +207,7 @@ namespace aleph::chess {
         std::int8_t pushDir        = blackTurn ? -1 : 1;
 
         // Attack table offset: white pieces at indices 0..5, black at 6..11.
-        auto colorOffset            = blackTurn ? 6 : 0;
+        auto colorOffset           = blackTurn ? 6 : 0;
 
         for (int pieceIdx = 0; pieceIdx < 6; pieceIdx++) {
             std::uint64_t bb = ownBitboards[pieceIdx];

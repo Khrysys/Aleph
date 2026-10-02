@@ -32,11 +32,11 @@ namespace aleph::chess {
     class MoveList {
         public:
             /** The type of the underlying container used to store the moves on the stack. */
-            using storage_type   = std::array<Move, Capacity>;
+            using storage_type            = std::array<Move, Capacity>;
             /** Iterator type, used for range-for loop support. */
-            using iterator       = storage_type::iterator;
+            using iterator                = storage_type::iterator;
             /** Constant iterator type, used for range-for loop support. */
-            using const_iterator = storage_type::const_iterator;
+            using const_iterator          = storage_type::const_iterator;
 
             /** Constructs an empty move list. */
             constexpr MoveList() noexcept = default;
@@ -50,7 +50,9 @@ namespace aleph::chess {
             [[nodiscard]] constexpr auto empty() const noexcept -> bool { return _size == 0; }
 
             /** Returns the maximum number of moves this list can hold. */
-            [[nodiscard]] constexpr static auto capacity() noexcept -> std::size_t { return Capacity; }
+            [[nodiscard]] constexpr static auto capacity() noexcept -> std::size_t {
+                return Capacity;
+            }
 
             // --- Element access ---
 
@@ -62,7 +64,8 @@ namespace aleph::chess {
 
             /** Returns a const reference to the move at index `i`. Asserts bounds in debug builds.
              */
-            [[nodiscard]] constexpr auto operator[](std::size_t index) const noexcept -> const Move& {
+            [[nodiscard]] constexpr auto operator[](std::size_t index) const noexcept
+                -> const Move& {
                 DEBUG_ASSERT(index < _size);
                 return _moves[index];
             }
@@ -100,10 +103,14 @@ namespace aleph::chess {
             [[nodiscard]] constexpr auto begin() noexcept -> iterator { return _moves.begin(); }
 
             /** Accessor method to MoveList._moves.end(). */
-            [[nodiscard]] constexpr auto end() noexcept -> iterator { return _moves.begin() + _size; }
+            [[nodiscard]] constexpr auto end() noexcept -> iterator {
+                return _moves.begin() + _size;
+            }
 
             /** Accessor method to MoveList._moves.begin(). */
-            [[nodiscard]] constexpr auto begin() const noexcept -> const_iterator { return _moves.begin(); }
+            [[nodiscard]] constexpr auto begin() const noexcept -> const_iterator {
+                return _moves.begin();
+            }
 
             /** Accessor method to MoveList._moves.end(). */
             [[nodiscard]] constexpr auto end() const noexcept -> const_iterator {
@@ -136,7 +143,8 @@ namespace aleph::chess {
              * Asserts that the combined size does not exceed capacity in debug builds.
              */
             template <std::size_t OtherCap>
-            constexpr auto operator+=(const MoveList<OtherCap>& other) noexcept -> MoveList<Capacity>& {
+            constexpr auto operator+=(const MoveList<OtherCap>& other) noexcept
+                -> MoveList<Capacity>& {
                 DEBUG_ASSERT(_size + other.size() <= Capacity);
                 for (std::size_t i = 0; i < other.size(); ++i) {
                     _moves[_size++] = other[i];
@@ -147,7 +155,8 @@ namespace aleph::chess {
             // --- Operator + ---
 
             /** Returns a new list with the given move appended. */
-            [[nodiscard]] constexpr auto operator+(const Move& move) const noexcept -> MoveList<Capacity> {
+            [[nodiscard]] constexpr auto operator+(const Move& move) const noexcept
+                -> MoveList<Capacity> {
                 MoveList result  = *this;
                 result          += move;
                 return result;
@@ -155,8 +164,8 @@ namespace aleph::chess {
 
             /** Returns a new list with all moves from `other` appended. */
             template <std::size_t OtherCap>
-            [[nodiscard]] constexpr auto operator+(
-                const MoveList<OtherCap>& other) const noexcept -> MoveList<Capacity> {
+            [[nodiscard]] constexpr auto operator+(const MoveList<OtherCap>& other) const noexcept
+                -> MoveList<Capacity> {
                 MoveList result  = *this;
                 result          += other;
                 return result;

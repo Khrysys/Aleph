@@ -58,7 +58,9 @@ namespace aleph::chess {
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */
-            [[nodiscard]] constexpr auto rank() const noexcept -> std::uint8_t { return data >> 3U; }
+            [[nodiscard]] constexpr auto rank() const noexcept -> std::uint8_t {
+                return data >> 3U;
+            }
 
             /** Returns the file of this square in [0, 7], where 0 is the a-file. */
             [[nodiscard]] constexpr auto file() const noexcept -> std::uint8_t { return data & 7U; }

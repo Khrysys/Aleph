@@ -14,7 +14,7 @@
 
 namespace aleph::chess {
     namespace detail {
-        [[nodiscard]] inline auto getCastleIndex(std::uint32_t meta) -> std::uint8_t {
+        [[nodiscard]] inline auto getCastleIndex(std::uint64_t meta) -> std::uint8_t {
             std::uint8_t idx = 0;
             if (meta & WHITE_KINGSIDE_CASTLE) idx |= 1;
             if (meta & WHITE_QUEENSIDE_CASTLE) idx |= 2;
@@ -100,7 +100,7 @@ namespace aleph::chess {
                 // En passant capture — remove the captured pawn from the rank it sits on,
                 // which is one rank behind the destination from the moving side's perspective.
                 uint8_t const capturedRank = blackTurn ? static_cast<uint8_t>(to.rank() + 1)
-                                                 : static_cast<uint8_t>(to.rank() - 1);
+                                                       : static_cast<uint8_t>(to.rank() - 1);
                 Square const capturedSq(capturedRank, to.file());
                 enemyBitboards[PAWN] &= ~(1ULL << static_cast<uint8_t>(capturedSq));
 

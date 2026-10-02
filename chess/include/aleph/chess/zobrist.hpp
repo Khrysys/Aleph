@@ -7,6 +7,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 #include <aleph/platform.hpp>
@@ -27,8 +28,8 @@ namespace aleph::chess {
             std::uint64_t key = ZOBRIST_STARTING_KEY;
             Zobrist zobrist{};
 
-            for (auto i = 0; i < zobrist.pieces.size(); i++) {
-                for (auto j = 0; j < zobrist.pieces[0].size(); j++) {
+            for (std::size_t i = 0; i < zobrist.pieces.size(); i++) {
+                for (std::size_t j = 0; j < zobrist.pieces[0].size(); j++) {
                     zobrist.pieces[i][j] = platform::splitMix64(key);
                 }
             }

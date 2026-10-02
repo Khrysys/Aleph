@@ -84,7 +84,8 @@ namespace aleph::platform {
                 ptr = nullptr;
             }
         }
-
+#elif !defined(ALEPH_OS_MACOS)
+    #pragma error
 #endif
 
         if (ptr == nullptr) {
@@ -102,15 +103,19 @@ namespace aleph::platform {
             }
 
             ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0);
+#elif defined(ALEPH_OS_MACOS)
+            auto flags = MAP_ANON | MAP_PRIVATE;
+
+            ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, flags, -1, 0)
 #endif
         }
-#if defined(ALEPH_OS_LINUX)
+#if defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
         if (ptr == nullptr || ptr == MAP_FAILED)
 #else
         if (ptr == nullptr)
 #endif
         {
-            throw std::runtime_error("NUMA + HugePage allocation failed.");
+            throw std::runtime_error("Allocation failed.");
         }
     }
 
@@ -144,7 +149,7 @@ namespace aleph::platform {
                 return false;
             }
             return true;
-#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
+#elif defined(ALEPH_OS_LINUX)
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) {
                 return false;
