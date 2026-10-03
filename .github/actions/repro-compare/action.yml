@@ -22,20 +22,27 @@ runs:
           echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
         fi
         
-    - name: Get Version info
-      id: version-info
-      uses: ./.github/actions/get-version-info
+    - name: Extract Version from CMakeLists.txt
+      id: version
+      shell: bash
+      run: |
+        version=$(grep -oP 'project\s*\(\s*\w+.*VERSION\s+\K[^\s)]+' CMakeLists.txt)
+        if [ -z "$version" ]; then
+          echo "::error::Could not extract version from CMakeLists.txt"
+          exit 1
+        fi
+        echo "version=${version}" >> $GITHUB_OUTPUT
 
     - name: Determine File pattern
       id: pattern
       shell: bash
       run: | 
         if [[ "$RUNNER_OS" == "Windows" ]]; then
-          echo "file=aleph-${{ steps.version-info.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
         elif [[ $RUNNER_OS" == "Linux" ]]; then
-          echo "file=aleph-${{ steps.version-info.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
         else 
-          echo "file=aleph-${{ steps.version-info.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
         
     - name: Package Binaries
       shell: bash
