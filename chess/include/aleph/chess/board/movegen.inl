@@ -73,11 +73,19 @@ namespace aleph::chess {
         if (platform::popcnt(getCheckers()) == 2) [[unlikely]] {
             auto blackTurn = isBlackTurn();
             auto attackers = blackTurn ? getWhiteBitboards() : getBlackBitboards();
+            auto ownBitboards = blackTurn ? getBlackBitboards() : getWhiteBitboards();
             auto occ       = getOccupancy();
+
+            auto kingOcc = occ & ~ownBitboards[KING];
             for (const auto& m : pseudoLegal) {
                 if (get(m.from()).type() == KING) [[unlikely]] {
+                    // Castling illegality double check rule
+                    if(m == Move({0, 4}, {0, 6}) || m == Move({0, 4}, {0, 2})) [[unlikely]] {
+                        continue;
+                    }
+                    
                     auto sq = m.to();
-                    if (!detail::isAttackedBy(sq, occ, attackers, !blackTurn)) {
+                    if (!detail::isAttackedBy(sq, kingOcc, attackers, !blackTurn)) [[unlikely]] {
                         result += m;
                     }
                 }
