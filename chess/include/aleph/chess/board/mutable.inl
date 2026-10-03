@@ -31,7 +31,7 @@ namespace aleph::chess {
     }
 
     auto Board::getCheckers() const -> std::uint64_t {
-        if ((metadata & CACHED_CHECKERS_VALID) != 0) {
+        if ((metadata & CACHED_CHECKERS_VALID) == 0) {
             bool blackTurn             = isBlackTurn();
 
             const auto& ownBitboards   = blackTurn ? blackBitboards : whiteBitboards;
@@ -44,21 +44,21 @@ namespace aleph::chess {
             _checkers               = 0;
 
             // Pawn attack tables are asymmetric — index 0..5 are white pieces, 6..11 are black.
-            // To find enemy pawns that attack the king, use the enemy color's attack table,
-            // since a black pawn on sq attacks the squares given by movement[PAWN+6][sq].
+            // To find enemy pawns that attack the king, look at the side to move's pawn attack table,
+            // and check to see if an enemy pawn is on those squares. 
             _checkers |=
                 (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
-            // Knights
-            _checkers |=
-                (attackTables.movement[Piece(KNIGHT, blackTurn)][kingSq] & enemyBitboards[KNIGHT]);
+            // all other pieces are symmetric, so we can ignore blackTurn for a compile-time
+            // optimization
+            _checkers |= (attackTables.movement[KNIGHT][kingSq] & enemyBitboards[KNIGHT]);
 
             // Diagonal sliders — bishops and queens
             std::uint64_t sliders = enemyBitboards[BISHOP] | enemyBitboards[QUEEN];
             while (sliders != 0) {
                 auto sq  = static_cast<std::uint8_t>(platform::tzcnt(sliders));
                 sliders &= sliders - 1;
-                if ((attackTables.movement[BISHOP][sq] & kingSqBit &
-                     attackTables.between[sq][kingSq] & occ) == 0) {
+                if ((attackTables.movement[BISHOP][sq] & kingSqBit) != 0 &&
+                    (attackTables.between[sq][kingSq] & occ) == 0) {
                     _checkers |= 1ULL << sq;
                 }
             }
@@ -68,8 +68,8 @@ namespace aleph::chess {
             while (sliders != 0) {
                 auto sq  = static_cast<std::uint8_t>(platform::tzcnt(sliders));
                 sliders &= sliders - 1;
-                if ((attackTables.movement[ROOK][sq] & kingSqBit &
-                     attackTables.between[sq][kingSq] & occ) == 0) {
+                if ((attackTables.movement[ROOK][sq] & kingSqBit) != 0 &&
+                    (attackTables.between[sq][kingSq] & occ) == 0) {
                     _checkers |= 1ULL << sq;
                 }
             }

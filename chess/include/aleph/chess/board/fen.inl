@@ -364,6 +364,7 @@ namespace aleph::chess {
             throw std::invalid_argument("FEN has the non-moving side in check");
         }
         metadata ^= BLACK_TO_MOVE;
+        metadata &= ~CACHED_CHECKERS_VALID;
     }
 
     Board::Board() : Board(detail::STARTING_POSITION_FEN) {}

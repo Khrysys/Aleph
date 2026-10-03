@@ -257,7 +257,7 @@ namespace {
         EXPECT_EQ(b2.getEnPassantFile(), 3);
     }
 
-    TEST(BoardPushTest /*unused*/, NonDoublePushClearsEnPassant /*unused*/) {
+    TEST(BoardPushTest, NonDoublePushClearsEnPassant) {
         Board b;
         Board b2 = b.push(makeAlgebraicMove("e2", "e4"));
         EXPECT_TRUE(b2.isEnPassantValid());
@@ -619,5 +619,59 @@ namespace {
     TEST(IsLegalFastTest, PerftPosition3Depth1) {
         Board b("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
         EXPECT_EQ(b.getLegalMoves().size(), 14);
+    }
+    
+    TEST(BoardCheckersTest, PawnChecker) {
+        Board b("4k3/8/8/8/8/8/3p4/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(1, 3))
+        );
+    }
+
+    TEST(BoardCheckersTest, KnightChecker) {
+        Board b("4k3/8/8/8/8/3n4/8/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(2, 3))
+        );
+    }
+
+    TEST(BoardCheckersTest, BishopChecker) {
+        Board b("4k3/8/8/8/1b6/8/8/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(3, 1))
+        );
+    }
+
+    TEST(BoardCheckersTest, RookChecker) {
+        Board b("4k3/8/8/8/4r3/8/8/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(3, 4))
+        );
+    }
+
+    TEST(BoardCheckersTest, QueenDiagonalChecker) {
+        Board b("4k3/8/8/8/1q6/8/8/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(3, 1))
+        );
+    }
+
+    TEST(BoardCheckersTest, QueenOrthogonalChecker) {
+        Board b("4k3/8/8/8/4q3/8/8/4K3 w - - 0 1");
+
+        EXPECT_EQ(
+            b.getCheckers(),
+            1ULL << static_cast<std::uint8_t>(Square(3, 4))
+        );
     }
 }
