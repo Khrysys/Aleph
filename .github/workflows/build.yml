@@ -119,7 +119,7 @@ jobs:
           --lockfile-out conan.lock
 
       - name: Run Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@8018483926dd235b3013d8c88023e644b9f8e09e # v2.3.3
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
         with:
           scan-args: |-
             --lockfile=conan.lock
@@ -130,7 +130,7 @@ jobs:
         continue-on-error: true
 
       - name: Run Reporter
-        uses: google/osv-scanner-action/osv-reporter-action@8018483926dd235b3013d8c88023e644b9f8e09e # v2.3.3
+        uses: google/osv-scanner-action/osv-reporter-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
         with: 
           scan-args: |-
             --output=osv-scanner-results.sarif 
