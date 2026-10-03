@@ -270,7 +270,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Setup Conan
         id: conan
@@ -355,6 +355,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
         - build
+        - repro
         - osv-scanner
         - codeql
     permissions:
