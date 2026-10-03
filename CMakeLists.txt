@@ -54,7 +54,7 @@ else()
 endif()
 
 if(Aleph_BUILD_TESTS AND LINUX AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    option(Aleph_TEST_COVERAGE "Use gcov to output coverage data for the GTest test suite." ON)
+    option(Aleph_TEST_COVERAGE "Use lcov to output coverage data for the GTest test suite." ON)
 else()
     message(STATUS
         "Aleph: For test coverage to be enabled, the compiler must be GCC on Linux, the build type must be Debug, and the Aleph test suite must be built."
@@ -62,7 +62,15 @@ else()
     set(Aleph_TEST_COVERAGE OFF)
 endif()
 
-option(Aleph_REPRODUCIBLE_BUILD "Attempt to build Aleph bit-reproducibly." ON)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    option(Aleph_REPRODUCIBLE_BUILD "Attempt to build Aleph bit-reproducibly." ON)
+else()
+    message(STATUS
+        "Aleph: Reproducible builds are unavailable on non-Release builds."
+    )
+    set(Aleph_REPRODUCIBLE_BUILD OFF)
+endif()
+
 option(Aleph_INSTALL "Add Aleph to the CMake INSTALL target." ON)
 option(Aleph_PACKAGE "Build CPack packaging helpers for Aleph." ON)
 

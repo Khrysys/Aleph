@@ -8,14 +8,22 @@ inputs:
   build-type:
     description: Change build type for Aleph
     required: true
+  options:
+    description: 
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
+    - name: Set options
+      shell: bash
+      run: |
+        if [[ ${{ inputs.build-type }} == '' }} == true]]
     - name: Build
       shell: bash
       run: |
-        conan build \
+        conan build ${{ inputs.options }} \
           -pr:h="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-host.toml" \
           -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml" \
-          -s:a build_type=${{ inputs.build-type }}
+          -s:a build_type=${{ inputs.build-type }} 

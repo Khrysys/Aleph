@@ -176,6 +176,14 @@ jobs:
             compiler: clang
           - os: ubuntu-latest
             compiler: default
+        include:
+          - options: ''
+          - build-type: Release
+            options: -o aleph/*:reproducible=True
+          - os: ubuntu-latest
+            compiler: gcc
+            build-type: Release
+            options: -o aleph/*:coverage=True
 
     steps:
       - name: Harden Runner
@@ -205,6 +213,7 @@ jobs:
         with:
           compiler: ${{ matrix.compiler }}
           build-type: ${{ matrix.build-type }}
+          options: ${{ matrix.options }}
 
       - name: C++ Linter Action
         if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Release' && matrix.compiler == 'gcc'
