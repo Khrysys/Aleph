@@ -15,10 +15,22 @@ runs:
       run: |
         cmake --build . --target aleph_coverage
 
-    - name: Upload to Dashboard
+    - name: Upload Chess Coverage
       uses: coverallsapp/github-action@v2
       with:
-        file: ${{ github.workspace }}/build/Debug/coverage.info
-        flag-name: Unit
+        file: ${{ github.workspace }}/build/Debug/chess_coverage.info
+        flag-name: Chess Unit Tests
         compare-ref: main
-        debug: true
+        parallel: true
+
+    - name: Upload Platform Coverage
+      uses: coverallsapp/github-action@v2
+      with:
+        file: ${{ github.workspace }}/build/Debug/platform_coverage.info
+        flag-name: Platform Unit Tests
+        compare-ref: main
+        parallel: true
+
+    - name: Finalize Upload
+      uses: coverallsapp/github-action@v2
+      parallel-finished: true
