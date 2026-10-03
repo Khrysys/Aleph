@@ -7,10 +7,12 @@
 #pragma once
 
 #include <cstdint>
-#include <locale>
 #include <string_view>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
 
 namespace aleph::chess {
@@ -57,7 +59,7 @@ namespace aleph::chess {
              * Asserts that `type` is not `NONE` in debug builds.
              */
             constexpr Piece(PieceType type, bool isBlack)
-                : data(static_cast<uint8_t>(type + (6 * isBlack))) {}
+                : data(static_cast<uint8_t>(type + (6 * static_cast<int>(isBlack)))) {}
 
             /**
              * Constructs a piece from its FEN character representation.
@@ -66,30 +68,30 @@ namespace aleph::chess {
              */
             constexpr explicit Piece(char c) : data(0) {
                 auto pos = detail::PIECE_TYPE_CHARS.find(c);
-                DEBUG_ASSERT(pos != std::string_view::npos);
+                LIBASSERT_DEBUG_ASSERT(pos != std::string_view::npos);  // LCOV_EXCL_LINE
                 data = static_cast<uint8_t>(pos);
             }
 
             /** Returns the type of this piece, independent of color. */
-            [[nodiscard]] constexpr inline PieceType type() const noexcept {
+            [[nodiscard]] constexpr auto type() const noexcept -> PieceType {
                 return data == NONE ? NONE : static_cast<PieceType>(data % 6);
             }
 
             /** Returns true if this piece belongs to the black side. */
-            [[nodiscard]] constexpr inline bool isBlack() const noexcept { return data >= 6; }
+            [[nodiscard]] constexpr auto isBlack() const noexcept -> bool { return data >= 6; }
             /** Returns true if this piece belongs to the white side. */
-            [[nodiscard]] constexpr inline bool isWhite() const noexcept { return !isBlack(); }
+            [[nodiscard]] constexpr auto isWhite() const noexcept -> bool { return !isBlack(); }
 
             /**
              * Returns the lowercase FEN character for this piece type, e.g. 'p', 'n', 'k'.
              * Use `isupper` / `toupper` at the display layer for white pieces.
              */
-            [[nodiscard]] constexpr inline char toChar() const noexcept {
+            [[nodiscard]] constexpr auto toChar() const noexcept -> char {
                 return detail::PIECE_TYPE_CHARS[data];
             }
 
             /** Implicit conversion to `uint8_t` for use as a bitboard or move table index. */
-            constexpr inline operator std::uint8_t() const noexcept { return data; }
+            constexpr operator std::uint8_t() const noexcept { return data; }
 
         private:
             /**

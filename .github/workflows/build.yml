@@ -1,0 +1,448 @@
+name: Aleph Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - main
+      - staging
+
+permissions: 
+  contents: none
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependencies:
+    runs-on: ${{ matrix.os }}
+    name: Install Dependencies (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
+        build-type: [Debug, Release]
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: clang
+          - os: ubuntu-latest
+            compiler: default
+    
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      
+      - name: Setup Conan
+        uses: ./.github/actions/setup-conan
+        with: 
+          compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+        with: 
+          compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
+
+      - name: Upload Lockfile Artifact
+        if: matrix.build-type == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.compiler }}.conan.lock
+          path: conan.lock
+
+  osv-scanner:
+    runs-on: ubuntu-latest
+    name: OSV Scanner
+    needs: 
+      - dependencies
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Conan
+        uses: ./.github/actions/setup-conan
+        with:
+          compiler: ''
+          build-type: Release
+
+      - name: Download Lockfiles
+        id: lockfile-download
+        uses: actions/download-artifact@v7
+        with:
+          pattern: '*.conan.lock'
+          path: ./lockfiles
+
+      - name: Merge Lockfiles
+        shell: bash
+        run: >-
+          conan lock merge 
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-gcc.conan.lock/conan.lock
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/ubuntu-latest-clang.conan.lock/conan.lock
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/macos-latest-default.conan.lock/conan.lock
+          --lockfile ${{ steps.lockfile-download.outputs.download-path }}/windows-latest-default.conan.lock/conan.lock
+          --lockfile-out conan.lock
+
+      - name: Run Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=conan.lock
+            --lockfile=requirements.txt:docs/requirements.txt
+            --lockfile=requirements.txt:.github/requirements/conan.txt
+            --output=osv-scanner-results.json 
+            --format=json
+        continue-on-error: true
+
+      - name: Run Reporter
+        uses: google/osv-scanner-action/osv-reporter-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with: 
+          scan-args: |-
+            --output=osv-scanner-results.sarif 
+            --new=osv-scanner-results.json 
+            --gh-annotations=false 
+            --fail-on-vuln=false 
+
+      - name: "Upload to code-scanning"
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4.31.10
+        with:
+          sarif_file: osv-scanner-results.sarif
+      
+      - name: Upload Lockfile Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: conan.lock
+          path: conan.lock
+
+  build:
+    runs-on: ${{ matrix.os }}
+    name: Build Aleph (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
+    needs:
+      - dependencies
+    permissions:
+      attestations: write
+      artifact-metadata: write
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
+        build-type: [Debug, Release]
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: clang
+          - os: ubuntu-latest
+            compiler: default
+        include:
+          - options: ''
+          - build-type: Release
+            options: -o aleph/*:coverage=False -o aleph/*:reproducible=True
+          - os: ubuntu-latest
+            compiler: gcc
+            build-type: Debug 
+            options: -o aleph/*:coverage=True -o aleph/*:reproducible=False
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Coverage Tools
+        if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Debug' && matrix.compiler == 'gcc'
+        shell: bash
+        run: sudo apt update && sudo apt install -y lcov
+
+      - name: Setup Conan
+        id: conan
+        uses: ./.github/actions/setup-conan
+        with: 
+          compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
+          
+      - name: Build Aleph
+        uses: ./.github/actions/build
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
+          options: ${{ matrix.options }}
+
+      - name: C++ Linter Action
+        if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Release' && matrix.compiler == 'gcc'
+        uses: cpp-linter/cpp-linter-action@24467985494bed9bfc398489b6ec12469beaf4da # v2.17.0
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
+          extensions: 'c,h,cpp,hpp,inl'
+          tidy-checks: 'cppcoreguidelines-*'
+          version: '22'
+          verbosity: 'info'
+          files-changed-only: false
+          thread-comments: false
+          step-summary: true
+          database: ${{ github.workspace }}/build/Release
+          ignore: .github|build
+          ignore-tidy: .github|build
+          ignore-format: .github|build
+          tidy-review: true
+          format-review: true
+
+      - name: Package Aleph
+        if: matrix.build-type == 'Release' || (matrix.os == 'ubuntu-latest' && matrix.compiler == 'gcc')
+        uses: ./.github/actions/package
+        with:
+          build-type: ${{ matrix.build-type }}
+
+      - name: Code Coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Debug' && matrix.compiler == 'gcc'
+        uses: ./.github/actions/coverage
+
+  repro:
+    name: Build Reproducibility (${{ matrix.os }}, ${{ matrix.compiler }})
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        compiler: [gcc]
+        include:
+          - options: -o aleph/*:coverage=False -o aleph/*:reproducible=True
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: true
+
+      - name: Setup Conan
+        id: conan
+        uses: ./.github/actions/setup-conan
+        with: 
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
+          
+      - name: Build Aleph
+        uses: ./.github/actions/build
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
+          options: ${{ matrix.options }}
+
+      - name: Compare artifacts
+        uses: ./.github/actions/repro-compare
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    needs: 
+      - dependencies
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+ 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: manual
+          - language: python
+            build-mode: none
+ 
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Conan
+        if: matrix.language == 'c-cpp'
+        uses: ./.github/actions/setup-conan
+        with:
+          compiler: gcc
+          build-type: Release
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Run manual build steps
+        if: matrix.build-mode == 'manual'
+        uses: ./.github/actions/build
+        with:
+          compiler: gcc
+          build-type: Release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@0c0c5dc2f136b98cb0537075ccfa21f94cd9a63e # v2.24.3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  cache-cleanup:
+    name: Clean Conan Cache (${{ matrix.os }}, ${{ matrix.build-type }}, ${{matrix.compiler}})
+    runs-on: ${{ matrix.os }}
+    needs:
+        - build
+        - repro
+        - osv-scanner
+        - codeql
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        compiler: [default, gcc, clang]
+        build-type: [Debug, Release]
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: clang
+          - os: ubuntu-latest
+            compiler: default
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Conan
+        uses: ./.github/actions/setup-conan
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: ${{ matrix.build-type }}
+
+      - name: Clean Cache
+        shell: bash
+        run: |
+          conan remove "*" --lru=1w -c
+
+  release-tag:
+    name: Tag Release
+    runs-on: ubuntu-latest
+    needs:
+      - cache-cleanup
+    permissions:
+      contents: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Validate PR Title
+        id: validate
+        uses: ./.github/actions/get-version-info
+        with:
+          pr-title: ${{ github.event.pull_request.title }}
+
+      - name: Create and Push Tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.validate.outputs.tag }}" \
+            -m "Release ${{ steps.validate.outputs.tag }}"
+          git push origin "${{ steps.validate.outputs.tag }}"
+
+      - name: Create Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.validate.outputs.release-name }}
+          tag_name: ${{ steps.validate.outputs.tag }}
+          prerelease: ${{ steps.validate.outputs.prerelease == 'true' }}
+          draft: false
+          fail_on_unmatched_files: true
+          files: ./packages/*.7z

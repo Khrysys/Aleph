@@ -8,11 +8,13 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 #include <fmt/format.h>
+#ifndef LIBASSERT_PREFIX_ASSERTIONS
+    #define LIBASSERT_PREFIX_ASSERTIONS
+#endif
 #include <libassert/assert.hpp>
-
-#include <aleph/platform.hpp>
 
 namespace aleph::chess {
 
@@ -47,22 +49,26 @@ namespace aleph::chess {
              * Constructs a square from a raw index in [0, 63].
              * Asserts that `d` is a valid square index in debug builds.
              */
-            constexpr Square(std::uint8_t d) : data(d) { DEBUG_ASSERT(d < 64); }
+            constexpr Square(std::uint8_t d) : data(d) {
+                LIBASSERT_DEBUG_ASSERT(d < 64);  // LCOV_EXCL_LINE
+            }
 
             /**
              * Constructs a square from a rank and file, both in [0, 7].
              * Asserts that both `r` and `f` are in range in debug builds.
              */
-            constexpr Square(std::uint8_t r, std::uint8_t f) : data(r * 8 + f) {
-                DEBUG_ASSERT(r < 8);
-                DEBUG_ASSERT(f < 8);
+            constexpr Square(std::uint8_t r, std::uint8_t f) : data((r * 8U) + f) {
+                LIBASSERT_DEBUG_ASSERT(r < 8U);  // LCOV_EXCL_LINE
+                LIBASSERT_DEBUG_ASSERT(f < 8U);  // LCOV_EXCL_LINE
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */
-            [[nodiscard]] constexpr inline std::uint8_t rank() const noexcept { return data >> 3; }
+            [[nodiscard]] constexpr auto rank() const noexcept -> std::uint8_t {
+                return data >> 3U;
+            }
 
             /** Returns the file of this square in [0, 7], where 0 is the a-file. */
-            [[nodiscard]] constexpr inline std::uint8_t file() const noexcept { return data & 7; }
+            [[nodiscard]] constexpr auto file() const noexcept -> std::uint8_t { return data & 7U; }
 
             /**
              * Returns the algebraic notation for this square, e.g. "e4".
@@ -73,13 +79,13 @@ namespace aleph::chess {
 #ifdef ALEPH_CONSTEXPR_STRING
             constexpr
 #endif
-                inline std::string toString() const noexcept {
+            auto toString() const -> std::string {
                 return {detail::FILE_CHARS[file()], detail::RANK_CHARS[rank()]};
             }
 
             /** Implicit conversion to `uint8_t` for use as a bitboard shift amount or array index.
              */
-            constexpr inline operator std::uint8_t() const noexcept { return data; }
+            constexpr operator std::uint8_t() const noexcept { return data; }
 
         private:
             /**

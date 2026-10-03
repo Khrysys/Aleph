@@ -1,0 +1,47 @@
+name: Package
+description: Package Aleph
+
+inputs:
+  build-type: 
+    description: 
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Determine build directory
+      id: build-dir
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "path=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        else
+          echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Package Binaries
+      if: inputs.build-type == 'Release'
+      shell: bash
+      working-directory: ${{ steps.build-dir.outputs.path }}
+      run: |
+        cpack
+
+    - name: Attest Binary Package
+      if: inputs.build-type == 'Release'
+      uses: actions/attest@v4
+      with:
+        subject-path: '${{ steps.build-dir.outputs.path }}/aleph-*.7z'
+
+    - name: Upload Binary Artifact
+      if: inputs.build-type == 'Release'
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ steps.build-dir.outputs.path }}/aleph-*.7z
+        archive: false
+
+    - name: Package Source
+      if: inputs.build-type == 'Debug'
+      shell: bash
+      working-directory: ${{ steps.build-dir.outputs.path }}
+      run: |
+        cpack --config CPackSourceConfig.cmake

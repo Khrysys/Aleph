@@ -1,0 +1,61 @@
+name: Package
+description: Package Aleph
+
+inputs:
+  compiler: 
+    description: 
+    required: true
+  build-type: 
+    description: 
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Determine build directory
+      id: build-dir
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "path=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        else
+          echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
+        fi
+        
+    - name: Extract Version from CMakeLists.txt
+      id: version
+      shell: bash
+      run: |
+        version=$(grep -oP 'project\s*\(\s*\w+.*VERSION\s+\K[^\s)]+' CMakeLists.txt)
+        if [ -z "$version" ]; then
+          echo "::error::Could not extract version from CMakeLists.txt"
+          exit 1
+        fi
+        echo "version=${version}" >> $GITHUB_OUTPUT
+
+    - name: Determine File pattern
+      id: pattern
+      shell: bash
+      run: | 
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
+        elif [[ $RUNNER_OS" == "Linux" ]]; then
+          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
+        else 
+          echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
+        
+    - name: Package Binaries
+      shell: bash
+      working-directory: ${{ steps.build-dir.outputs.path }}
+      run: |
+        cpack
+
+    - name: Download Previous archive
+      id: archive-download
+      uses: actions/download-artifact@v7
+      with:
+        name: ${{ steps.pattern.outputs.file }}
+
+    - name: Compare archives
+      shell: bash
+      run: cmp ${{ steps.archive-download.outputs.download-path }}/${{ steps.pattern.outputs.file }} ${{ steps.build-dir.outputs.path }}/${{ steps.pattern.outputs.file }}
