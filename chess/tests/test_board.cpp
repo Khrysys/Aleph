@@ -90,6 +90,11 @@ namespace {
                      std::invalid_argument);
     }
 
+    TEST(BoardFenTest, TooManyFields) {
+        EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - - -"),
+                     std::invalid_argument);
+    }
+
     TEST(BoardFenTest, TooManyRanks) {
         EXPECT_THROW(Board("rnbqkbnr/pppppppp/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
                      std::invalid_argument);
