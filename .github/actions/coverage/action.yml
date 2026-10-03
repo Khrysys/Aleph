@@ -18,6 +18,7 @@ runs:
     - name: Upload to Dashboard
       uses: coverallsapp/github-action@v2
       with:
+        file: ${{ github.workspace }}/build/Debug/coverage.info
         flag-name: Unit
         compare-ref: main
         debug: true
