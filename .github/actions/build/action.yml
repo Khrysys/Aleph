@@ -16,10 +16,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set options
-      shell: bash
-      run: |
-        if [[ ${{ inputs.build-type }} == '' }} == true]]
     - name: Build
       shell: bash
       run: |
