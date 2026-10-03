@@ -19,7 +19,7 @@ runs:
     - name: Build
       shell: bash
       run: |
-        conan build ${{ inputs.options }} \
+        conan build ${{ inputs.options }} -nr \
           -pr:h="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-host.toml" \
           -pr:b="${{ github.workspace }}/.github/profiles/${{ runner.os }}-${{ inputs.compiler }}-build.toml" \
           -s:a build_type=${{ inputs.build-type }} 
