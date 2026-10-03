@@ -26,7 +26,6 @@ add_custom_target(aleph_coverage_chess
     COMMAND ${LCOV_EXECUTABLE}
         --extract ${CMAKE_BINARY_DIR}/coverage.info
             ${CMAKE_SOURCE_DIR}/chess/include/*
-            ${CMAKE_SOURCE_DIR}/chess/src/*
         --output-file ${CMAKE_BINARY_DIR}/chess_coverage.info
         --rc branch_coverage=1
     COMMENT "Extracting chess library coverage"
