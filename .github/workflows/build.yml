@@ -179,11 +179,11 @@ jobs:
         include:
           - options: ''
           - build-type: Release
-            options: -o aleph/*:reproducible=True
+            options: -o aleph/*:coverage=False -o aleph/*:reproducible=True
           - os: ubuntu-latest
             compiler: gcc
             build-type: Release
-            options: -o aleph/*:coverage=True
+            options: -o aleph/*:coverage=True -o aleph/*:reproducible=False
 
     steps:
       - name: Harden Runner
