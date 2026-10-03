@@ -41,6 +41,7 @@ class AlephConan(ConanFile):
         deps.generate()
         tc = CMakeToolchain(self)
         tc.cache_variables['Aleph_REPRODUCIBLE_BUILD'] = self.options.reproducible
+        tc.cache_variables['CMAKE_BUILD_RPATH_USE_ORIGIN'] = self.options.reproducible
         tc.cache_variables['Aleph_TEST_COVERAGE'] = self.options.coverage
         tc.generator = 'Ninja'
         tc.generate()

@@ -106,8 +106,6 @@ jobs:
           pattern: '*.conan.lock'
           path: ./lockfiles
 
-      - run: ls -R ${{ steps.lockfile-download.outputs.download-path }}
-
       - name: Merge Lockfiles
         shell: bash
         run: >-
@@ -246,6 +244,53 @@ jobs:
       - name: Code Coverage
         if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Debug' && matrix.compiler == 'gcc'
         uses: ./.github/actions/coverage
+
+  repro:
+    name: Build Reproducibility (${{ matrix.os }}, ${{ matrix.compiler }})
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        compiler: [gcc]
+        include:
+          - options: -o aleph/*:coverage=False -o aleph/*:reproducible=True
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Conan
+        id: conan
+        uses: ./.github/actions/setup-conan
+        with: 
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
+          
+      - name: Build Aleph
+        uses: ./.github/actions/build
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
+          options: ${{ matrix.options }}
+
+      - name: Compare artifacts
+        uses: ./.github/actions/repro-compare
+        with:
+          compiler: ${{ matrix.compiler }}
+          build-type: Release
 
   codeql:
     name: CodeQL (${{ matrix.language }})
