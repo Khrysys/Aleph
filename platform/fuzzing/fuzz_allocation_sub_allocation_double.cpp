@@ -9,9 +9,9 @@
 #include <cstring>
 #include <stdexcept>
 
-#include <aleph/platform/allocation/base.hpp>
+#include <aleph/platform.hpp>
 
-using namespace aleph::platform::allocation;
+using namespace aleph::platform;
 
 extern "C" auto LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) -> int {
     if (size < sizeof(std::size_t)) {
