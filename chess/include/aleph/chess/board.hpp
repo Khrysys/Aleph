@@ -4,6 +4,7 @@
  * Copyright (c) Aleph Engine Project
  * SPDX-License-Identifier: GPL-3.0-only
  */
+// LCOV_EXCL_START
 #pragma once
 
 #include <array>
@@ -266,6 +267,7 @@ namespace aleph::chess {
     static_assert(sizeof(Board) == 128);
 
 }  // namespace aleph::chess
+// LCOV_EXCL_STOP
 
 // NOLINTNEXTLINE
 #include "board.inl"

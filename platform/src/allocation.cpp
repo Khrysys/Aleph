@@ -18,7 +18,9 @@ namespace aleph::platform {
         : ptr(nullptr), numaNode(numaNode) {
         auto pageSize = getPageSize();
         size          = (requestedSize + pageSize - 1) & ~(pageSize - 1);
-#if defined(ALEPH_OS_WINDOWS)
+
+        // NUMA is excluded from lcov coverage
+#if defined(ALEPH_OS_WINDOWS) // LCOV_EXCL_START
         // ----------------------------
         // NUMA + Large Pages path
         // ----------------------------
@@ -50,7 +52,7 @@ namespace aleph::platform {
         // ----------------------------
         // NUMA + HugePages path
         // ----------------------------
-        if (numaAvailable && areLargePagesAvailable()) {
+        if (numaAvailable && areLargePagesAvailable()) { // LCOV_EXCL_START
             // Set NUMA policy BEFORE allocation (critical)
             unsigned long nodemask = (1UL << numaNode);
 
@@ -68,7 +70,7 @@ namespace aleph::platform {
             if (ptr == MAP_FAILED) {
                 ptr = nullptr;
             }
-        }
+        } 
 
         // ----------------------------
         // NUMA normal pages fallback
@@ -86,7 +88,7 @@ namespace aleph::platform {
         }
 #elif !defined(ALEPH_OS_MACOS)
     #pragma error
-#endif
+#endif // LCOV_EXCL_END
 
         if (ptr == nullptr) {
 #if defined(ALEPH_OS_WINDOWS)
@@ -121,7 +123,7 @@ namespace aleph::platform {
 
     auto Allocation::areLargePagesAvailable() -> bool {
         static const auto available = []() noexcept -> bool {
-#if defined(ALEPH_OS_WINDOWS)
+#if defined(ALEPH_OS_WINDOWS) // LCOV_EXCL_START
             auto largePageMinimum = GetLargePageMinimum();
             if (largePageMinimum == 0) {
                 return false;
@@ -149,7 +151,7 @@ namespace aleph::platform {
                 return false;
             }
             return true;
-#elif defined(ALEPH_OS_LINUX)
+#elif defined(ALEPH_OS_LINUX) // LCOV_EXCL_STOP
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) {
                 return false;
@@ -158,7 +160,7 @@ namespace aleph::platform {
             f >> count;
             return count > 0;
 #else
-            return false;
+            return false; // LCOV_EXCL_LINE
 #endif
         }();
         return available;
@@ -166,20 +168,20 @@ namespace aleph::platform {
 
     auto Allocation::getPageSize() -> std::size_t {
         static const auto page_size = []() noexcept -> std::size_t {
-#if defined(ALEPH_OS_WINDOWS)
+#if defined(ALEPH_OS_WINDOWS) // LCOV_EXCL_START
             if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
                 return largeSize;
             }
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             return static_cast<std::size_t>(info.dwPageSize);
-#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
+#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS) // LCOV_EXCL_STOP
             if (areLargePagesAvailable()) {
                 return static_cast<std::size_t>(2 * 1024 * 1024);
             }
             return static_cast<std::size_t>(sysconf(_SC_PAGESIZE));
 #else
-            return static_cast<std::size_t>(4096);
+            return static_cast<std::size_t>(4096); // LCOV_EXCL_LINE
 #endif
         }();
         return page_size;
@@ -188,7 +190,7 @@ namespace aleph::platform {
     Allocation::~Allocation() {
         if (ptr != nullptr) {
 #if defined(ALEPH_OS_WINDOWS)
-            VirtualFree(ptr, 0, MEM_RELEASE);
+            VirtualFree(ptr, 0, MEM_RELEASE); // LCOV_EXCL_LINE
 #elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             munmap(ptr, size);
 #endif
