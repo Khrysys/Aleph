@@ -37,7 +37,6 @@ add_custom_target(aleph_coverage_platform
     COMMAND ${LCOV_EXECUTABLE}
         --extract ${CMAKE_BINARY_DIR}/coverage.info
             ${CMAKE_SOURCE_DIR}/platform/include/*
-            ${CMAKE_SOURCE_DIR}/platform/src/*
         --output-file ${CMAKE_BINARY_DIR}/platform_coverage.info
         --rc branch_coverage=1
     COMMENT "Extracting platform library coverage"
