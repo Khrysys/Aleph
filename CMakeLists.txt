@@ -10,7 +10,7 @@ endif()
 
 # The project name and version must be a literal in the top-level project()
 # call. It is read by Conan to populate the conan-side package name and version.
-project(Aleph LANGUAGES CXX VERSION 0.0.1.1)
+project(Aleph LANGUAGES CXX VERSION 0.0.2.0)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
