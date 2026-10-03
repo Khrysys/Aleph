@@ -15,6 +15,7 @@ add_custom_target(aleph_coverage
         --directory ${CMAKE_BINARY_DIR}
         --output-file ${CMAKE_BINARY_DIR}/coverage.info 
         --ignore-errors mismatch
+        --rc branch_coverage=1
     COMMAND ${LCOV_EXECUTABLE}
         --remove ${CMAKE_BINARY_DIR}/coverage.info
             '/usr/*'
@@ -23,6 +24,8 @@ add_custom_target(aleph_coverage
             '*/benchmarks/*'
             '*/fuzzing/*'
         --output-file ${CMAKE_BINARY_DIR}/coverage.info
+        --rc branch_coverage=1
+        --ignore-errors unused
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Generating coverage data"
     VERBATIM
