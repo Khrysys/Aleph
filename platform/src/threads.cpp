@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include <thread>
-#include <type_traits>
-#include <tuple>
-#include <stop_token>
 #include <cstddef>
+#include <stop_token>
+#include <thread>
+#include <tuple>
+#include <type_traits>
 
 #include <aleph/platform/threads.hpp>
 
@@ -27,9 +27,9 @@ namespace aleph::platform {
         }
 
         // Step 2: Iterate bits in mask to find the requested coreID
-        const auto mask           = groupAffinity.Mask;
+        const auto mask          = groupAffinity.Mask;
         std::size_t currentIndex = 0;
-        auto targetProcessor    = DWORD(-1);
+        auto targetProcessor     = DWORD(-1);
 
         for (DWORD i = 0; i < sizeof(KAFFINITY) * 8; ++i) {
             if (mask & (KAFFINITY(1) << i)) {

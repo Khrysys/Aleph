@@ -41,8 +41,8 @@ namespace aleph::chess {
             /** Constructs a promotion move with the given promotion piece type. */
             constexpr Move(const Square from, const Square to, const PieceType promo)
                 : data(from | (to << 6) | (promo << 12)) {
-                LIBASSERT_DEBUG_ASSERT(promo != PieceType::NONE);
-                LIBASSERT_DEBUG_ASSERT(promo != PieceType::KING);
+                LIBASSERT_DEBUG_ASSERT(promo != PieceType::NONE);  // LCOV_EXCL_LINE
+                LIBASSERT_DEBUG_ASSERT(promo != PieceType::KING);  // LCOV_EXCL_LINE
             }
 
             /** Constructs a default move that is null (a1a1) and has no promotion. */

@@ -25,7 +25,7 @@ namespace aleph::chess {
     }  // namespace detail
 
     auto Board::push(Move m) const -> Board {
-        LIBASSERT_DEBUG_ASSERT(isLegal(m));
+        LIBASSERT_DEBUG_ASSERT(isLegal(m));  // LCOV_EXCL_LINE
 
         Board next            = *this;
 
@@ -43,7 +43,7 @@ namespace aleph::chess {
         auto& enemyBitboards  = blackTurn ? next.whiteBitboards : next.blackBitboards;
 
         PieceType movingPiece = get(from).type();
-        LIBASSERT_DEBUG_ASSERT(movingPiece != NONE);
+        LIBASSERT_DEBUG_ASSERT(movingPiece != NONE);  // LCOV_EXCL_LINE
 
         // Clear en passant state unconditionally — a new en passant square will be set
         // below if this move is a double pawn push.

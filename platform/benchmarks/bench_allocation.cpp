@@ -52,6 +52,6 @@ namespace {
         }
     }
     BENCHMARK(BM_SubAllocationIteration)->Range(1 << 8, 1 << 24);
-}
+}  // namespace
 
 BENCHMARK_MAIN();

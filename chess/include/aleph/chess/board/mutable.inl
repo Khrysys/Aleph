@@ -44,8 +44,8 @@ namespace aleph::chess {
             _checkers               = 0;
 
             // Pawn attack tables are asymmetric — index 0..5 are white pieces, 6..11 are black.
-            // To find enemy pawns that attack the king, look at the side to move's pawn attack table,
-            // and check to see if an enemy pawn is on those squares. 
+            // To find enemy pawns that attack the king, look at the side to move's pawn attack
+            // table, and check to see if an enemy pawn is on those squares.
             _checkers |=
                 (attackTables.movement[Piece(PAWN, blackTurn)][kingSq] & enemyBitboards[PAWN]);
             // all other pieces are symmetric, so we can ignore blackTurn for a compile-time

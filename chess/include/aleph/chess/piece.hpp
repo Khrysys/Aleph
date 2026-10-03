@@ -68,7 +68,7 @@ namespace aleph::chess {
              */
             constexpr explicit Piece(char c) : data(0) {
                 auto pos = detail::PIECE_TYPE_CHARS.find(c);
-                LIBASSERT_DEBUG_ASSERT(pos != std::string_view::npos);
+                LIBASSERT_DEBUG_ASSERT(pos != std::string_view::npos);  // LCOV_EXCL_LINE
                 data = static_cast<uint8_t>(pos);
             }
 

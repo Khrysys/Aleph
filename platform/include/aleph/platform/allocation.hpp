@@ -1,15 +1,15 @@
 /**
  * @file include/aleph/platform/allocation.hpp
  * @copyright Aleph Engine Project
- * 
+ *
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #pragma once
 
 #include <atomic>
 #include <cstddef>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 #ifndef LIBASSERT_PREFIX_ASSERTIONS
     #define LIBASSERT_PREFIX_ASSERTIONS
@@ -19,7 +19,7 @@
 namespace aleph::platform {
     /**
      * @brief A chunk of dynamic memory from a larger Allocation.
-     * 
+     *
      * `SubAllocation` is created via `Allocation::getSubAllocation` and provides
      * indexed access to a contiguous block of `T` elements carved from a larger
      * `Allocation`. No allocation or deallocation occurs — the backing memory is
@@ -55,7 +55,7 @@ namespace aleph::platform {
              *            within bounds in debug builds.
              */
             auto operator[](std::size_t idx) -> T& {
-                LIBASSERT_DEBUG_ASSERT(idx < getSize());
+                LIBASSERT_DEBUG_ASSERT(idx < getSize());  // LCOV_EXCL_LINE
                 return ptr[idx];
             }
 
@@ -66,7 +66,7 @@ namespace aleph::platform {
              *            within bounds in debug builds.
              */
             auto operator[](std::size_t idx) const -> T const& {
-                LIBASSERT_DEBUG_ASSERT(idx < getSize());
+                LIBASSERT_DEBUG_ASSERT(idx < getSize());  // LCOV_EXCL_LINE
                 return ptr[idx];
             }
 
@@ -79,7 +79,6 @@ namespace aleph::platform {
             T* ptr;
             std::size_t size;
     };
-
 
     /**
      * A single large contiguous memory allocation, optionally backed by huge pages.
@@ -116,9 +115,9 @@ namespace aleph::platform {
              * but empty state with a null pointer.
              */
             Allocation(Allocation&& other) noexcept {
-                ptr            = other.ptr;
-                numaNode       = other.numaNode;
-                size           = other.size;
+                ptr      = other.ptr;
+                numaNode = other.numaNode;
+                size     = other.size;
                 filled.store(other.filled.load());
 
                 other.ptr      = nullptr;
@@ -134,9 +133,9 @@ namespace aleph::platform {
              * but empty state with a null pointer.
              */
             auto operator=(Allocation&& other) noexcept -> Allocation& {
-                ptr            = other.ptr;
-                numaNode       = other.numaNode;
-                size           = other.size;
+                ptr      = other.ptr;
+                numaNode = other.numaNode;
+                size     = other.size;
                 filled.store(other.filled.load());
 
                 other.ptr      = nullptr;
@@ -188,7 +187,8 @@ namespace aleph::platform {
 
                     if (filled.compare_exchange_weak(old, next, std::memory_order_acq_rel,
                                                      std::memory_order_relaxed)) {
-                        return SubAllocation<T>(reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
+                        return SubAllocation<T>(
+                            reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
                     }
                 }
             }

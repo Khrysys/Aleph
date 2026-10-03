@@ -61,7 +61,7 @@ namespace aleph::chess {
 
             /** Returns a reference to the move at index `i`. Asserts bounds in debug builds. */
             [[nodiscard]] constexpr auto operator[](std::size_t index) noexcept -> Move& {
-                LIBASSERT_DEBUG_ASSERT(index < _size);
+                LIBASSERT_DEBUG_ASSERT(index < _size);  // LCOV_EXCL_LINE
                 return _moves[index];
             }
 
@@ -69,7 +69,7 @@ namespace aleph::chess {
              */
             [[nodiscard]] constexpr auto operator[](std::size_t index) const noexcept
                 -> const Move& {
-                LIBASSERT_DEBUG_ASSERT(index < _size);
+                LIBASSERT_DEBUG_ASSERT(index < _size);  // LCOV_EXCL_LINE
                 return _moves[index];
             }
 
@@ -96,7 +96,7 @@ namespace aleph::chess {
              * Asserts that capacity is not exceeded in debug builds.
              */
             constexpr void push_back(const Move& move) noexcept {
-                LIBASSERT_DEBUG_ASSERT(_size < Capacity);
+                LIBASSERT_DEBUG_ASSERT(_size < Capacity);  // LCOV_EXCL_LINE
                 _moves[_size++] = move;
             }
 
@@ -148,7 +148,7 @@ namespace aleph::chess {
             template <std::size_t OtherCap>
             constexpr auto operator+=(const MoveList<OtherCap>& other) noexcept
                 -> MoveList<Capacity>& {
-                LIBASSERT_DEBUG_ASSERT(_size + other.size() <= Capacity);
+                LIBASSERT_DEBUG_ASSERT(_size + other.size() <= Capacity);  // LCOV_EXCL_LINE
                 for (std::size_t i = 0; i < other.size(); ++i) {
                     _moves[_size++] = other[i];
                 }

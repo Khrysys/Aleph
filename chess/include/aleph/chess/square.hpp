@@ -49,15 +49,17 @@ namespace aleph::chess {
              * Constructs a square from a raw index in [0, 63].
              * Asserts that `d` is a valid square index in debug builds.
              */
-            constexpr Square(std::uint8_t d) : data(d) { LIBASSERT_DEBUG_ASSERT(d < 64); }
+            constexpr Square(std::uint8_t d) : data(d) {
+                LIBASSERT_DEBUG_ASSERT(d < 64);  // LCOV_EXCL_LINE
+            }
 
             /**
              * Constructs a square from a rank and file, both in [0, 7].
              * Asserts that both `r` and `f` are in range in debug builds.
              */
             constexpr Square(std::uint8_t r, std::uint8_t f) : data((r * 8U) + f) {
-                LIBASSERT_DEBUG_ASSERT(r < 8U);
-                LIBASSERT_DEBUG_ASSERT(f < 8U);
+                LIBASSERT_DEBUG_ASSERT(r < 8U);  // LCOV_EXCL_LINE
+                LIBASSERT_DEBUG_ASSERT(f < 8U);  // LCOV_EXCL_LINE
             }
 
             /** Returns the rank of this square in [0, 7], where 0 is the first rank. */

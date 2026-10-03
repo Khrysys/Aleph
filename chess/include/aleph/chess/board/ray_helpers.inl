@@ -31,7 +31,7 @@ namespace aleph::chess::detail {
      */
     [[nodiscard]] constexpr auto rayAttackForward(uint64_t occ, Direction d, Square sq)
         -> std::uint64_t {
-        LIBASSERT_DEBUG_ASSERT(d == N || d == E || d == NE || d == NW);
+        LIBASSERT_DEBUG_ASSERT(d == N || d == E || d == NE || d == NW);  // LCOV_EXCL_LINE
         std::uint64_t ray      = attackTables.rays[d][sq];
         std::uint64_t blockers = ray & occ;
 
@@ -48,7 +48,7 @@ namespace aleph::chess::detail {
      */
     [[nodiscard]] constexpr auto rayAttackBackward(uint64_t occ, Direction d, Square sq)
         -> std::uint64_t {
-        LIBASSERT_DEBUG_ASSERT(d == S || d == W || d == SE || d == SW);
+        LIBASSERT_DEBUG_ASSERT(d == S || d == W || d == SE || d == SW);  // LCOV_EXCL_LINE
         std::uint64_t ray      = attackTables.rays[d][sq];
         std::uint64_t blockers = ray & occ;
 

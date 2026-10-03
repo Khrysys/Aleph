@@ -14,7 +14,9 @@
 using namespace aleph::platform::allocation;
 
 extern "C" auto LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) -> int {
-    if (size < sizeof(std::size_t)) {return 0;}
+    if (size < sizeof(std::size_t)) {
+        return 0;
+    }
 
     std::size_t count;
     std::memcpy(&count, data, sizeof(std::size_t));
