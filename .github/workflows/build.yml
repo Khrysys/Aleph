@@ -182,7 +182,7 @@ jobs:
             options: -o aleph/*:coverage=False -o aleph/*:reproducible=True
           - os: ubuntu-latest
             compiler: gcc
-            build-type: Release
+            build-type: Debug 
             options: -o aleph/*:coverage=True -o aleph/*:reproducible=False
 
     steps:
