@@ -64,9 +64,10 @@ runs:
 
     - name: Download Previous archive
       id: archive-download
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: ${{ steps.pattern.outputs.file }}
+        skip-decompress: true
 
     - name: Compare archives
       shell: bash
