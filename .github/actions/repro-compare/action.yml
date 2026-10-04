@@ -61,6 +61,13 @@ runs:
       working-directory: ${{ steps.build-dir.outputs.path }}
       run: |
         cpack
+    
+    - name: Upload Checker archive
+      uses: actions/upload-artifact@v7
+      with:
+        name: repro-${{ steps.pattern.outputs.file }}
+        path: ${{ steps.build-dir.outputs.path }}/aleph-*.7z
+        archive: false
 
     - name: Download Previous archive
       id: archive-download
