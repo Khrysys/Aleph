@@ -39,7 +39,7 @@ runs:
       run: | 
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
-        elif [[ $RUNNER_OS" == "Linux" ]]; then
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
           echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
         else 
           echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
