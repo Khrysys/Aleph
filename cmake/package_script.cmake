@@ -9,24 +9,33 @@ message(STATUS "PACKAGE_PATH=${PACKAGE_PATH}")
 
 execute_process(
     COMMAND "${TAR_EXECUTABLE}" --version
-    OUTPUT_VARIABLE TAR_VERSION
+    OUTPUT_VARIABLE TAR_VERSION_OUTPUT
     ERROR_VARIABLE TAR_VERSION_ERROR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-if(TAR_VERSION MATCHES "GNU tar")
+if(TAR_VERSION_OUTPUT MATCHES "GNU tar")
     set(TAR_IS_GNU TRUE)
     message(STATUS "Aleph: Using GNU Tar executable.")
-elseif(TAR_VERSION MATCHES "bsdtar")
+    string(REGEX MATCH "GNU tar[^ \n]* ([0-9]+\\.[0-9]+\\.[0-9]+)"
+        TAR_VERSION
+        "${TAR_VERSION_OUTPUT}"
+    )
+elseif(TAR_VERSION_OUTPUT MATCHES "bsdtar")
     set(TAR_IS_BSD TRUE)
     message(STATUS "Aleph: Using bsdtar executable.")
+    string(REGEX MATCH "bsdtar[^ \n]* ([0-9]+\\.[0-9]+\\.[0-9]+)"
+        TAR_VERSION
+        "${TAR_VERSION_OUTPUT}"
+    )
 else()
     message(FATAL_ERROR
         "Unsupported tar implementation:\n"
-        "${TAR_VERSION}\n"
+        "${TAR_VERSION_OUTPUT}\n"
         "${TAR_VERSION_ERROR}"
     )
 endif()
+message(STATUS "Aleph: tar version: ${TAR_VERSION}")
 
 if(TAR_IS_GNU)
     execute_process(
