@@ -21,6 +21,17 @@ runs:
         else
           echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
         fi
+
+    - name: Determine Compiler name
+      id: compiler
+      shell: bash
+      run: |
+        if [["${{ inputs.compiler}}" == "gcc"]]; then 
+          echo "compiler=gnu" >> "$GITHUB_OUTPUT"
+        else
+          echo "compiler=clang" >> "$GITHUB_OUTPUT"
+        fi
+          
         
     - name: Extract Version from CMakeLists.txt
       id: version
@@ -40,7 +51,7 @@ runs:
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ steps.compiler.outputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
         else 
           echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
         fi
