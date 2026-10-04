@@ -49,11 +49,11 @@ runs:
       shell: bash
       run: | 
         if [[ "$RUNNER_OS" == "Windows" ]]; then
-          echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-windows-msvc.tar.gz" >> "$GITHUB_OUTPUT"
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ steps.compiler.outputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ steps.compiler.outputs.compiler }}.tar.gz" >> "$GITHUB_OUTPUT"
         else 
-          echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
+          echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.tar.gz" >> "$GITHUB_OUTPUT"
         fi
         
     - name: Package Binaries
@@ -66,7 +66,7 @@ runs:
       uses: actions/upload-artifact@v7
       with:
         name: repro-${{ steps.pattern.outputs.file }}
-        path: ${{ steps.build-dir.outputs.path }}/aleph-*.7z
+        path: ${{ steps.build-dir.outputs.path }}/aleph-*.tar.gz
         archive: false
 
     - name: Download Previous archive

@@ -14,8 +14,10 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/venv/"
 )
 
-set(CPACK_GENERATOR "7Z")
-set(CPACK_SOURCE_GENERATOR "7Z")
+set(CPACK_GENERATOR "External")
+set(CPACK_SOURCE_GENERATOR "External")
+set(CPACK_EXTERNAL_ENABLE_STAGING ON)
+set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/package_script.cmake")
 
 
 include(CPack)

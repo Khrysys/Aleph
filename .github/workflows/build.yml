@@ -445,4 +445,4 @@ jobs:
           prerelease: ${{ steps.validate.outputs.prerelease == 'true' }}
           draft: false
           fail_on_unmatched_files: true
-          files: ./packages/*.7z
+          files: ./packages/*.tar.gz
