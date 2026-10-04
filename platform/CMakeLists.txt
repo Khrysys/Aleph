@@ -50,3 +50,8 @@ endif()
 add_subdirectory(benchmarks)
 add_subdirectory(fuzzing)
 add_subdirectory(tests)
+
+if(Aleph_INSTALL)
+    include(GNUInstallDirs)
+    install(DIRECTORY include/aleph DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
