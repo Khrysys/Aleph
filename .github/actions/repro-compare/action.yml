@@ -43,6 +43,7 @@ runs:
           echo "file=aleph-${{ steps.version.outputs.version }}-linux-${{ inputs.compiler }}.7z" >> "$GITHUB_OUTPUT"
         else 
           echo "file=aleph-${{ steps.version.outputs.version }}-darwin-appleclang.7z" >> "$GITHUB_OUTPUT"
+        fi
         
     - name: Package Binaries
       shell: bash
