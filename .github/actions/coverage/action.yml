@@ -16,7 +16,7 @@ runs:
         cmake --build . --target aleph_coverage
 
     - name: Upload Chess Coverage
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
       with:
         file: ${{ github.workspace }}/build/Debug/chess_coverage.info
         flag-name: Chess Unit Tests
@@ -24,7 +24,7 @@ runs:
         parallel: true
 
     - name: Upload Platform Coverage
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
       with:
         file: ${{ github.workspace }}/build/Debug/platform_coverage.info
         flag-name: Platform Unit Tests
@@ -32,6 +32,6 @@ runs:
         parallel: true
 
     - name: Finalize Upload
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
       with:
         parallel-finished: true
