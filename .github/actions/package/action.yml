@@ -18,7 +18,7 @@ runs:
           echo "shell=cmd" >> "$GITHUB_OUTPUT"
         else
           echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
-          echo "shell=basb" >> "$GITHUB_OUTPUT"
+          echo "shell=bash" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Package Binaries
