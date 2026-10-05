@@ -7,5 +7,5 @@ docs/_templates/*
 CMakeUserPresets.json
 # Local Development files
 .vscode/*
-
-profile.toml
+.vs/*
+venv/
