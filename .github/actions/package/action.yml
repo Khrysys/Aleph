@@ -9,20 +9,22 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Determine build directory
-      id: build-dir
+    - name: Determine setup
+      id: setup
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           echo "path=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+          echo "shell=cmd" >> "$GITHUB_OUTPUT"
         else
           echo "path=${{ github.workspace }}/build/${{ inputs.build-type }}" >> "$GITHUB_OUTPUT"
+          echo "shell=basb" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Package Binaries
       if: inputs.build-type == 'Release'
-      shell: bash
-      working-directory: ${{ steps.build-dir.outputs.path }}
+      shell: ${{ steps.setup.outputs.shell }}
+      working-directory: ${{ steps.setup.outputs.path }}
       run: |
         cpack
 
@@ -30,18 +32,18 @@ runs:
       if: inputs.build-type == 'Release'
       uses: actions/attest@v4
       with:
-        subject-path: '${{ steps.build-dir.outputs.path }}/aleph-*.tar.gz'
+        subject-path: '${{ steps.setup.outputs.path }}/aleph-*.tar.gz'
 
     - name: Upload Binary Artifact
       if: inputs.build-type == 'Release'
       uses: actions/upload-artifact@v7
       with:
-        path: ${{ steps.build-dir.outputs.path }}/aleph-*.tar.gz
+        path: ${{ steps.setup.outputs.path }}/aleph-*.tar.gz
         archive: false
 
     - name: Package Source
       if: inputs.build-type == 'Debug'
       shell: bash
-      working-directory: ${{ steps.build-dir.outputs.path }}
+      working-directory: ${{ steps.setup.outputs.path }}
       run: |
         cpack --config CPackSourceConfig.cmake
