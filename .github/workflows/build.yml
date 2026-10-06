@@ -459,6 +459,5 @@ jobs:
           name: ${{ steps.validate.outputs.release-name }}
           tag_name: ${{ steps.validate.outputs.tag }}
           prerelease: ${{ steps.validate.outputs.prerelease == 'true' }}
-          draft: false
           fail_on_unmatched_files: true
           files: ./packages/*.tar.gz
