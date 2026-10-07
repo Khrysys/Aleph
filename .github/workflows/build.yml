@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - v*
   pull_request:
     branches:
       - main
@@ -67,7 +65,7 @@ jobs:
 
       - name: Upload Lockfile Artifact
         if: matrix.build-type == 'Release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ matrix.os }}-${{ matrix.compiler }}.conan.lock
           path: conan.lock
@@ -101,7 +99,7 @@ jobs:
 
       - name: Download Lockfiles
         id: lockfile-download
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: '*.conan.lock'
           path: ./lockfiles
@@ -142,7 +140,7 @@ jobs:
           sarif_file: osv-scanner-results.sarif
       
       - name: Upload Lockfile Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: conan.lock
           path: conan.lock
@@ -215,7 +213,7 @@ jobs:
 
       - name: C++ Linter Action
         if: matrix.os == 'ubuntu-latest' && matrix.build-type == 'Release' && matrix.compiler == 'gcc'
-        uses: cpp-linter/cpp-linter-action@24467985494bed9bfc398489b6ec12469beaf4da # v2.17.0
+        uses: cpp-linter/cpp-linter-action@8120e05c7fbd25fa09fa93424ec49f55f7b304ab # v2.23.1
         id: linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -420,29 +418,46 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Validate PR Title
+      - name: Validate PR
         id: validate
         uses: ./.github/actions/get-version-info
         with:
           pr-title: ${{ github.event.pull_request.title }}
 
+      - name: Fail invalid PR
+        if: steps.validate.outputs.valid != 'true'
+        shell: bash
+        run: |
+          echo "::error::PR validation failed."
+          exit 1
+
+      - name: Download Previous archive
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.validate.outputs.make-release == 'true'
+        id: archive-download
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: aleph-*-*-*.tar.gz
+          path: ./packages
+          skip-decompress: true
+      
       - name: Create and Push Tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.validate.outputs.make-release == 'true'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ steps.validate.outputs.tag }}" \
-            -m "Release ${{ steps.validate.outputs.tag }}"
-          git push origin "${{ steps.validate.outputs.tag }}"
+
+          git tag -a "${{ steps.validate.outputs.version }}" \
+            -m "Release ${{ steps.validate.outputs.version }}"
+
+          git push origin "${{ steps.validate.outputs.version }}"
 
       - name: Create Release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.validate.outputs.make-release == 'true'
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           name: ${{ steps.validate.outputs.release-name }}
           tag_name: ${{ steps.validate.outputs.tag }}
           prerelease: ${{ steps.validate.outputs.prerelease == 'true' }}
-          draft: false
           fail_on_unmatched_files: true
           files: ./packages/*.tar.gz

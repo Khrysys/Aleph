@@ -5,7 +5,7 @@ if(NOT TARGET aleph_definitions)
     # | Always-on compiler options
     # ---------------------------------
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(aleph_definitions INTERFACE /Wall /wd4365 /wd4464 /wd4514 /wd4710 /wd4711)
+        target_compile_options(aleph_definitions INTERFACE /Wall /wd4365 /wd4464 /wd4514 /wd4710 /wd4711 /wd4868)
     else()
         target_compile_options(aleph_definitions INTERFACE -Wall -Wextra -Wpedantic)
     endif()
