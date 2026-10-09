@@ -77,7 +77,7 @@ namespace aleph::platform {
              */
             auto getSize() const noexcept { return size / sizeof(T); }
 
-            operator void*() const noexcept -> void* { return ptr; }
+            operator void*() const noexcept { return ptr; }
 
         private:
             T* ptr;
