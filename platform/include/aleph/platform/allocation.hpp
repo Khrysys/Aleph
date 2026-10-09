@@ -31,6 +31,8 @@ namespace aleph::platform {
     template <typename T>
     class SubAllocation {
         public:
+            SubAllocation() noexcept : ptr(nullptr), size(0) {}
+
             /**
              * @brief Constructs a `SubAllocation` over an existing memory region.
              *
@@ -75,6 +77,8 @@ namespace aleph::platform {
              */
             auto getSize() const noexcept { return size / sizeof(T); }
 
+            operator void*() const noexcept -> void* { return ptr; }
+
         private:
             T* ptr;
             std::size_t size;
@@ -94,6 +98,7 @@ namespace aleph::platform {
      */
     class Allocation {
         public:
+            Allocation() noexcept : ptr(nullptr), numaNode(0), size(0), filled(0) {}
             /**
              * @brief Constructs an `Allocation` of at least `requestedSize` bytes on the
              * given NUMA node, rounded up to the system page size.

@@ -18,6 +18,40 @@ using namespace aleph::platform;
 
 namespace {
 
+    // ===== SubAllocation default constructor =====
+
+    TEST(SubAllocation, DefaultConstructionIsEmpty) {
+        SubAllocation<int> sub;
+        EXPECT_EQ(sub.getSize(), 0u);
+    }
+
+    TEST(SubAllocation, DefaultConstructionDoesNotThrow) {
+        EXPECT_NO_THROW(SubAllocation<int> sub);
+    }
+
+    TEST(SubAllocation, DefaultConstructedIsNoexcept) {
+        EXPECT_TRUE(std::is_nothrow_default_constructible_v<SubAllocation<int>>);
+    }
+
+    // ===== Allocation default constructor =====
+
+    TEST(Allocation, DefaultConstructionIsEmpty) {
+        Allocation alloc;
+        EXPECT_THROW(alloc.getSubAllocation<std::byte>(1), std::bad_alloc);
+    }
+
+    TEST(Allocation, DefaultConstructionDoesNotThrow) { EXPECT_NO_THROW(Allocation alloc); }
+
+    TEST(Allocation, DefaultConstructedIsNoexcept) {
+        EXPECT_TRUE(std::is_nothrow_default_constructible_v<Allocation>);
+    }
+
+    TEST(Allocation, DefaultConstructedMoveIsValid) {
+        Allocation a;
+        Allocation b(std::move(a));
+        EXPECT_THROW(b.getSubAllocation<std::byte>(1), std::bad_alloc);
+    }
+
     // ===== SubAllocation =====
     TEST(SubAllocation, ConstructionValidSize) {
         alignas(int) std::byte buf[sizeof(int) * 4];

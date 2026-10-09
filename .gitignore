@@ -8,4 +8,5 @@ CMakeUserPresets.json
 # Local Development files
 .vscode/*
 .vs/*
-venv/
+venv/*
+*.pyc
