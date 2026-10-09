@@ -18,8 +18,8 @@ project(Aleph LANGUAGES CXX VERSION 0.0.2.0)
 
 # We need knowledge of GTest and benchmark for the check of Aleph_BUILD_TESTS 
 # and Aleph_BUILD_BENCHMARKS
-find_package(GTest)
-find_package(benchmark)
+find_package(GTest QUIET)
+find_package(benchmark QUIET)
 
 if(TARGET GTest::gtest_main)
     option(Aleph_BUILD_TESTS 
