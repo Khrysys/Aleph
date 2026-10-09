@@ -8,6 +8,9 @@
 
 #include <bit>
 #include <cstdint>
+#include <type_traits>
+
+#include "os_detection.hpp"
 
 namespace aleph::platform {
 
@@ -97,13 +100,37 @@ namespace aleph::platform {
      * @return Extracted bits packed into the low bits of the result.
      */
     [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
-        -> std::uint64_t;
+        -> std::uint64_t {
+        if (std::is_constant_evaluated()) {
+            return detail::pext(src, mask);
+        }
+#if defined(ALEPH_HAS_BMI2)
+        return _pext_u64(src, mask);
+#else
+        return detail::pext(src, mask);
+#endif
+    }
 
     /**
      * Returns the high 64-bits of a 64x64->128-bit multiplication. The distribution of the returned
      * value is uniform within the range `[0, min(lhs, rhs))` assuming uniform distributions for
      * `lhs` and `rhs`.
      */
-    [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t;
+    [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t {
+        if (std::is_constant_evaluated()) {
+            return detail::hi_mul64(lhs, rhs);
+        }
+#if defined(ALEPH_OS_WINDOWS)
+        std::uint64_t highResult;
+        // NOLINTNEXTLINE(readability-const-return-type)
+        std::uint64_t lowResult = _umul128(lhs, rhs, &highResult);
+        (void)lowResult;
+        return highResult;
+#elif defined(__SIZEOF_INT128__)
+        return (static_cast<__uint128_t>(lhs) * static_cast<__uint128_t>(rhs)) >> 64;
+#else
+        return detail::hi_mul64(lhs, rhs);
+#endif
+    }
 
 }  // namespace aleph::platform
