@@ -20,7 +20,7 @@ namespace aleph::platform {
         size          = (requestedSize + pageSize - 1) & ~(pageSize - 1);
 
         // NUMA is excluded from lcov coverage
-#if defined(ALEPH_OS_WINDOWS)  // LCOV_EXCL_START
+#if defined(ALEPH_OS_WINDOWS)
         // ----------------------------
         // NUMA + Large Pages path
         // ----------------------------
@@ -45,7 +45,7 @@ namespace aleph::platform {
             ptr = VirtualAllocExNuma(GetCurrentProcess(), nullptr, size, MEM_RESERVE | MEM_COMMIT,
                                      PAGE_READWRITE, static_cast<DWORD>(numaNode));
         }
-#elif defined(ALEPH_OS_LINUX)
+#elif defined(ALEPH_OS_LINUX)   // LCOV_EXCL_START
 
         bool numaAvailable = (numa_available() != -1);
 
@@ -86,9 +86,9 @@ namespace aleph::platform {
                 ptr = nullptr;
             }
         }
-#elif !defined(ALEPH_OS_MACOS)
+#elif !defined(ALEPH_OS_MACOS)  // LCOV_EXCL_END
     #pragma error
-#endif  // LCOV_EXCL_END
+#endif
 
         if (ptr == nullptr) {
 #if defined(ALEPH_OS_WINDOWS)
@@ -123,7 +123,7 @@ namespace aleph::platform {
 
     auto Allocation::areLargePagesAvailable() -> bool {
         static const auto available = []() noexcept -> bool {
-#if defined(ALEPH_OS_WINDOWS)  // LCOV_EXCL_START
+#if defined(ALEPH_OS_WINDOWS)
             auto largePageMinimum = GetLargePageMinimum();
             if (largePageMinimum == 0) {
                 return false;
@@ -151,7 +151,7 @@ namespace aleph::platform {
                 return false;
             }
             return true;
-#elif defined(ALEPH_OS_LINUX)  // LCOV_EXCL_STOP
+#elif defined(ALEPH_OS_LINUX)
             std::ifstream f("/sys/kernel/mm/hugepages/hugepages-2048kB/hugepages-total");
             if (!f.is_open()) {
                 return false;
@@ -168,7 +168,7 @@ namespace aleph::platform {
 
     auto Allocation::getPageSize() -> std::size_t {
         static const auto page_size = []() noexcept -> std::size_t {
-#if defined(ALEPH_OS_WINDOWS)  // LCOV_EXCL_START
+#if defined(ALEPH_OS_WINDOWS) 
             if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
                 return largeSize;
             }

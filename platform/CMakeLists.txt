@@ -9,7 +9,6 @@ aleph_add_library(Platform STATIC SOURCES
     "include/aleph/platform/threads.hpp"
     "include/aleph/platform.hpp"
     "src/allocation.cpp"
-    "src/intrinsics.cpp"
     "src/os_dependent.hpp"
     "src/threads.cpp"
 )

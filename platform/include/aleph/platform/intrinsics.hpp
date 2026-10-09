@@ -102,7 +102,7 @@ namespace aleph::platform {
     [[nodiscard]] constexpr auto pext(std::uint64_t src, std::uint64_t mask) noexcept
         -> std::uint64_t {
         if (std::is_constant_evaluated()) {
-            return detail::pext(src, mask);
+            return detail::pext(src, mask);  // LCOV_EXCL_LINE
         }
 #if defined(ALEPH_HAS_BMI2)
         return _pext_u64(src, mask);
@@ -118,7 +118,7 @@ namespace aleph::platform {
      */
     [[nodiscard]] constexpr auto hi_mul64(std::uint64_t lhs, std::uint64_t rhs) -> std::uint64_t {
         if (std::is_constant_evaluated()) {
-            return detail::hi_mul64(lhs, rhs);
+            return detail::hi_mul64(lhs, rhs);  // LCOV_EXCL_LINE
         }
 #if defined(ALEPH_OS_WINDOWS)
         std::uint64_t highResult;
