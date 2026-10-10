@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstring>
 #include <stdexcept>
 #include <string>
 
@@ -196,7 +197,7 @@ namespace aleph::platform {
 
                 } while (!filled.compare_exchange_weak(old, next, std::memory_order_acq_rel,
                                                        std::memory_order_relaxed));
-                                                       
+
                 return SubAllocation<T>(
                     reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
             }
