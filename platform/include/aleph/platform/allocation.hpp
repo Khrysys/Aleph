@@ -48,6 +48,8 @@ namespace aleph::platform {
                             "(Allocated Size ") +
                         std::to_string(size) + " | Must divide " + std::to_string(sizeof(T)) + ")");
                 }
+                // Zero initialize the sub allocation
+                std::memset(p, 0, s);
             }
 
             /**
@@ -180,22 +182,23 @@ namespace aleph::platform {
                 std::size_t bytes = count * sizeof(T);
                 std::size_t align = alignof(T);
 
-                std::size_t old   = filled.load(std::memory_order_relaxed);
-
-                while (true) {
-                    std::size_t aligned = (old + align - 1) & ~(align - 1);
-                    std::size_t next    = aligned + bytes;
+                std::size_t old;
+                std::size_t next;
+                std::size_t aligned;
+                do {
+                    old     = filled.load(std::memory_order_relaxed);
+                    aligned = (old + align - 1) & ~(align - 1);
+                    next    = aligned + bytes;
 
                     if (next > size) {
                         throw std::bad_alloc();
                     }
 
-                    if (filled.compare_exchange_weak(old, next, std::memory_order_acq_rel,
-                                                     std::memory_order_relaxed)) {
-                        return SubAllocation<T>(
-                            reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
-                    }
-                }
+                } while (!filled.compare_exchange_weak(old, next, std::memory_order_acq_rel,
+                                                       std::memory_order_relaxed));
+                                                       
+                return SubAllocation<T>(
+                    reinterpret_cast<T*>(static_cast<std::byte*>(ptr) + aligned), bytes);
             }
 
             /**

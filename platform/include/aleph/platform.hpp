@@ -11,5 +11,4 @@
 #include "platform/compiler.hpp"
 #include "platform/hash.hpp"
 #include "platform/intrinsics.hpp"
-#include "platform/threads.hpp"
 // NOLINTEND

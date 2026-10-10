@@ -6,11 +6,9 @@ aleph_add_library(Platform STATIC SOURCES
     "include/aleph/platform/hash.hpp"
     "include/aleph/platform/intrinsics.hpp"
     "include/aleph/platform/os_detection.hpp"
-    "include/aleph/platform/threads.hpp"
     "include/aleph/platform.hpp"
     "src/allocation.cpp"
     "src/os_dependent.hpp"
-    "src/threads.cpp"
 )
 
 # Applies a compiler-specific architecture flag if the given option is enabled.

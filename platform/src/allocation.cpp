@@ -45,14 +45,14 @@ namespace aleph::platform {
             ptr = VirtualAllocExNuma(GetCurrentProcess(), nullptr, size, MEM_RESERVE | MEM_COMMIT,
                                      PAGE_READWRITE, static_cast<DWORD>(numaNode));
         }
-#elif defined(ALEPH_OS_LINUX)   // LCOV_EXCL_START
+#elif defined(ALEPH_OS_LINUX)
 
         bool numaAvailable = (numa_available() != -1);
 
         // ----------------------------
         // NUMA + HugePages path
         // ----------------------------
-        if (numaAvailable && areLargePagesAvailable()) {  // LCOV_EXCL_START
+        if (numaAvailable && areLargePagesAvailable()) {
             // Set NUMA policy BEFORE allocation (critical)
             unsigned long nodemask = (1UL << numaNode);
 
@@ -86,7 +86,7 @@ namespace aleph::platform {
                 ptr = nullptr;
             }
         }
-#elif !defined(ALEPH_OS_MACOS)  // LCOV_EXCL_END
+#elif !defined(ALEPH_OS_MACOS)
     #pragma error
 #endif
 
@@ -160,7 +160,7 @@ namespace aleph::platform {
             f >> count;
             return count > 0;
 #else
-            return false;  // LCOV_EXCL_LINE
+            return false;
 #endif
         }();
         return available;
@@ -168,14 +168,14 @@ namespace aleph::platform {
 
     auto Allocation::getPageSize() -> std::size_t {
         static const auto page_size = []() noexcept -> std::size_t {
-#if defined(ALEPH_OS_WINDOWS) 
+#if defined(ALEPH_OS_WINDOWS)
             if (std::size_t largeSize = GetLargePageMinimum(); largeSize != 0) {
                 return largeSize;
             }
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             return static_cast<std::size_t>(info.dwPageSize);
-#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)  // LCOV_EXCL_STOP
+#elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             if (areLargePagesAvailable()) {
                 return static_cast<std::size_t>(2 * 1024 * 1024);
             }
@@ -190,7 +190,7 @@ namespace aleph::platform {
     Allocation::~Allocation() {
         if (ptr != nullptr) {
 #if defined(ALEPH_OS_WINDOWS)
-            VirtualFree(ptr, 0, MEM_RELEASE);  // LCOV_EXCL_LINE
+            VirtualFree(ptr, 0, MEM_RELEASE);
 #elif defined(ALEPH_OS_LINUX) || defined(ALEPH_OS_MACOS)
             munmap(ptr, size);
 #endif

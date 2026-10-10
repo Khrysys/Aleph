@@ -9,6 +9,7 @@
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || \
     defined(__WINDOWS__)
     #define ALEPH_OS_WINDOWS
+    #include <intrin.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__gnu_linux__)
     #define ALEPH_OS_LINUX
 #elif defined(macintosh) || defined(Macintosh) || (defined(__APPLE__) && defined(__MACH__))

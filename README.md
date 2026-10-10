@@ -16,11 +16,11 @@ Aleph is currently under extremely early development. The code within this repo 
 
 |  Module  | Architecture Known | Written | Tested | Fuzzed | Benchmarked | Roadblock |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| Platform | &#10003; | &#10003; | &#10003; | N/A | N/A | Future NUMA Integration |
-| Chess | &#10003; |  &#10003; |  &#10003; |  &#10003; |  &#10003; | Optimizations for Speed |
-| Caching |  &#10003; | IN PROGRESS | &#10006; | &#10006; | &#10006; | Actively Written Module |
-| MCTS | &#10003; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
-| Executor | &#10003; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
+| Platform | &#10004; | &#10004; | &#10004; | &#10004; | &#10004; | Future NUMA Integration |
+| Chess | &#10004; |  &#10004; |  &#10004; |  &#10004; |  &#10004; | Optimizations for Speed |
+| Caching |  &#10004; | &#10000; | &#10006; | &#10006; | &#10006; | Actively Written Module |
+| MCTS | &#10004; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
+| Executor | &#10004; | &#10006; | &#10006; | &#10006; | &#10006; | Caching Module |
 | Main | &#10006; | &#10006; | &#10006; | &#10006; | &#10006; | Executor Module, MCTS Module |
 
 ## Requirements

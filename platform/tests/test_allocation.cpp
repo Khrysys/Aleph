@@ -88,12 +88,14 @@ namespace {
         EXPECT_DOUBLE_EQ(sub[0], 3.14);
     }
 
-    TEST(SubAllocation, ZeroSizeThrows) {
-        alignas(int) std::byte buf[sizeof(int)];
-        // Zero is divisible by sizeof(int) so construction succeeds,
-        // but getSize() returns 0.
-        SubAllocation<int> sub(buf, 0);
-        EXPECT_EQ(sub.getSize(), 0u);
+    TEST(SubAllocation, ConstructionZeroInitializesMemory) {
+        alignas(int) std::byte buf[sizeof(int) * 4];
+        // Fill with garbage first
+        std::memset(buf, 0xFF, sizeof(buf));
+        SubAllocation<int> sub(buf, sizeof(int) * 4);
+        for (std::size_t i = 0; i < sub.getSize(); ++i) {
+            EXPECT_EQ(sub[i], 0);
+        }
     }
 
     // ===== Allocation static methods =====
